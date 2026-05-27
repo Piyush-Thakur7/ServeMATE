@@ -1,8 +1,139 @@
 const express = require("express");
-const { User, NGO, Cause, Donation, Transparency, Contact } = require("./models");
+const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings } = require("./models");
 const { adminOnly } = require("./authUtils");
 
 const router = express.Router();
+
+router.get("/stats", adminOnly, async (req, res) => {
+  try {
+    const [users, ngos, pendingNGOs, donations, contacts] = await Promise.all([
+      User.countDocuments(),
+      NGO.countDocuments(),
+      NGO.countDocuments({ verified: false }),
+      Donation.countDocuments(),
+      Contact.countDocuments({ read: false }),
+    ]);
+    return res.json({ users, ngos, pendingNGOs, donations, unreadContacts: contacts });
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to load admin stats" });
+  }
+});
+
+router.get("/settings", adminOnly, async (req, res) => {
+  try {
+    const settings = await SiteSettings.findOneAndUpdate(
+      { key: "global" },
+      { $setOnInsert: { key: "global" } },
+      { new: true, upsert: true }
+    );
+    return res.json(settings);
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to load settings" });
+  }
+});
+
+router.patch("/settings", adminOnly, async (req, res) => {
+  try {
+    const allowed = [
+      "brandName",
+      "domain",
+      "logoUrl",
+      "primaryColor",
+      "accentColor",
+      "heroTitle",
+      "heroSubtitle",
+      "announcement",
+      "seoTitle",
+      "seoDescription",
+      "seoKeywords",
+    ];
+    const update = {};
+    allowed.forEach((field) => {
+      if (req.body[field] !== undefined) update[field] = req.body[field];
+    });
+    const settings = await SiteSettings.findOneAndUpdate({ key: "global" }, update, { new: true, upsert: true });
+    return res.json({ message: "Website settings updated", settings });
+  } catch (err) {
+    return res.status(400).json({ error: "Unable to save settings" });
+  }
+});
+
+router.get("/ngos", adminOnly, async (req, res) => {
+  try {
+    const ngos = await NGO.find().select("-password").sort({ createdAt: -1 });
+    return res.json(ngos);
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to load NGOs" });
+  }
+});
+
+router.patch("/verify-ngo/:id", adminOnly, async (req, res) => {
+  try {
+    const ngo = await NGO.findByIdAndUpdate(
+      req.params.id,
+      { verified: true, verifiedAt: new Date() },
+      { new: true }
+    ).select("-password");
+    if (!ngo) return res.status(404).json({ error: "NGO not found" });
+    return res.json({ message: "NGO verified", ngo });
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to verify NGO" });
+  }
+});
+
+router.patch("/reject-ngo/:id", adminOnly, async (req, res) => {
+  try {
+    const ngo = await NGO.findByIdAndUpdate(
+      req.params.id,
+      { verified: false, verifiedAt: null },
+      { new: true }
+    ).select("-password");
+    if (!ngo) return res.status(404).json({ error: "NGO not found" });
+    return res.json({ message: "NGO rejected", ngo });
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to reject NGO" });
+  }
+});
+
+router.get("/tasks", adminOnly, async (req, res) => {
+  try {
+    const tasks = await Donation.find({ status: { $in: ["completed", "verified"] } })
+      .populate("ngo", "name")
+      .populate("cause", "title")
+      .sort({ updatedAt: -1 })
+      .limit(100);
+    return res.json(tasks.map((donation) => ({
+      _id: donation._id,
+      title: donation.cause?.title || "Donation proof",
+      status: donation.status,
+      ngoId: donation.ngo,
+    })));
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to load work items" });
+  }
+});
+
+router.patch("/tasks/:id/verify", adminOnly, async (req, res) => {
+  try {
+    const donation = await Donation.findByIdAndUpdate(
+      req.params.id,
+      { status: "verified", verifiedAt: new Date() },
+      { new: true }
+    );
+    return res.json({ message: "Work verified", task: donation });
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to verify work" });
+  }
+});
+
+router.patch("/tasks/:id/reject", adminOnly, async (req, res) => {
+  try {
+    const donation = await Donation.findByIdAndUpdate(req.params.id, { status: "pending" }, { new: true });
+    return res.json({ message: "Work sent back", task: donation });
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to reject work" });
+  }
+});
 
 router.get("/ngos/pending", adminOnly, async (req, res) => {
   try {

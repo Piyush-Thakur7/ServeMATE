@@ -43,6 +43,7 @@ const ngoSchema = new mongoose.Schema({
   regNumber:     { type: String, required: true },
   taxStatus:     { type: String, enum: ["12A", "80G", "Both"], required: true },
   areaOfWork:    { type: String, required: true },
+  slug:          { type: String, unique: true, sparse: true, lowercase: true, trim: true },
   description:   { type: String, default: "" },
   about:          { type: String, default: "" },
   banner:         { type: String, default: "" },
@@ -136,6 +137,22 @@ const contactSchema = new mongoose.Schema({
   read:    { type: Boolean, default: false },
 }, { timestamps: true });
 
+// ─── SITE SETTINGS ──────────────────────────────────────────────────────────
+const siteSettingsSchema = new mongoose.Schema({
+  key: { type: String, default: "global", unique: true },
+  brandName: { type: String, default: "ServeMate" },
+  domain: { type: String, default: "https://resence.in" },
+  logoUrl: { type: String, default: "" },
+  primaryColor: { type: String, default: "#2563EB" },
+  accentColor: { type: String, default: "#F97316" },
+  heroTitle: { type: String, default: "Small Contributions. Real Impact." },
+  heroSubtitle: { type: String, default: "ServeMate connects donors with verified NGOs and transparent proof of impact." },
+  announcement: { type: String, default: "" },
+  seoTitle: { type: String, default: "ServeMate | Transparent Micro Donations and Verified NGO Impact" },
+  seoDescription: { type: String, default: "ServeMate helps people support verified NGOs, track real-world impact, and build trust through transparent proof of work." },
+  seoKeywords: { type: [String], default: ["ServeMate", "resence.in", "verified NGOs", "micro donations", "social impact"] },
+}, { timestamps: true });
+
 module.exports = {
   User:         mongoose.model("User", userSchema),
   NGO:          mongoose.model("NGO", ngoSchema),
@@ -143,4 +160,5 @@ module.exports = {
   Donation:     mongoose.model("Donation", donationSchema),
   Transparency: mongoose.model("Transparency", transparencySchema),
   Contact:      mongoose.model("Contact", contactSchema),
+  SiteSettings: mongoose.model("SiteSettings", siteSettingsSchema),
 };

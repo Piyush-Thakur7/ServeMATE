@@ -24,6 +24,15 @@ function publicUser(user) {
   };
 }
 
+function slugify(value) {
+  return String(value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+}
+
 router.post("/register", async (req, res) => {
   try {
     const { name, password } = req.body;
@@ -121,6 +130,13 @@ router.post("/ngo/register", async (req, res) => {
     }
 
     const hashed = await bcrypt.hash(password, 10);
+    const slugBase = slugify(name) || `ngo-${Date.now()}`;
+    let slug = slugBase;
+    let suffix = 1;
+    while (await NGO.findOne({ slug })) {
+      suffix += 1;
+      slug = `${slugBase}-${suffix}`;
+    }
     const ngo = await NGO.create({
       name,
       email,
@@ -128,6 +144,7 @@ router.post("/ngo/register", async (req, res) => {
       regNumber,
       taxStatus,
       areaOfWork,
+      slug,
       description,
       location,
       volunteerCount: Number(volunteerCount) || 0,

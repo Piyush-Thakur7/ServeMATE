@@ -1,12 +1,97 @@
 ﻿const express  = require("express");
 const crypto = require("crypto");
 const Razorpay = require("razorpay");
-const { User, NGO, Cause, Donation, Transparency, Contact } = require("./models");
+const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings } = require("./models");
 const { authMiddleware } = require("./authRoutes");
 const { CORE_CAUSES, mergeCoreCauses } = require("./services/causeCatalog");
 const { getProgression } = require("./services/gamificationService");
 
 const router = express.Router();
+
+function ensureNgo(req, res, next) {
+  if (req.user?.role !== "ngo") return res.status(403).json({ error: "NGO access required" });
+  return next();
+}
+
+router.get("/settings", async (req, res) => {
+  try {
+    const settings = await SiteSettings.findOneAndUpdate(
+      { key: "global" },
+      { $setOnInsert: { key: "global" } },
+      { new: true, upsert: true }
+    );
+    return res.json(settings);
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to load settings" });
+  }
+});
+
+router.get("/ngo-site/:slug", async (req, res) => {
+  try {
+    const ngo = await NGO.findOne({
+      $or: [{ slug: req.params.slug }, { _id: req.params.slug }],
+      verified: true,
+    }).select("-password");
+    if (!ngo) return res.status(404).json({ error: "Approved NGO site not found" });
+
+    const donations = await Donation.find({ ngo: ngo._id, status: { $in: ["completed", "verified"] } })
+      .populate("cause", "title")
+      .sort({ updatedAt: -1 })
+      .limit(20);
+
+    return res.json({ ngo, tasks: donations, updates: ngo.updates || [] });
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to load NGO site" });
+  }
+});
+
+router.get("/ngo/me", authMiddleware, ensureNgo, async (req, res) => {
+  try {
+    const ngo = await NGO.findById(req.user.id).select("-password");
+    if (!ngo) return res.status(404).json({ error: "NGO profile not found" });
+    return res.json({ ngo, tasks: ngo.updates || [] });
+  } catch (err) {
+    return res.status(500).json({ error: "Unable to load NGO dashboard" });
+  }
+});
+
+router.patch("/ngo/me", authMiddleware, ensureNgo, async (req, res) => {
+  try {
+    const update = {};
+    if (req.body.name !== undefined) update.name = req.body.name;
+    if (req.body.location !== undefined) update.location = req.body.location;
+    if (req.body.description !== undefined) update.description = req.body.description;
+    if (req.body.motive !== undefined) update.about = req.body.motive;
+    if (req.body.logoUrl !== undefined) update.logo = req.body.logoUrl;
+    if (req.body.bannerUrl !== undefined) update.banner = req.body.bannerUrl;
+    if (req.body.website !== undefined) update["contact.website"] = req.body.website;
+    if (req.body.phone !== undefined) update["contact.phone"] = req.body.phone;
+
+    const ngo = await NGO.findByIdAndUpdate(req.user.id, update, { new: true }).select("-password");
+    if (!ngo) return res.status(404).json({ error: "NGO profile not found" });
+    return res.json({ message: "NGO profile updated", ngo });
+  } catch (err) {
+    return res.status(400).json({ error: "Unable to update NGO profile" });
+  }
+});
+
+router.post("/ngo/tasks", authMiddleware, ensureNgo, async (req, res) => {
+  try {
+    const ngo = await NGO.findById(req.user.id);
+    if (!ngo) return res.status(404).json({ error: "NGO profile not found" });
+    if (!ngo.verified) return res.status(403).json({ error: "Admin approval is required before submitting work" });
+
+    ngo.updates.push({
+      title: req.body.title,
+      note: req.body.description,
+      proofUrl: req.body.proofUrl,
+    });
+    await ngo.save();
+    return res.status(201).json({ message: "Work update published", task: ngo.updates[ngo.updates.length - 1] });
+  } catch (err) {
+    return res.status(400).json({ error: "Unable to submit work" });
+  }
+});
 
 function razorpayConfig() {
   const keyId = process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY;

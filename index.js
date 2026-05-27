@@ -70,9 +70,42 @@ app.use("/api", (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname)));
+
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain").send([
+    "User-agent: *",
+    "Allow: /",
+    "Sitemap: https://resence.in/sitemap.xml",
+  ].join("\n"));
+});
+
+app.get("/sitemap.xml", (req, res) => {
+  res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://resence.in/</loc><priority>1.0</priority></url>
+  <url><loc>https://resence.in/ngos</loc><priority>0.8</priority></url>
+  <url><loc>https://admin.resence.in/</loc><priority>0.3</priority></url>
+</urlset>`);
+});
+
+app.get("/admin", (req, res) => {
+  return res.sendFile(path.join(__dirname, "admin.html"));
+});
+
+app.get("/ngo-dashboard", (req, res) => {
+  return res.sendFile(path.join(__dirname, "ngo-dashboard.html"));
+});
+
 app.use((req, res, next) => {
   if (req.method !== "GET") {
     return next();
+  }
+  const host = req.hostname.toLowerCase();
+  if (host.startsWith("admin.")) {
+    return res.sendFile(path.join(__dirname, "admin.html"));
+  }
+  if (host.endsWith("resence.in") && !["resence.in", "www.resence.in"].includes(host)) {
+    return res.sendFile(path.join(__dirname, "ngo.html"));
   }
   return res.sendFile(path.join(__dirname, "index.html"));
 });

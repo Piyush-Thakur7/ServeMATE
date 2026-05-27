@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>ServeMate Admin</title>
+  <style>
+    :root { --blue:#2563eb; --orange:#f97316; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f8fafc; --card:#fff; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,Segoe UI,sans-serif; background:var(--bg); color:var(--ink); }
+    header { position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line); padding:16px 24px; display:flex; justify-content:space-between; align-items:center; gap:16px; z-index:2; }
+    h1,h2 { margin:0; }
+    h1 { font-size:22px; }
+    h2 { font-size:18px; margin-bottom:12px; }
+    main { max-width:1180px; margin:0 auto; padding:24px; display:grid; gap:18px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 8px 28px rgba(15,23,42,.05); }
+    label { display:block; font-size:13px; color:var(--muted); margin:10px 0 6px; }
+    input, textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font:inherit; background:#fff; }
+    textarea { min-height:86px; resize:vertical; }
+    button { border:0; border-radius:8px; padding:10px 13px; font-weight:700; cursor:pointer; background:var(--blue); color:#fff; }
+    button.secondary { background:#e2e8f0; color:#0f172a; }
+    button.warn { background:#dc2626; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .metric { font-size:28px; font-weight:800; }
+    .muted { color:var(--muted); }
+    .pill { display:inline-flex; border-radius:999px; background:#eef2ff; color:#3730a3; padding:4px 9px; font-size:12px; font-weight:700; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th,td { text-align:left; border-bottom:1px solid var(--line); padding:10px 8px; vertical-align:top; }
+    .toast { position:fixed; right:18px; bottom:18px; background:#111827; color:#fff; border-radius:8px; padding:12px 14px; opacity:0; transform:translateY(12px); transition:.2s; }
+    .toast.show { opacity:1; transform:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>ServeMate Admin</h1>
+      <div class="muted">Customize the site, approve NGOs, verify work, and manage token requests.</div>
+    </div>
+    <div class="row">
+      <input id="email" placeholder="Admin email">
+      <input id="password" type="password" placeholder="Password">
+      <button onclick="login()">Sign in</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="grid" id="stats"></section>
+
+    <section class="card">
+      <h2>Website Customization</h2>
+      <div class="grid">
+        <div>
+          <label>Brand name</label><input id="brandName">
+          <label>Primary color</label><input id="primaryColor">
+          <label>Accent color</label><input id="accentColor">
+          <label>Announcement</label><input id="announcement">
+        </div>
+        <div>
+          <label>Hero title</label><input id="heroTitle">
+          <label>Hero subtitle</label><textarea id="heroSubtitle"></textarea>
+          <label>Logo URL</label><input id="logoUrl">
+        </div>
+        <div>
+          <label>SEO title</label><input id="seoTitle">
+          <label>SEO description</label><textarea id="seoDescription"></textarea>
+          <label>SEO keywords, comma separated</label><input id="seoKeywords">
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px"><button onclick="saveSettings()">Save website settings</button><button class="secondary" onclick="loadAll()">Refresh</button></div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>NGO Approvals</h2>
+        <table><thead><tr><th>NGO</th><th>Status</th><th>Action</th></tr></thead><tbody id="ngos"></tbody></table>
+      </div>
+      <div class="card">
+        <h2>Submitted Work</h2>
+        <table><thead><tr><th>Task</th><th>NGO</th><th>Action</th></tr></thead><tbody id="tasks"></tbody></table>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const api = '';
+    let token = localStorage.getItem('servemate_admin_token') || '';
+
+    function headers() {
+      return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+    }
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2500);
+    }
+    async function request(path, options = {}) {
+      const res = await fetch(api + path, { ...options, headers: { ...headers(), ...(options.headers || {}) } });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+    async function login() {
+      const data = await request('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: email.value, password: password.value })
+      });
+      if (data.user.role !== 'admin') throw new Error('This account is not an admin');
+      token = data.token;
+      localStorage.setItem('servemate_admin_token', token);
+      toast('Signed in');
+      loadAll();
+    }
+    async function loadAll() {
+      await Promise.all([loadStats(), loadSettings(), loadNgos(), loadTasks()]);
+    }
+    async function loadStats() {
+      const s = await request('/api/admin/stats');
+      stats.innerHTML = Object.entries(s).map(([k,v]) => `<div class="card"><div class="metric">${v}</div><div class="muted">${k}</div></div>`).join('');
+    }
+    async function loadSettings() {
+      const s = await request('/api/admin/settings');
+      ['brandName','primaryColor','accentColor','announcement','heroTitle','heroSubtitle','logoUrl','seoTitle','seoDescription'].forEach(id => document.getElementById(id).value = s[id] || '');
+      seoKeywords.value = (s.seoKeywords || []).join(', ');
+    }
+    async function saveSettings() {
+      await request('/api/admin/settings', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          brandName: brandName.value,
+          primaryColor: primaryColor.value,
+          accentColor: accentColor.value,
+          announcement: announcement.value,
+          heroTitle: heroTitle.value,
+          heroSubtitle: heroSubtitle.value,
+          logoUrl: logoUrl.value,
+          seoTitle: seoTitle.value,
+          seoDescription: seoDescription.value,
+          seoKeywords: seoKeywords.value.split(',').map(x => x.trim()).filter(Boolean)
+        })
+      });
+      toast('Website settings saved');
+    }
+    async function loadNgos() {
+      const list = await request('/api/admin/ngos');
+      ngos.innerHTML = list.map(ngo => `<tr><td><strong>${ngo.name}</strong><br><span class="muted">${ngo.email || ''}<br>${ngo.slug || ngo._id}.resence.in</span></td><td><span class="pill">${ngo.verified ? 'Approved' : 'Pending'}</span></td><td class="row"><button onclick="approveNgo('${ngo._id}')">Approve</button><button class="warn" onclick="rejectNgo('${ngo._id}')">Reject</button></td></tr>`).join('');
+    }
+    async function approveNgo(id) { await request(`/api/admin/verify-ngo/${id}`, { method:'PATCH' }); toast('NGO approved'); loadAll(); }
+    async function rejectNgo(id) { await request(`/api/admin/reject-ngo/${id}`, { method:'PATCH' }); toast('NGO rejected'); loadAll(); }
+    async function loadTasks() {
+      const list = await request('/api/admin/tasks');
+      tasks.innerHTML = list.map(task => `<tr><td><strong>${task.title}</strong><br><span class="muted">${task.status}</span></td><td>${task.ngoId?.name || ''}</td><td class="row"><button onclick="verifyTask('${task._id}')">Verify</button><button class="warn" onclick="rejectTask('${task._id}')">Reject</button></td></tr>`).join('');
+    }
+    async function verifyTask(id) { await request(`/api/admin/tasks/${id}/verify`, { method:'PATCH' }); toast('Task verified'); loadAll(); }
+    async function rejectTask(id) { await request(`/api/admin/tasks/${id}/reject`, { method:'PATCH' }); toast('Task rejected'); loadAll(); }
+    if (token) loadAll().catch(err => toast(err.message));
+  </script>
+</body>
+</html>

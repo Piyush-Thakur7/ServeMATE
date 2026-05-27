@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>ServeMate NGO Dashboard</title>
+  <style>
+    :root { --blue:#2563eb; --orange:#f97316; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f8fafc; --card:#fff; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,system-ui,Segoe UI,sans-serif; background:var(--bg); color:var(--ink); }
+    header { background:#fff; border-bottom:1px solid var(--line); padding:18px 24px; display:flex; justify-content:space-between; gap:16px; align-items:center; }
+    main { max-width:1120px; margin:0 auto; padding:24px; display:grid; gap:18px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 8px 28px rgba(15,23,42,.05); }
+    h1,h2 { margin:0; } h1 { font-size:22px; } h2 { font-size:18px; margin-bottom:12px; }
+    label { display:block; margin:10px 0 6px; color:var(--muted); font-size:13px; }
+    input, textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font:inherit; background:#fff; }
+    textarea { min-height:90px; resize:vertical; }
+    button { border:0; border-radius:8px; padding:10px 13px; font-weight:800; cursor:pointer; background:var(--blue); color:#fff; }
+    .orange { background:var(--orange); }
+    .muted { color:var(--muted); }
+    .pill { display:inline-flex; border-radius:999px; background:#eef2ff; color:#3730a3; padding:5px 10px; font-size:12px; font-weight:800; }
+    table { width:100%; border-collapse:collapse; font-size:14px; }
+    th,td { text-align:left; border-bottom:1px solid var(--line); padding:10px 8px; vertical-align:top; }
+    .toast { position:fixed; right:18px; bottom:18px; background:#111827; color:#fff; border-radius:8px; padding:12px 14px; opacity:0; transform:translateY(12px); transition:.2s; }
+    .toast.show { opacity:1; transform:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>NGO Dashboard</h1>
+      <div class="muted">Manage your NGO details, public page, and submitted work.</div>
+    </div>
+    <a href="/" style="color:var(--blue);font-weight:800;text-decoration:none;">ServeMate Home</a>
+  </header>
+  <main>
+    <section class="card">
+      <h2 id="ngo-title">NGO Profile</h2>
+      <div id="ngo-status" class="pill">Loading</div>
+      <p class="muted" id="public-url"></p>
+      <div class="grid">
+        <div>
+          <label>NGO name</label><input id="name">
+          <label>Location</label><input id="location">
+          <label>Phone</label><input id="phone">
+          <label>Website</label><input id="website">
+        </div>
+        <div>
+          <label>Logo URL</label><input id="logoUrl">
+          <label>Banner URL</label><input id="bannerUrl">
+          <label>Donation link</label><input id="donationLink">
+          <label>Impact motive</label><textarea id="motive"></textarea>
+        </div>
+        <div>
+          <label>Public description</label><textarea id="description"></textarea>
+        </div>
+      </div>
+      <button style="margin-top:12px" onclick="saveProfile()">Save NGO profile</button>
+    </section>
+    <section class="grid">
+      <div class="card">
+        <h2>Submit Work</h2>
+        <label>Title</label><input id="taskTitle" placeholder="Example: 100 meals served in Lucknow">
+        <label>Description</label><textarea id="taskDescription"></textarea>
+        <label>Location</label><input id="taskLocation">
+        <label>Impact amount</label><input id="taskImpact" type="number">
+        <label>Proof URL</label><input id="taskProof" placeholder="Photo/video/report URL">
+        <button class="orange" style="margin-top:12px" onclick="submitTask()">Submit for verification</button>
+      </div>
+      <div class="card">
+        <h2>Work History</h2>
+        <table><thead><tr><th>Task</th><th>Status</th></tr></thead><tbody id="tasks"></tbody></table>
+      </div>
+    </section>
+  </main>
+  <div class="toast" id="toast"></div>
+  <script>
+    const token = localStorage.getItem('servemate_token') || '';
+    let currentNgo = null;
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2600);
+    }
+    async function request(path, options = {}) {
+      const res = await fetch(path, {
+        ...options,
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...(options.headers || {}) }
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Request failed');
+      return data;
+    }
+    async function load() {
+      if (!token) { toast('Please login as an NGO first'); return; }
+      const data = await request('/api/ngo/me');
+      currentNgo = data.ngo;
+      document.getElementById('ngo-title').textContent = currentNgo.name;
+      document.getElementById('ngo-status').textContent = currentNgo.verified ? 'Approved' : 'Pending approval';
+      document.getElementById('public-url').textContent = currentNgo.verified ? `Public site: https://${currentNgo.slug || currentNgo._id}.resence.in` : 'Your public subdomain activates after admin approval.';
+      document.getElementById('name').value = currentNgo.name || '';
+      document.getElementById('location').value = currentNgo.location || '';
+      document.getElementById('phone').value = currentNgo.contact?.phone || '';
+      document.getElementById('website').value = currentNgo.contact?.website || '';
+      document.getElementById('logoUrl').value = currentNgo.logo || '';
+      document.getElementById('bannerUrl').value = currentNgo.banner || '';
+      document.getElementById('donationLink').value = currentNgo.contact?.website || '';
+      document.getElementById('motive').value = currentNgo.about || '';
+      document.getElementById('description').value = currentNgo.description || '';
+      tasks.innerHTML = data.tasks.map(task => `<tr><td><strong>${task.title}</strong><br><span class="muted">${task.note || ''}</span></td><td><span class="pill">Published</span></td></tr>`).join('');
+    }
+    async function saveProfile() {
+      await request('/api/ngo/me', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          name: document.getElementById('name').value,
+          location: document.getElementById('location').value,
+          phone: document.getElementById('phone').value,
+          website: document.getElementById('website').value,
+          logoUrl: document.getElementById('logoUrl').value,
+          bannerUrl: document.getElementById('bannerUrl').value,
+          donationLink: document.getElementById('donationLink').value,
+          motive: document.getElementById('motive').value,
+          description: document.getElementById('description').value
+        })
+      });
+      toast('NGO profile saved');
+      load();
+    }
+    async function submitTask() {
+      await request('/api/ngo/tasks', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: document.getElementById('taskTitle').value,
+          description: document.getElementById('taskDescription').value,
+          location: document.getElementById('taskLocation').value,
+          impactAmount: Number(document.getElementById('taskImpact').value || 0),
+          proofUrl: document.getElementById('taskProof').value
+        })
+      });
+      toast('Work submitted for verification');
+      ['taskTitle','taskDescription','taskLocation','taskImpact','taskProof'].forEach(id => document.getElementById(id).value = '');
+      load();
+    }
+    load().catch(err => toast(err.message));
+  </script>
+</body>
+</html>
