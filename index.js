@@ -95,6 +95,10 @@ app.get("/admin", (req, res) => {
   return res.sendFile(path.join(__dirname, "admin.html"));
 });
 
+app.get("/ngo", (req, res) => {
+  return res.sendFile(path.join(__dirname, "ngo-portal.html"));
+});
+
 app.get("/ngo-dashboard", (req, res) => {
   return res.sendFile(path.join(__dirname, "ngo-dashboard.html"));
 });

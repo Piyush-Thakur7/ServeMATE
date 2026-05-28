@@ -1740,8 +1740,13 @@ footer {
         <span class="success-icon">🎉</span>
         <div class="success-title grad-text">Donation Successful!</div>
         <div class="success-sub" id="successSubText">Thank you for making a difference.</div>
-        <div id="successXP" style="font-size:1.3rem;font-weight:800;margin-bottom:16px;font-family:'Space Grotesk',sans-serif"></div>
+        <div id="successXP" style="font-size:1.3rem;font-weight:800;margin-bottom:8px;font-family:'Space Grotesk',sans-serif"></div>
+        <div id="successLevelInfo" style="font-size:0.95rem;font-weight:600;color:var(--text2);margin-bottom:16px;"></div>
+        <div id="successCauseMsg" style="font-size:0.9rem;color:var(--text2);margin-bottom:16px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);line-height:1.6;text-align:left;"></div>
         <div class="success-badges" id="successBadges"></div>
+        <div style="font-size:0.82rem;color:var(--text3);margin-bottom:20px;padding:10px 14px;background:rgba(79,142,247,0.06);border:1px solid rgba(79,142,247,0.12);border-radius:var(--radius-sm);line-height:1.5;">
+          📹 <strong>Video Proof</strong>: You will receive verified video proof of your donation's impact within <strong>24–48 hours</strong> after the funds are utilized by the assigned NGO.
+        </div>
         <button class="btn btn-primary" onclick="closeModal('successModal')" style="width:100%;justify-content:center">🚀 Continue</button>
       </div>
     </div>
@@ -1851,7 +1856,9 @@ footer {
 /* ============================================================
    CONSTANTS & STATE
    ============================================================ */
-const API = 'https://servemate.onrender.com';
+const API = (window.location.origin && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || window.location.origin.includes('192.168.')))
+  ? window.location.origin
+  : 'https://servemate.onrender.com';
 const RAZORPAY_KEY = 'rzp_test_Smq8h0IFgOhCyb';
 
 let authToken = localStorage.getItem('servemate_token') || '';
@@ -2244,18 +2251,47 @@ async function verifyPayment(response) {
 }
 
 function showSuccessModal(data) {
-  const xpEl     = document.getElementById('successXP');
-  const badgesEl = document.getElementById('successBadges');
-  const subEl    = document.getElementById('successSubText');
+  const xpEl      = document.getElementById('successXP');
+  const levelEl   = document.getElementById('successLevelInfo');
+  const badgesEl  = document.getElementById('successBadges');
+  const subEl     = document.getElementById('successSubText');
+  const causeEl   = document.getElementById('successCauseMsg');
 
-  const xp    = data.xpEarned  || data.xp    || 0;
-  const level = data.newLevel  || data.level  || '?';
-  const badges= data.badges    || [];
+  const xpEarned = data.donation?.xpEarned || data.xpEarned || selectedAmount || 0;
+  const userXp   = data.user?.xp || xpEarned;
+  const level    = data.user?.level || data.newLevel || data.level || '?';
+  const title    = data.user?.title || '';
+  const badges   = data.user?.badges || data.badges || [];
+  const prog     = data.user?.progression;
+  const amount   = data.donation?.amount || selectedAmount || 0;
 
-  subEl.textContent  = `You're now Level ${level}. Keep making impact! 🌟`;
-  xpEl.innerHTML     = xp > 0 ? `<span class="grad-text">+${xp} XP Earned!</span>` : '';
+  subEl.textContent = `₹${amount.toLocaleString('en-IN')} donated successfully. You're now Level ${level}${title ? ' — ' + title : ''}! 🌟`;
+  xpEl.innerHTML    = xpEarned > 0 ? `<span class="grad-text">+${xpEarned.toLocaleString('en-IN')} XP Earned!</span>` : '';
+
+  if (prog) {
+    const remaining = prog.xpRemaining || 0;
+    levelEl.innerHTML = remaining > 0
+      ? `📊 ${remaining.toLocaleString('en-IN')} XP more to reach Level ${level + 1}`
+      : '';
+  } else {
+    levelEl.innerHTML = '';
+  }
+
+  // Cause-specific thank you messages
+  const causeCategory = selectedCause?.category || '';
+  const causeTitle = selectedCause?.title || 'this cause';
+  const causeMessages = {
+    'meals':      `🍛 Your ₹${amount} donation to "${causeTitle}" will help provide nutritious meals to people in need. Every meal counts — you are fighting hunger one plate at a time!`,
+    'trees':      `🌳 Your ₹${amount} donation to "${causeTitle}" will help plant and nurture trees for a greener future. Together we are healing the planet, one tree at a time!`,
+    'essentials': `🎒 Your ₹${amount} donation to "${causeTitle}" will supply essential items to families who need them most. Clean water, hygiene kits, and daily necessities — your impact is real!`,
+    'education':  `📚 Your ₹${amount} donation to "${causeTitle}" will help provide education and learning resources to underserved children. Knowledge is the greatest gift!`,
+    'health':     `💊 Your ₹${amount} donation to "${causeTitle}" will support healthcare access for those who cannot afford it. You are saving lives with your generosity!`,
+    'ngo-support':`🏢 Your ₹${amount} donation to "${causeTitle}" will directly strengthen the operational capacity of a verified NGO partner. Your support empowers real change!`,
+  };
+  const msg = causeMessages[causeCategory] || `💝 Your ₹${amount} donation to "${causeTitle}" will create real, verified impact. Thank you for being a changemaker!`;
+  causeEl.innerHTML = msg;
+
   badgesEl.innerHTML = badges.map(b => `<span class="badge-pill">${b}</span>`).join('');
-
   openModal('successModal');
 }
 

@@ -9,14 +9,24 @@ const LEVELS = [
   { minLevel: 50, maxLevel: Infinity, title: "Legendary Guardian", icon: "\u{1F6E1}\uFE0F", rarity: "legendary", gradient: "linear-gradient(135deg,#111827,#6366f1)" },
 ];
 
-function getLevelFromXp(xp = 0) {
-  const safeXp = Math.max(0, Math.floor(Number(xp) || 0));
-  return Math.max(1, Math.floor(Math.sqrt(safeXp / 100)) + 1);
-}
+// New leveling formula:
+// 1 rupee donated = 1 XP
+// Level 1 → 2: 1000 XP (₹1,000)
+// Level 2 → 3: 2000 XP (₹2,000)
+// Level 3 → 4: 4000 XP (₹4,000)
+// Each level requires 2x the XP of the previous level
+// Total XP for level N: 1000 * (2^(N-1) - 1)
 
 function getXpForLevel(level = 1) {
   const safeLevel = Math.max(1, Math.floor(Number(level) || 1));
-  return Math.pow(safeLevel - 1, 2) * 100;
+  if (safeLevel <= 1) return 0;
+  return 1000 * (Math.pow(2, safeLevel - 1) - 1);
+}
+
+function getLevelFromXp(xp = 0) {
+  const safeXp = Math.max(0, Math.floor(Number(xp) || 0));
+  if (safeXp < 1000) return 1;
+  return Math.max(1, Math.floor(Math.log2(safeXp / 1000 + 1)) + 1);
 }
 
 function getRankForLevel(level = 1) {

@@ -523,7 +523,9 @@
 <div id="toastContainer"></div>
 
 <script>
-  const API = 'https://servemate.onrender.com';
+  const API = (window.location.origin && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || window.location.origin.includes('192.168.')))
+    ? window.location.origin
+    : 'https://servemate.onrender.com';
   let token = localStorage.getItem('servemate_admin_token') || '';
   let currentDonationFilter = 'all';
 
