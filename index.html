@@ -119,6 +119,56 @@ body.light-mode {
   --glow-or:  0 0 24px rgba(249,115,22,0.22);
 }
 
+body.light-mode .hero-mesh {
+  background: linear-gradient(
+    -45deg,
+    #F8FAFC,
+    #E0F2FE,
+    #FEE2E2,
+    #F0F9FF,
+    #FFF7ED,
+    #F1F5F9
+  );
+}
+body.light-mode .modal-box {
+  background: #FFFFFF;
+  box-shadow: 0 32px 100px rgba(15,23,42,0.18);
+}
+body.light-mode .modal-overlay {
+  background: rgba(248, 250, 252, 0.85);
+}
+body.light-mode #dashboardPanel, body.light-mode .panel-header {
+  background: #FFFFFF;
+  box-shadow: -20px 0 60px rgba(15,23,42,0.12);
+}
+body.light-mode .toast {
+  background: #FFFFFF;
+  box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+}
+body.light-mode .modal-tab:not(.active) {
+  color: var(--text2);
+}
+body.light-mode .form-input, body.light-mode .form-group input, body.light-mode .form-group textarea, body.light-mode .form-group select {
+  background: #F1F5F9;
+  color: #0F172A;
+  border-color: #CBD5E1;
+}
+body.light-mode .form-input:focus, body.light-mode .form-group input:focus, body.light-mode .form-group textarea:focus, body.light-mode .form-group select:focus {
+  background: #FFFFFF;
+  border-color: #4F8EF7;
+}
+body.light-mode .donation-item {
+  border-bottom-color: #E2E8F0;
+}
+body.light-mode .badge-pill, body.light-mode .profile-avatar {
+  background: #F1F5F9;
+  color: #0F172A;
+  border: 1px solid #E2E8F0;
+}
+body.light-mode .xp-bar-track {
+  background: #E2E8F0;
+}
+
 /* Liquid Smooth Theme Transition Matrix */
 body, nav, section, footer, .glass, .glass2, .cause-card, .ngo-card, .proof-card, .stat-card, h1, h2, h3, h4, p, span, a, button, input, textarea {
   transition: background 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
