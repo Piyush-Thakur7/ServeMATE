@@ -989,6 +989,7 @@ footer {
   animation: fadeIn 0.25s ease;
 }
 .modal-overlay.hidden { display: none; }
+.hidden { display: none !important; }
 .modal-box {
   width: 100%;
   max-width: 480px;
@@ -1255,6 +1256,7 @@ footer {
   
   .nav-logout-btn, .user-greeting, .level-badge { display: none !important; }
   #navActions .btn { padding: 6px 12px !important; font-size: 0.8rem !important; }
+  #mobileMenuBtn { display: inline-flex !important; }
   .hero-content { margin-top: 0 !important; }
   
   /* Section spacing cleanup */
@@ -1332,6 +1334,7 @@ footer {
       <div id="navActions" style="display:flex;gap:10px;align-items:center;">
         <!-- Populated by JS -->
       </div>
+      <button id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Toggle Mobile Menu" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);width:40px;height:40px;border-radius:50%;display:none;align-items:center;justify-content:center;font-size:1.25rem;cursor:pointer;outline:none;"><span id="menuIcon">☰</span></button>
     </div>
   </div>
 </nav>
@@ -1407,6 +1410,30 @@ footer {
         <div class="how-step">Step 03</div>
         <h3>See Real Proof</h3>
         <p>Get verified videos and reports from NGOs. Track your XP, climb the leaderboard, and earn impact badges.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ABOUT / MISSION SECTION (id='about')
+     ============================================================ -->
+<section id="about" class="reveal">
+  <div class="container">
+    <div class="section-header">
+      <h2>Why <span class="grad-text">ServeMATE</span> Exists</h2>
+      <p>Building India's most transparent, gamified social impact ecosystem.</p>
+    </div>
+    <div class="about-grid-wrapper" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:32px;">
+      <div class="glass" style="padding:40px;display:flex;flex-direction:column;gap:20px;">
+        <h3 style="font-size:1.8rem;font-weight:700;" class="grad-text">What is ServeMATE?</h3>
+        <p style="color:var(--text2);font-size:1rem;line-height:1.7;">ServeMATE is a state-of-the-art micro-donation platform designed to connect kind donors directly with verified grassroots NGOs across India. Starting from as little as <strong>₹10</strong>, anyone can become a force for good.</p>
+        <p style="color:var(--text2);font-size:1rem;line-height:1.7;">By gamifying social impact through levels, XP points, and unlockable achievement badges, we transform charitable giving from a one-off chore into a lifelong, engaging journey of community change.</p>
+      </div>
+      <div class="glass" style="padding:40px;display:flex;flex-direction:column;gap:20px;">
+        <h3 style="font-size:1.8rem;font-weight:700;" class="grad-text-gt">Why Was It Created?</h3>
+        <p style="color:var(--text2);font-size:1rem;line-height:1.7;">Traditional philanthropy is plagued by a lack of trust and traceability. Donors often ask: <em>"Where did my money actually go?"</em> or <em>"Did it make a difference?"</em></p>
+        <p style="color:var(--text2);font-size:1rem;line-height:1.7;">ServeMATE was built to solve the transparency crisis. Every single donation is tracked directly. We mandate our NGO partners to submit real-time, verified video and document proofs demonstrating the exact impact achieved with your contribution. Trust is not assumed — it is proven.</p>
       </div>
     </div>
   </div>
@@ -1555,10 +1582,11 @@ footer {
       <div class="modal-title">Welcome to ServeMATE</div>
       <button class="modal-close" onclick="closeModal('authModal')" aria-label="Close">✕</button>
     </div>
-    <div class="modal-tabs">
+    <div class="modal-tabs" style="overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch;">
       <button class="modal-tab active" id="authTabUser" onclick="switchAuthTab('user')">User Login</button>
       <button class="modal-tab" id="authTabRegister" onclick="switchAuthTab('register')">Register</button>
       <button class="modal-tab" id="authTabNgo" onclick="switchAuthTab('ngo')">NGO Login</button>
+      <button class="modal-tab" id="authTabNgoRegister" onclick="switchAuthTab('ngoRegister')">NGO Register</button>
     </div>
     <div class="modal-body">
       <!-- User Login -->
@@ -1608,6 +1636,56 @@ footer {
           </div>
           <button type="submit" class="btn btn-green">🏢 NGO Login</button>
           <div id="nlError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none"></div>
+        </form>
+      </div>
+      <!-- NGO Register -->
+      <div class="tab-pane" id="paneNgoRegister">
+        <form class="auth-form" onsubmit="registerNgo(event)" id="ngoRegForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nrName">NGO Name</label>
+              <input type="text" id="nrName" class="form-input" placeholder="Resence Help Foundation" required/>
+            </div>
+            <div class="form-group">
+              <label for="nrEmail">NGO Email</label>
+              <input type="email" id="nrEmail" class="form-input" placeholder="contact@ngo.org" required/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nrPass">Password</label>
+              <input type="password" id="nrPass" class="form-input" placeholder="Create a strong password" required/>
+            </div>
+            <div class="form-group">
+              <label for="nrReg">Registration Number</label>
+              <input type="text" id="nrReg" class="form-input" placeholder="E.g. E-12345/MUM" required/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nrTax">Tax-Exempt Status</label>
+              <select id="nrTax" class="form-input" required>
+                <option value="12A">12A Verified Only</option>
+                <option value="80G">80G Verified Only</option>
+                <option value="Both" selected>Both 12A &amp; 80G Verified</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="nrArea">Primary Area of Work</label>
+              <input type="text" id="nrArea" class="form-input" placeholder="Education / Health / Environment" required/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="nrLoc">Location (City, State)</label>
+            <input type="text" id="nrLoc" class="form-input" placeholder="Mumbai, Maharashtra" required/>
+          </div>
+          <div class="form-group">
+            <label for="nrDesc">Brief Motive / Purpose</label>
+            <textarea id="nrDesc" class="form-input" rows="3" placeholder="Tell us about your organization's mission..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-green" style="width:100%;justify-content:center;padding:14px;border-radius:var(--radius-sm);">🏢 Submit NGO Application</button>
+          <div id="nrError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none;margin-top:10px;"></div>
+          <div id="nrSuccess" style="color:var(--green);font-size:0.9rem;text-align:center;display:none;font-weight:600;margin-top:10px;line-height:1.5;"></div>
         </form>
       </div>
     </div>
@@ -1683,6 +1761,19 @@ footer {
 <div id="toastContainer"></div>
 
 <!-- ============================================================
+     MOBILE MENU DRAWER
+     ============================================================ -->
+<div id="mobileMenuDrawer" class="hidden" style="position:fixed;top:var(--nav-h);left:0;right:0;bottom:0;background:rgba(10,15,30,0.97);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:40px;animation:fadeIn 0.25s ease;">
+  <a href="#causes" onclick="closeMobileMenu()" style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);">🎯 Causes</a>
+  <a href="#how" onclick="closeMobileMenu()" style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);">💡 How It Works</a>
+  <a href="#about" onclick="closeMobileMenu()" style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);">❓ Why ServeMATE</a>
+  <a href="#leaderboard" onclick="closeMobileMenu()" style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);">🏆 Leaderboard</a>
+  <a href="#transparency" onclick="closeMobileMenu()" style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);">📊 Transparency</a>
+  <a href="#ngos" onclick="closeMobileMenu()" style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);">🏢 NGO Partners</a>
+  <a href="#contact" onclick="closeMobileMenu()" style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;color:var(--text);">💬 Contact Support</a>
+</div>
+
+<!-- ============================================================
      JAVASCRIPT
      ============================================================ -->
 <script>
@@ -1713,6 +1804,30 @@ async function api(path, opts = {}) {
 
 function scrollToSection(id) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function toggleMobileMenu() {
+  const drawer = document.getElementById('mobileMenuDrawer');
+  const icon = document.getElementById('menuIcon');
+  const isOpen = !drawer.classList.contains('hidden');
+  
+  if (isOpen) {
+    drawer.classList.add('hidden');
+    icon.textContent = '☰';
+    document.body.style.overflow = '';
+  } else {
+    drawer.classList.remove('hidden');
+    icon.textContent = '✕';
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeMobileMenu() {
+  const drawer = document.getElementById('mobileMenuDrawer');
+  const icon = document.getElementById('menuIcon');
+  drawer.classList.add('hidden');
+  icon.textContent = '☰';
+  document.body.style.overflow = '';
 }
 
 function openModal(id) {
@@ -2100,12 +2215,13 @@ function launchConfetti() {
    AUTH
    ============================================================ */
 function switchAuthTab(tab) {
-  ['user','register','ngo'].forEach(t => {
-    document.getElementById(`authTab${t.charAt(0).toUpperCase()+t.slice(1).replace('ister','gister').replace('ister','gister')}`)?.classList.remove('active');
-    document.getElementById(`pane${t.charAt(0).toUpperCase()+t.slice(1)}`)?.classList.remove('active');
+  ['user','register','ngo','ngoRegister'].forEach(t => {
+    // Make sure we resolve the capitalizations cleanly
+    const idSuffix = t === 'register' ? 'Register' : t === 'ngoRegister' ? 'NgoRegister' : t === 'ngo' ? 'Ngo' : 'User';
+    document.getElementById(`authTab${idSuffix}`)?.classList.remove('active');
+    document.getElementById(`pane${idSuffix}`)?.classList.remove('active');
   });
-  // map
-  const tabIds = { user:'User', register:'Register', ngo:'Ngo' };
+  const tabIds = { user:'User', register:'Register', ngo:'Ngo', ngoRegister:'NgoRegister' };
   document.getElementById(`authTab${tabIds[tab]}`)?.classList.add('active');
   document.getElementById(`pane${tabIds[tab]}`)?.classList.add('active');
 }
@@ -2121,7 +2237,7 @@ async function loginUser(e) {
       body: JSON.stringify({ email: document.getElementById('ulEmail').value, password: document.getElementById('ulPass').value })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
+    if (!res.ok) throw new Error(data.error || data.message || 'Login failed');
     authToken = data.token;
     localStorage.setItem('servemate_token', authToken);
     currentUser = data.user || data;
@@ -2148,7 +2264,7 @@ async function registerUser(e) {
       })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Registration failed');
+    if (!res.ok) throw new Error(data.error || data.message || 'Registration failed');
     authToken = data.token;
     localStorage.setItem('servemate_token', authToken);
     currentUser = data.user || data;
@@ -2171,7 +2287,7 @@ async function loginNgo(e) {
       body: JSON.stringify({ email: document.getElementById('nlEmail').value, password: document.getElementById('nlPass').value })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'NGO login failed');
+    if (!res.ok) throw new Error(data.error || data.message || 'NGO login failed');
     ngoToken = data.token;
     localStorage.setItem('servemate_ngo_token', ngoToken);
     currentNgo = data.ngo || data;
@@ -2180,6 +2296,47 @@ async function loginNgo(e) {
     showToast(`Welcome, ${currentNgo.name || 'NGO Partner'}! 🏢`);
   } catch(err) {
     errEl.textContent = err.message; errEl.style.display = 'block';
+  }
+}
+
+async function registerNgo(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('nrError');
+  const succEl = document.getElementById('nrSuccess');
+  errEl.style.display = 'none';
+  succEl.style.display = 'none';
+  
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.textContent = '⏳ Submitting NGO Application…'; btn.disabled = true;
+  
+  try {
+    const res = await fetch(API + '/api/auth/ngo/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name:            document.getElementById('nrName').value,
+        email:           document.getElementById('nrEmail').value,
+        password:        document.getElementById('nrPass').value,
+        regNumber:       document.getElementById('nrReg').value,
+        taxStatus:       document.getElementById('nrTax').value,
+        areaOfWork:      document.getElementById('nrArea').value,
+        location:        document.getElementById('nrLoc').value,
+        description:     document.getElementById('nrDesc').value,
+        volunteerCount:  0
+      })
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || 'NGO registration failed');
+    
+    succEl.textContent = 'Application submitted successfully! Please wait 24 hours while our administrators review and verify your NGO credentials.';
+    succEl.style.display = 'block';
+    e.target.reset();
+    showToast('NGO Application Submitted! 🏢');
+  } catch(err) {
+    errEl.textContent = err.message; errEl.style.display = 'block';
+  } finally {
+    btn.textContent = '🏢 Submit NGO Application'; btn.disabled = false;
   }
 }
 
