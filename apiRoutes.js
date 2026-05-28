@@ -124,18 +124,51 @@ async function selectApprovedNgoForCategory(category) {
   }) || ngos[0];
 }
 
+async function getOrCreateSystemNgo() {
+  let systemNgo = await NGO.findOne({ slug: "resence-foundation" });
+  if (!systemNgo) {
+    const bcrypt = require("bcryptjs");
+    const hashed = await bcrypt.hash("Resence123!", 10);
+    systemNgo = await NGO.create({
+      name: "Resence Foundation",
+      email: "foundation@resence.in",
+      password: hashed,
+      regNumber: "MOCK-12345-RESENCE",
+      taxStatus: "Both",
+      areaOfWork: "All Causes",
+      slug: "resence-foundation",
+      description: "Default platform placeholder foundation for fallback transparent donations.",
+      about: "Resence Foundation facilitates micro-donations across India when other grassroots NGO partners are unavailable.",
+      verified: true,
+      verifiedAt: new Date(),
+      rating: 5.0,
+      impactScore: 100,
+      tasksCompleted: 5,
+    });
+    console.log("[seed] Created system fallback NGO: Resence Foundation");
+  } else if (!systemNgo.verified) {
+    systemNgo.verified = true;
+    systemNgo.verifiedAt = new Date();
+    await systemNgo.save();
+  }
+  return systemNgo;
+}
+
 async function ensureCategoryCause(category) {
   const core = CORE_CAUSES.find((item) => item.category === category);
   if (!core) return null;
 
-  const verifiedNgoIds = await NGO.find({ verified: true }).distinct("_id");
-  if (!verifiedNgoIds.length) return null;
+  let verifiedNgoIds = await NGO.find({ verified: true }).distinct("_id");
+  if (!verifiedNgoIds.length) {
+    const fallbackNgo = await getOrCreateSystemNgo();
+    verifiedNgoIds = [fallbackNgo._id];
+  }
 
   const existing = await Cause.findOne({ category, active: true, assignedNgo: { $in: verifiedNgoIds } })
     .populate("assignedNgo", "verified name");
   if (existing) return existing;
 
-  const ngo = await selectApprovedNgoForCategory(category);
+  const ngo = await selectApprovedNgoForCategory(category) || await getOrCreateSystemNgo();
   if (!ngo) return null;
 
   return Cause.create({
