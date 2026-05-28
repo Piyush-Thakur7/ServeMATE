@@ -2202,12 +2202,12 @@ async function proceedToPay() {
 
 function openRazorpay(order) {
   const options = {
-    key: RAZORPAY_KEY,
-    amount: order.amount,
+    key: order.keyId || RAZORPAY_KEY,
+    amount: order.amount * 100,
     currency: order.currency || 'INR',
     name: 'ServeMATE',
     description: `Donation for ${selectedCause?.title || 'Cause'}`,
-    order_id: order.id,
+    order_id: order.orderId,
     theme: { color: '#4F8EF7' },
     handler: async function(response) {
       await verifyPayment(response);
