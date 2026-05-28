@@ -61,7 +61,7 @@ router.post("/register", authLimiter, async (req, res) => {
     });
   } catch (err) {
     console.error("[auth] Register failed:", err.message);
-    return res.status(500).json({ error: "Registration failed: " + err.message });
+    return res.status(500).json({ error: "Registration failed" });
   }
 });
 

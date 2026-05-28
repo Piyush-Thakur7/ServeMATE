@@ -30,9 +30,8 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Auto-set level based on XP
-userSchema.pre("save", function (next) {
+userSchema.pre("save", function () {
   applyProgression(this);
-  next();
 });
 
 // ─── NGO ────────────────────────────────────────────────────────────────────
