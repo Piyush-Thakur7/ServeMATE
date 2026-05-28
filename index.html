@@ -79,7 +79,7 @@
   --red:       #EF4444;
   --gold:      #F59E0B;
 
-  --grad-bp:   linear-gradient(135deg, #4F8EF7, #7C3AED);
+  --grad-bp:   linear-gradient(135deg, #4F8EF7, #9D4EDD, #F97316);
   --grad-gt:   linear-gradient(135deg, #10B981, #06B6D4);
   --grad-or:   linear-gradient(135deg, #F97316, #EF4444);
   --grad-gold: linear-gradient(135deg, #F59E0B, #F97316);
@@ -1178,7 +1178,7 @@ footer {
      ============================================================ -->
 <nav id="navbar">
   <div class="nav-inner">
-    <a href="#" class="nav-logo">Serve<span>MATE</span></a>
+    <a href="#" class="nav-logo" style="display:inline-flex;align-items:center;gap:12px;"><img class="logo-img" src="/logo.jpg" alt="ServeMATE Logo" style="height:36px;width:auto;border-radius:4px;" />Serve<span>MATE</span></a>
     <ul class="nav-links" role="navigation" aria-label="Main navigation">
       <li><a href="#causes">Causes</a></li>
       <li><a href="#leaderboard">Leaderboard</a></li>
@@ -1379,7 +1379,7 @@ footer {
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="footer-logo">Serve<span class="grad-text">MATE</span></div>
+        <div class="footer-logo" style="display:inline-flex;align-items:center;gap:12px;"><img class="logo-img" src="/logo.jpg" alt="ServeMATE Logo" style="height:40px;width:auto;border-radius:4px;" />Serve<span class="grad-text">MATE</span></div>
         <p class="footer-tagline">Small contributions. Real impact. Every rupee makes a difference in the lives of those who need it most.</p>
       </div>
       <div class="footer-links">
@@ -2321,6 +2321,7 @@ document.addEventListener('keydown', e => {
    INIT
    ============================================================ */
 async function init() {
+  makeLogoTransparent();
   initReveal();
   initMouseParallax();
   updateNav();
@@ -2457,6 +2458,47 @@ document.addEventListener('click', e => {
     playGamifiedSound('click');
   }
 });
+
+function makeLogoTransparent() {
+  const images = document.querySelectorAll('.logo-img');
+  if (!images.length) return;
+  
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    
+    try {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imgData.data;
+      
+      // Filter out white/light background pixels to fully transparent
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i];
+        const g = data[i+1];
+        const b = data[i+2];
+        
+        // Match close-to-white pixels (RGB > 215)
+        if (r > 215 && g > 215 && b > 215) {
+          data[i+3] = 0; // alpha = 0
+        }
+      }
+      
+      ctx.putImageData(imgData, 0, 0);
+      const transparentUrl = canvas.toDataURL('image/png');
+      
+      images.forEach(imgEl => {
+        imgEl.src = transparentUrl;
+      });
+    } catch (e) {
+      console.warn('Canvas pixel extraction blocked or failed', e);
+    }
+  };
+  img.src = '/logo.jpg';
+}
 
 document.addEventListener('DOMContentLoaded', init);
 </script>

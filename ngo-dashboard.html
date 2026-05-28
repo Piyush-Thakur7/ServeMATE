@@ -188,7 +188,7 @@
 <!-- LOGIN SCREEN -->
 <div id="loginScreen">
   <div class="login-card">
-    <div class="login-logo">🌿 NGO Hub</div>
+    <div class="login-logo" style="display:flex;align-items:center;gap:12px;font-size:24px;font-weight:900;"><img class="logo-img" src="/logo.jpg" alt="Logo" style="height:32px;width:auto;border-radius:4px;" />NGO Hub</div>
     <div class="login-sub">Sign in to manage your NGO profile and submit verified work on ServeMATE</div>
     <div class="error-msg" id="loginError"></div>
     <div class="form-group">
@@ -205,7 +205,7 @@
 
 <!-- SIDEBAR -->
 <nav id="sidebar" style="display:none">
-  <div class="sidebar-logo">🌿 NGO Hub <span>ServeMATE Partner</span></div>
+  <div class="sidebar-logo" style="display:flex;align-items:center;gap:10px;padding:24px 20px;"><img class="logo-img" src="/logo.jpg" alt="Logo" style="height:32px;width:auto;border-radius:4px;" /><div style="display:flex;flex-direction:column;line-height:1.2;">NGO Hub<span style="font-weight:400;font-size:11px;color:var(--muted);margin-top:2px;">ServeMATE Partner</span></div></div>
   <div class="sidebar-nav">
     <button class="nav-item active" id="nav-dashboard" onclick="showPanel('dashboard')">
       <span class="icon">📊</span> Dashboard
@@ -524,11 +524,52 @@
   function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); }
 
+  // ── LOGO TRANSPARENCY ──
+  function makeLogoTransparent() {
+    const images = document.querySelectorAll('.logo-img');
+    if (!images.length) return;
+    
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      
+      try {
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        
+        for (let i = 0; i < data.length; i += 4) {
+          const r = data[i];
+          const g = data[i+1];
+          const b = data[i+2];
+          
+          if (r > 215 && g > 215 && b > 215) {
+            data[i+3] = 0;
+          }
+        }
+        
+        ctx.putImageData(imgData, 0, 0);
+        const transparentUrl = canvas.toDataURL('image/png');
+        
+        images.forEach(imgEl => {
+          imgEl.src = transparentUrl;
+        });
+      } catch (e) {
+        console.warn('Canvas pixel extraction blocked or failed', e);
+      }
+    };
+    img.src = '/logo.jpg';
+  }
+
   if (token) {
     showDashboard();
   } else {
     showLogin();
   }
+  makeLogoTransparent();
 </script>
 </body>
 </html>
