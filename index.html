@@ -1334,7 +1334,6 @@ footer {
       <li><a href="#leaderboard">Leaderboard</a></li>
       <li><a href="#transparency">Transparency</a></li>
       <li><a href="#ngos">NGOs</a></li>
-      <li><a href="/ngo" id="navNgoPortalLink">NGO Portal</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-actions" style="display:flex;align-items:center;gap:14px;">
@@ -1572,7 +1571,6 @@ footer {
         <div class="footer-col">
           <h4>Support</h4>
           <a href="#contact">Contact</a>
-          <a href="/ngo">NGO Portal</a>
         </div>
       </div>
     </div>
@@ -1591,13 +1589,13 @@ footer {
       <div class="modal-title">Welcome to ServeMATE</div>
       <button class="modal-close" onclick="closeModal('authModal')" aria-label="Close">✕</button>
     </div>
-    <div class="modal-tabs" style="overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch;">
-      <button class="modal-tab active" id="authTabUser" onclick="switchAuthTab('user')">User Login</button>
-      <button class="modal-tab" id="authTabRegister" onclick="switchAuthTab('register')">Register</button>
-      <button class="modal-tab" id="authTabNgo" onclick="switchAuthTab('ngo')">NGO Login</button>
-      <button class="modal-tab" id="authTabNgoRegister" onclick="switchAuthTab('ngoRegister')">NGO Register</button>
+    <div class="modal-tabs" style="overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; display: flex; gap: 8px;">
+      <button class="modal-tab active" id="authTabUser" onclick="switchAuthTab('user')" style="white-space: nowrap;">User Login</button>
+      <button class="modal-tab" id="authTabRegister" onclick="switchAuthTab('register')" style="white-space: nowrap;">Register</button>
+      <button class="modal-tab" id="authTabNgo" onclick="switchAuthTab('ngo')" style="white-space: nowrap;">NGO Login</button>
+      <button class="modal-tab" id="authTabNgoRegister" onclick="switchAuthTab('ngoRegister')" style="white-space: nowrap;">NGO Register</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="margin-top: 15px;">
       <!-- User Login -->
       <div class="tab-pane active" id="paneUser">
         <form class="auth-form" onsubmit="loginUser(event)" id="userLoginForm">
@@ -1609,8 +1607,8 @@ footer {
             <label for="ulPass">Password</label>
             <input type="password" id="ulPass" class="form-input" placeholder="Your password" required/>
           </div>
-          <button type="submit" class="btn btn-primary">🚀 Login</button>
-          <div id="ulError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none"></div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; border-radius: var(--radius-sm);">🚀 Login</button>
+          <div id="ulError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none;margin-top: 10px;"></div>
         </form>
       </div>
       <!-- Register -->
@@ -1628,8 +1626,8 @@ footer {
             <label for="regPass">Password</label>
             <input type="password" id="regPass" class="form-input" placeholder="Create a strong password" required/>
           </div>
-          <button type="submit" class="btn btn-primary">✨ Create Account</button>
-          <div id="regError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none"></div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; border-radius: var(--radius-sm);">✨ Create Account</button>
+          <div id="regError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none;margin-top: 10px;"></div>
         </form>
       </div>
       <!-- NGO Login -->
@@ -1643,45 +1641,45 @@ footer {
             <label for="nlPass">Password</label>
             <input type="password" id="nlPass" class="form-input" placeholder="Your password" required/>
           </div>
-          <button type="submit" class="btn btn-primary">🏢 NGO Login</button>
-          <div id="nlError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none"></div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; border-radius: var(--radius-sm);">🏢 NGO Login</button>
+          <div id="nlError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none;margin-top: 10px;"></div>
         </form>
       </div>
       <!-- NGO Register -->
       <div class="tab-pane" id="paneNgoRegister">
         <form class="auth-form" onsubmit="registerNgo(event)" id="ngoRegForm">
-          <div class="form-row">
-            <div class="form-group">
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div class="form-group" style="margin-bottom:0;">
               <label for="nrName">NGO Name</label>
               <input type="text" id="nrName" class="form-input" placeholder="Resence Help Foundation" required/>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom:0;">
               <label for="nrEmail">NGO Email</label>
               <input type="email" id="nrEmail" class="form-input" placeholder="contact@ngo.org" required/>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div class="form-group" style="margin-bottom:0;">
               <label for="nrPass">Password</label>
-              <input type="password" id="nrPass" class="form-input" placeholder="Create a strong password" required/>
+              <input type="password" id="nrPass" class="form-input" placeholder="Create password" required/>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom:0;">
               <label for="nrReg">Registration Number</label>
               <input type="text" id="nrReg" class="form-input" placeholder="E.g. E-12345/MUM" required/>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
+          <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div class="form-group" style="margin-bottom:0;">
               <label for="nrTax">Tax-Exempt Status</label>
-              <select id="nrTax" class="form-input" required>
-                <option value="12A">12A Verified Only</option>
-                <option value="80G">80G Verified Only</option>
-                <option value="Both" selected>Both 12A &amp; 80G Verified</option>
+              <select id="nrTax" class="form-input" required style="padding: 10px; background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm);">
+                <option value="12A" style="background: #0F172A;">12A Verified Only</option>
+                <option value="80G" style="background: #0F172A;">80G Verified Only</option>
+                <option value="Both" selected style="background: #0F172A;">Both 12A & 80G Verified</option>
               </select>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="margin-bottom:0;">
               <label for="nrArea">Primary Area of Work</label>
-              <input type="text" id="nrArea" class="form-input" placeholder="Education / Health / Environment" required/>
+              <input type="text" id="nrArea" class="form-input" placeholder="Education / Health" required/>
             </div>
           </div>
           <div class="form-group">
@@ -1692,14 +1690,12 @@ footer {
             <label for="nrDesc">Brief Motive / Purpose</label>
             <textarea id="nrDesc" class="form-input" rows="3" placeholder="Tell us about your organization's mission..." required></textarea>
           </div>
-
-          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;border-radius:var(--radius-sm);">🏢 Submit NGO Application</button>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;border-radius:var(--radius-sm);">🏢 Submit NGO Application</button>
           <div id="nrError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none;margin-top:10px;"></div>
           <div id="nrSuccess" style="color:var(--green);font-size:0.9rem;text-align:center;display:none;font-weight:600;margin-top:10px;line-height:1.5;"></div>
         </form>
       </div>
-    </div>
-  </div>
+    </div>  </div>
 </div>
 
 <!-- ============================================================
@@ -1814,13 +1810,7 @@ footer {
   
   <!-- Navigation Links Cards -->
   <div style="display:flex;flex-direction:column;gap:14px;flex:1;">
-    <a href="/ngo" id="mobileNgoPortalLink" onclick="closeMobileMenu()" class="glass" style="display:flex;align-items:center;gap:16px;padding:14px 18px;text-decoration:none;">
-      <div style="font-size:1.4rem;background:rgba(16,185,129,0.1);width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">🏢</div>
-      <div style="display:flex;flex-direction:column;">
-        <span style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);">NGO Partner Portal</span>
-        <span style="font-size:0.75rem;color:var(--text2);margin-top:2px;">Register your NGO, log in, or submit proof</span>
-      </div>
-    </a>
+
     
     <a href="#causes" onclick="closeMobileMenu()" class="glass" style="display:flex;align-items:center;gap:16px;padding:14px 18px;text-decoration:none;">
       <div style="font-size:1.4rem;background:rgba(79,142,247,0.1);width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">🎯</div>
@@ -1973,13 +1963,8 @@ function showToast(message, type = 'success') {
    ============================================================ */
 function updateNav() {
   const el = document.getElementById('navActions');
-  const navLink = document.getElementById('navNgoPortalLink');
-  const mobLink = document.getElementById('mobileNgoPortalLink');
   
   if (authToken && currentUser) {
-    if (navLink) navLink.parentNode.style.display = 'none';
-    if (mobLink) mobLink.style.display = 'none';
-    
     const lvl = currentUser.level || 1;
     const name = currentUser.name?.split(' ')[0] || 'User';
     el.innerHTML = `
@@ -1988,20 +1973,7 @@ function updateNav() {
       <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="openDashboard()">Dashboard</button>
       <button class="btn btn-ghost nav-logout-btn" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
-  } else if (ngoToken && currentNgo) {
-    if (navLink) navLink.parentNode.style.display = '';
-    if (mobLink) mobLink.style.display = '';
-    
-    const name = currentNgo.name || 'NGO';
-    el.innerHTML = `
-      <span class="user-greeting">🏢 ${name}</span>
-      <a href="https://ngo-dashboard.resence.in" target="_blank" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">NGO Panel</a>
-      <button class="btn btn-ghost nav-logout-btn" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
-    `;
   } else {
-    if (navLink) navLink.parentNode.style.display = '';
-    if (mobLink) mobLink.style.display = '';
-    
     el.innerHTML = `
       <button class="btn btn-ghost" style="padding:8px 18px;font-size:0.9rem" onclick="openModal('authModal')">Login</button>
       <button class="btn btn-primary nav-register-btn" style="padding:8px 18px;font-size:0.9rem" onclick="openAuthRegister()">Register</button>
@@ -2404,55 +2376,66 @@ async function loginUser(e) {
   }
 }
 
-async function sendOtpCode(type) {
-  const emailInputId = type === 'user' ? 'regEmail' : 'nrEmail';
-  const btnId = type === 'user' ? 'btnUserSendOtp' : 'btnNgoSendOtp';
-  const errorElId = type === 'user' ? 'regError' : 'nrError';
-  
-  const emailVal = document.getElementById(emailInputId).value.trim();
-  const btn = document.getElementById(btnId);
-  const errEl = document.getElementById(errorElId);
-  
-  if (!emailVal) {
-    showToast('Please enter an email address first', 'error');
-    return;
-  }
-  
-  btn.disabled = true;
-  btn.textContent = '⏳ Sending…';
+async function loginNgo(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('nlError');
   errEl.style.display = 'none';
-  
   try {
-    const res = await fetch(API + '/api/auth/otp/send', {
+    const res = await fetch(API + '/api/auth/ngo/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: emailVal })
+      body: JSON.stringify({ email: document.getElementById('nlEmail').value, password: document.getElementById('nlPass').value })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+    if (!res.ok) throw new Error(data.error || data.message || 'NGO Login failed');
+    ngoToken = data.token;
+    localStorage.setItem('servemate_ngo_token', ngoToken);
+    currentNgo = data.ngo || data;
+    closeModal('authModal');
+    updateNav();
+    showToast(`Welcome, ${currentNgo.name || 'NGO Partner'}! 🏢`);
+  } catch(err) {
+    errEl.textContent = err.message; errEl.style.display = 'block';
+  }
+}
+
+async function registerNgo(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('nrError');
+  const succEl = document.getElementById('nrSuccess');
+  errEl.style.display = 'none';
+  succEl.style.display = 'none';
+  
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.textContent = '⏳ Submitting Application…'; btn.disabled = true;
+  
+  try {
+    const res = await fetch(API + '/api/auth/ngo/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name:            document.getElementById('nrName').value,
+        email:           document.getElementById('nrEmail').value,
+        password:        document.getElementById('nrPass').value,
+        regNumber:       document.getElementById('nrReg').value,
+        taxStatus:       document.getElementById('nrTax').value,
+        areaOfWork:      document.getElementById('nrArea').value,
+        location:        document.getElementById('nrLoc').value,
+        description:     document.getElementById('nrDesc').value,
+        volunteerCount:  0
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || 'NGO registration failed');
     
-    showToast(data.message || 'Verification code sent!');
-    
-    if (data.simulated && data.otp) {
-      alert(`[SANDBOX TEST MODE] Verification OTP is: ${data.otp}\n(This is shown because SMTP is not configured in your .env)`);
-    }
-    
-    let timeLeft = 60;
-    const interval = setInterval(() => {
-      timeLeft -= 1;
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-        btn.disabled = false;
-        btn.textContent = '📩 Send OTP';
-      } else {
-        btn.textContent = `⏳ Resend (${timeLeft}s)`;
-      }
-    }, 1000);
-    
-  } catch (err) {
-    showToast(err.message, 'error');
-    btn.disabled = false;
-    btn.textContent = '📩 Send OTP';
+    succEl.textContent = 'Application submitted successfully! Please wait while our administrators review and verify your NGO credentials.';
+    succEl.style.display = 'block';
+    e.target.reset();
+    showToast('NGO Application Submitted! 🏢');
+  } catch(err) {
+    errEl.textContent = err.message; errEl.style.display = 'block';
+  } finally {
+    btn.textContent = '🏢 Submit NGO Application'; btn.disabled = false;
   }
 }
 
@@ -2483,69 +2466,6 @@ async function registerUser(e) {
   }
 }
 
-async function loginNgo(e) {
-  e.preventDefault();
-  const errEl = document.getElementById('nlError');
-  errEl.style.display = 'none';
-  try {
-    const res = await fetch(API + '/api/auth/ngo/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: document.getElementById('nlEmail').value, password: document.getElementById('nlPass').value })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || data.message || 'NGO login failed');
-    ngoToken = data.token;
-    localStorage.setItem('servemate_ngo_token', ngoToken);
-    currentNgo = data.ngo || data;
-    closeModal('authModal');
-    updateNav();
-    showToast(`Welcome, ${currentNgo.name || 'NGO Partner'}! 🏢`);
-  } catch(err) {
-    errEl.textContent = err.message; errEl.style.display = 'block';
-  }
-}
-
-async function registerNgo(e) {
-  e.preventDefault();
-  const errEl = document.getElementById('nrError');
-  const succEl = document.getElementById('nrSuccess');
-  errEl.style.display = 'none';
-  succEl.style.display = 'none';
-  
-  const btn = e.target.querySelector('button[type="submit"]');
-  btn.textContent = '⏳ Submitting NGO Application…'; btn.disabled = true;
-  
-  try {
-    const res = await fetch(API + '/api/auth/ngo/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name:            document.getElementById('nrName').value,
-        email:           document.getElementById('nrEmail').value,
-        password:        document.getElementById('nrPass').value,
-        regNumber:       document.getElementById('nrReg').value,
-        taxStatus:       document.getElementById('nrTax').value,
-        areaOfWork:      document.getElementById('nrArea').value,
-        location:        document.getElementById('nrLoc').value,
-        description:     document.getElementById('nrDesc').value,
-        volunteerCount:  0
-      })
-    });
-    
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || data.message || 'NGO registration failed');
-    
-    succEl.textContent = 'Application submitted successfully! Please wait 24 hours while our administrators review and verify your NGO credentials.';
-    succEl.style.display = 'block';
-    e.target.reset();
-    showToast('NGO Application Submitted! 🏢');
-  } catch(err) {
-    errEl.textContent = err.message; errEl.style.display = 'block';
-  } finally {
-    btn.textContent = '🏢 Submit NGO Application'; btn.disabled = false;
-  }
-}
 
 /* ============================================================
    RESTORE SESSION
@@ -2559,9 +2479,16 @@ async function restoreSession() {
     } catch { updateNav(); }
   } else if (ngoToken) {
     try {
-      const res = await api('/api/auth/ngo/me');
-      if (res.ok) { currentNgo = await res.json(); updateNav(); }
-      else { ngoToken = ''; localStorage.removeItem('servemate_ngo_token'); updateNav(); }
+      const res = await api('/api/ngo/me');
+      if (res.ok) {
+        const data = await res.json();
+        currentNgo = data.ngo || data;
+        updateNav();
+      } else {
+        ngoToken = '';
+        localStorage.removeItem('servemate_ngo_token');
+        updateNav();
+      }
     } catch { updateNav(); }
   } else { updateNav(); }
 }
@@ -2778,70 +2705,166 @@ function closeDashboard() {
 async function fetchDashboard() {
   const el = document.getElementById('dashboardContent');
   el.innerHTML = '<div class="empty-state"><span class="empty-icon">⏳</span><p>Loading…</p></div>';
-  try {
-    const res  = await api('/api/dashboard');
-    const data = res.ok ? await res.json() : {};
-    const user = data.user || currentUser || {};
-    const donations = data.donations || data.recentDonations || [];
-    const badges    = data.badges || user.badges || [];
-    const xp        = user.xp || 0;
-    const level     = user.level || 1;
-    const xpMax     = level * 200;
-    const xpPct     = Math.min((xp / xpMax) * 100, 100).toFixed(1);
-    const name      = user.name || 'Changemaker';
-    const email     = user.email || '';
-    const initial   = name.charAt(0).toUpperCase();
+  
+  if (ngoToken) {
+    try {
+      const res = await api('/api/ngo/me');
+      const data = res.ok ? await res.json() : {};
+      const ngo = data.ngo || currentNgo || {};
+      const tasks = data.tasks || [];
+      const name = ngo.name || 'NGO Partner';
+      const email = ngo.email || '';
+      const verified = ngo.verified;
+      const initial = name.charAt(0).toUpperCase();
+      
+      const logoHtml = ngo.logo 
+        ? `<img src="${escHtml(ngo.logo)}" class="profile-avatar" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--green);box-shadow:0 0 15px rgba(16,185,129,0.3);margin-bottom:12px;" />`
+        : `<div class="profile-avatar" style="background:rgba(16,185,129,0.1);color:var(--green);border:2px solid rgba(16,185,129,0.3);">${initial}</div>`;
+      
+      const statusPill = verified 
+        ? `<span class="level-badge" style="background:rgba(16,185,129,0.2);color:var(--green);border-color:rgba(16,185,129,0.4);font-weight:700;">✓ Verified NGO</span>`
+        : `<span class="level-badge" style="background:rgba(245,158,11,0.2);color:var(--orange);border-color:rgba(245,158,11,0.4);font-weight:700;">⏳ Pending Approval</span>`;
 
-    const avatarHtml = user.avatar
-      ? `<img src="${escHtml(user.avatar)}" class="profile-avatar" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue);box-shadow:var(--glow-blue);margin-bottom:12px;" />`
-      : `<div class="profile-avatar">${initial}</div>`;
-
-    el.innerHTML = `
-      <div class="profile-card">
-        ${avatarHtml}
-        <div class="profile-name">${escHtml(name)}</div>
-        <div class="profile-email">${escHtml(email)}</div>
-        <span class="level-badge" style="margin-bottom:8px;">⭐ Level ${level}</span>
-        ${user.bio ? `<p style="font-size:0.85rem;color:var(--text2);margin:8px auto 12px;max-width:320px;line-height:1.4;font-style:italic;">"${escHtml(user.bio)}"</p>` : ''}
-        <button class="btn btn-ghost btn-sm" style="margin-top:12px;font-size:0.8rem;padding:6px 12px;border-radius:var(--radius-sm);" onclick="openEditProfile()">✏️ Edit Profile</button>
-      </div>
-      <div class="xp-bar-wrap">
-        <div class="xp-bar-label"><span>⚡ ${xp} XP</span><span>${xpMax} XP</span></div>
-        <div class="xp-bar-track"><div class="xp-bar-fill" style="width:${xpPct}%"></div></div>
-      </div>
-      ${badges.length ? `
-      <div class="panel-section">
-        <h4>Badges Earned</h4>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">${badges.map(b=>`<span class="badge-pill">${b}</span>`).join('')}</div>
-      </div>` : ''}
-      <div class="panel-section">
-        <h4>Recent Donations</h4>
-        ${donations.length ? donations.slice(0,8).map(d => `
-          <div class="donation-item">
-            <div>
-              <div class="donation-item-cause">${escHtml(d.causeTitle || d.cause?.title || 'Donation')}</div>
-              <div class="donation-item-date">${d.createdAt ? new Date(d.createdAt).toLocaleDateString('en-IN') : 'Recently'}</div>
-            </div>
-            <div class="donation-item-amount">₹${(d.amount||0).toLocaleString('en-IN')}</div>
-          </div>`).join('')
-        : '<div class="empty-state" style="padding:20px 0"><span class="empty-icon" style="font-size:1.8rem">🌱</span><p style="font-size:0.85rem">No donations yet. Start your journey!</p></div>'}
-      </div>
-      <div class="panel-section" style="margin-top: 10px;">
-        <h4>NGO Partnership</h4>
-        <p style="font-size:0.78rem;color:var(--text3);margin-bottom:10px;line-height:1.4">Want to register an NGO and receive donations transparently?</p>
-        <a href="/ngo" class="btn btn-ghost" style="width:100%;justify-content:center;font-size:0.82rem;padding:10px 14px;border-radius:var(--radius-sm);color:var(--green);border-color:rgba(16,185,129,0.3);margin-bottom:12px;" onclick="closeDashboard()">🏢 NGO Registration Portal</a>
-      </div>
-      <div class="panel-section" style="margin-top: 10px;">
-        <h4>Changemaker Tools</h4>
-        <div style="display:flex;gap:10px;margin-bottom:16px;">
-          <button class="btn btn-ghost" style="flex:1;justify-content:center;font-size:0.82rem;padding:10px 14px;border-radius:var(--radius-sm);" onclick="shareImpact()">📢 Share Impact</button>
-          <button class="btn btn-ghost" style="flex:1;justify-content:center;font-size:0.82rem;padding:10px 14px;border-radius:var(--radius-sm);" onclick="scrollToSection('contact');closeDashboard();">💬 Get Help</button>
+      el.innerHTML = `
+        <div class="profile-card">
+          ${logoHtml}
+          <div class="profile-name">${escHtml(name)}</div>
+          <div class="profile-email" style="margin-bottom:6px;">${escHtml(email)}</div>
+          ${statusPill}
+          <div style="font-size:0.8rem;color:var(--text3);margin-top:8px;">📍 ${escHtml(ngo.location || 'Not specified')}</div>
+          <div style="font-size:0.8rem;color:var(--text3);margin-top:4px;">🎯 Area: ${escHtml(ngo.areaOfWork || 'Not specified')}</div>
         </div>
-        <button class="btn btn-danger" style="width:100%;justify-content:center;gap:8px;padding:12px;font-size:0.9rem;border-radius:var(--radius-sm);" onclick="logoutAndCloseDashboard()">🚪 Logout</button>
-      </div>
-    `;
-  } catch(e) {
-    el.innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Could not load dashboard.</p></div>';
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+          <div class="glass" style="padding:14px;border-radius:12px;text-align:center;background:rgba(255,255,255,0.02);">
+            <div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">Tasks Done</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--text);margin-top:4px;">${ngo.tasksCompleted || 0}</div>
+          </div>
+          <div class="glass" style="padding:14px;border-radius:12px;text-align:center;background:rgba(255,255,255,0.02);">
+            <div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">Impact Score</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--text);margin-top:4px;">${ngo.impactScore || 0}</div>
+          </div>
+          <div class="glass" style="padding:14px;border-radius:12px;text-align:center;background:rgba(255,255,255,0.02);">
+            <div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">Received (₹)</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--green);margin-top:4px;">₹${(ngo.totalReceived || 0).toLocaleString('en-IN')}</div>
+          </div>
+          <div class="glass" style="padding:14px;border-radius:12px;text-align:center;background:rgba(255,255,255,0.02);">
+            <div style="font-size:0.75rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;">Volunteers</div>
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--text);margin-top:4px;">${ngo.volunteerCount || 0}</div>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <h4>🏢 Submit Verification Task</h4>
+          <p style="font-size:0.75rem;color:var(--text3);margin-bottom:12px;line-height:1.4;">Submit verified proof (video or report link) of work completed using donations.</p>
+          <form onsubmit="submitNgoTask(event)" id="ngoTaskForm" style="display:flex;flex-direction:column;gap:10px;">
+            <input type="text" id="ntTitle" placeholder="Task Title (e.g., Blanket Distribution)" class="form-input" style="padding:10px;font-size:0.85rem;" required />
+            <textarea id="ntDesc" placeholder="Description & details of the impact..." class="form-input" rows="2" style="padding:10px;font-size:0.85rem;" required></textarea>
+            <input type="url" id="ntProofUrl" placeholder="Proof Link / Video URL" class="form-input" style="padding:10px;font-size:0.85rem;" required />
+            <button type="submit" class="btn btn-primary" style="justify-content:center;padding:10px;font-size:0.85rem;border-radius:var(--radius-sm);background:linear-gradient(to right, #10B981, #06B6D4);border:none;box-shadow:0 0 10px rgba(16,185,129,0.3);" ${!verified ? 'disabled' : ''}>${verified ? '🚀 Submit Work Update' : '⏳ Pending Approval'}</button>
+          </form>
+        </div>
+
+        <div class="panel-section">
+          <h4>✏️ Update NGO Profile</h4>
+          <form onsubmit="saveNgoProfile(event)" id="ngoProfileForm" style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <input type="text" id="npLoc" placeholder="Location (City, State)" value="${escHtml(ngo.location || '')}" class="form-input" style="padding:10px;font-size:0.82rem;" required />
+              <input type="text" id="npArea" placeholder="Area of Work" value="${escHtml(ngo.areaOfWork || '')}" class="form-input" style="padding:10px;font-size:0.82rem;" required />
+            </div>
+            <input type="url" id="npLogo" placeholder="Logo Image URL" value="${escHtml(ngo.logo || '')}" class="form-input" style="padding:10px;font-size:0.82rem;" />
+            <input type="url" id="npBanner" placeholder="Banner Image URL" value="${escHtml(ngo.banner || '')}" class="form-input" style="padding:10px;font-size:0.82rem;" />
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <input type="text" id="npPhone" placeholder="Phone Number" value="${escHtml(ngo.contact?.phone || '')}" class="form-input" style="padding:10px;font-size:0.82rem;" />
+              <input type="url" id="npWebsite" placeholder="Website Link" value="${escHtml(ngo.contact?.website || '')}" class="form-input" style="padding:10px;font-size:0.82rem;" />
+            </div>
+            <textarea id="npMotive" placeholder="Mission / Motive" class="form-input" rows="2" style="padding:10px;font-size:0.82rem;" required>${escHtml(ngo.about || '')}</textarea>
+            <button type="submit" class="btn btn-ghost btn-sm" style="justify-content:center;padding:10px;font-size:0.82rem;border-radius:var(--radius-sm);border-color:rgba(16,185,129,0.3);color:var(--green);">✏️ Save Changes</button>
+          </form>
+        </div>
+
+        <div class="panel-section">
+          <h4>📜 Submitted Work History</h4>
+          ${tasks.length ? tasks.map(t => `
+            <div class="donation-item" style="border-left: 2px solid var(--green); padding-left: 10px;">
+              <div>
+                <div class="donation-item-cause" style="font-weight:700;">${escHtml(t.title)}</div>
+                <div style="font-size:0.75rem;color:var(--text2);margin-top:2px;">${escHtml(t.note || t.description || '')}</div>
+                <div style="font-size:0.75rem;margin-top:4px;"><a href="${escHtml(t.proofUrl)}" target="_blank" style="color:var(--green);text-decoration:none;">🔗 View Proof Video</a></div>
+              </div>
+            </div>`).join('')
+          : '<div class="empty-state" style="padding:20px 0"><span class="empty-icon" style="font-size:1.8rem">📦</span><p style="font-size:0.85rem">No tasks submitted yet.</p></div>'}
+        </div>
+
+        <div class="panel-section" style="margin-top: 10px;">
+          <button class="btn btn-danger" style="width:100%;justify-content:center;gap:8px;padding:12px;font-size:0.9rem;border-radius:var(--radius-sm);" onclick="logoutAndCloseDashboard()">🚪 Logout NGO</button>
+        </div>
+      `;
+    } catch(e) {
+      el.innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Could not load NGO dashboard.</p></div>';
+    }
+  } else {
+    try {
+      const res  = await api('/api/dashboard');
+      const data = res.ok ? await res.json() : {};
+      const user = data.user || currentUser || {};
+      const donations = data.donations || data.recentDonations || [];
+      const badges    = data.badges || user.badges || [];
+      const xp        = user.xp || 0;
+      const level     = user.level || 1;
+      const xpMax     = level * 200;
+      const xpPct     = Math.min((xp / xpMax) * 100, 100).toFixed(1);
+      const name      = user.name || 'Changemaker';
+      const email     = user.email || '';
+      const initial   = name.charAt(0).toUpperCase();
+
+      const avatarHtml = user.avatar
+        ? `<img src="${escHtml(user.avatar)}" class="profile-avatar" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue);box-shadow:var(--glow-blue);margin-bottom:12px;" />`
+        : `<div class="profile-avatar">${initial}</div>`;
+
+      el.innerHTML = `
+        <div class="profile-card">
+          ${avatarHtml}
+          <div class="profile-name">${escHtml(name)}</div>
+          <div class="profile-email">${escHtml(email)}</div>
+          <span class="level-badge" style="margin-bottom:8px;">⭐ Level ${level}</span>
+          ${user.bio ? `<p style="font-size:0.85rem;color:var(--text2);margin:8px auto 12px;max-width:320px;line-height:1.4;font-style:italic;">"${escHtml(user.bio)}"</p>` : ''}
+          <button class="btn btn-ghost btn-sm" style="margin-top:12px;font-size:0.8rem;padding:6px 12px;border-radius:var(--radius-sm);" onclick="openEditProfile()">✏️ Edit Profile</button>
+        </div>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar-label"><span>⚡ ${xp} XP</span><span>${xpMax} XP</span></div>
+          <div class="xp-bar-track"><div class="xp-bar-fill" style="width:${xpPct}%"></div></div>
+        </div>
+        ${badges.length ? `
+        <div class="panel-section">
+          <h4>Badges Earned</h4>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">${badges.map(b=>`<span class="badge-pill">${b}</span>`).join('')}</div>
+        </div>` : ''}
+        <div class="panel-section">
+          <h4>Recent Donations</h4>
+          ${donations.length ? donations.slice(0,8).map(d => `
+            <div class="donation-item">
+              <div>
+                <div class="donation-item-cause">${escHtml(d.causeTitle || d.cause?.title || 'Donation')}</div>
+                <div class="donation-item-date">${d.createdAt ? new Date(d.createdAt).toLocaleDateString('en-IN') : 'Recently'}</div>
+              </div>
+              <div class="donation-item-amount">₹${(d.amount||0).toLocaleString('en-IN')}</div>
+            </div>`).join('')
+          : '<div class="empty-state" style="padding:20px 0"><span class="empty-icon" style="font-size:1.8rem">🌱</span><p style="font-size:0.85rem">No donations yet. Start your journey!</p></div>'}
+        </div>
+
+        <div class="panel-section" style="margin-top: 10px;">
+          <h4>Changemaker Tools</h4>
+          <div style="display:flex;gap:10px;margin-bottom:16px;">
+            <button class="btn btn-ghost" style="flex:1;justify-content:center;font-size:0.82rem;padding:10px 14px;border-radius:var(--radius-sm);" onclick="shareImpact()">📢 Share Impact</button>
+            <button class="btn btn-ghost" style="flex:1;justify-content:center;font-size:0.82rem;padding:10px 14px;border-radius:var(--radius-sm);" onclick="scrollToSection('contact');closeDashboard();">💬 Get Help</button>
+          </div>
+          <button class="btn btn-danger" style="width:100%;justify-content:center;gap:8px;padding:12px;font-size:0.9rem;border-radius:var(--radius-sm);" onclick="logoutAndCloseDashboard()">🚪 Logout</button>
+        </div>
+      `;
+    } catch(e) {
+      el.innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Could not load user dashboard.</p></div>';
+    }
   }
 }
 
@@ -2873,6 +2896,73 @@ async function saveUserProfile(e) {
     currentUser = data;
     showToast('Profile updated successfully!');
     closeModal('editProfileModal');
+    fetchDashboard();
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = oldText;
+  }
+}
+
+async function submitNgoTask(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const oldText = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Submitting…';
+  
+  try {
+    const res = await api('/api/ngo/tasks', {
+      method: 'POST',
+      body: JSON.stringify({
+        title:       document.getElementById('ntTitle').value.trim(),
+        description: document.getElementById('ntDesc').value.trim(),
+        proofUrl:    document.getElementById('ntProofUrl').value.trim()
+      })
+    });
+    
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Failed to submit task');
+    }
+    
+    showToast('Work update submitted successfully! 🚀');
+    e.target.reset();
+    fetchDashboard();
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = oldText;
+  }
+}
+
+async function saveNgoProfile(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const oldText = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Saving…';
+  
+  try {
+    const res = await api('/api/ngo/me', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        location:  document.getElementById('npLoc').value.trim(),
+        areaOfWork:document.getElementById('npArea').value.trim(),
+        logoUrl:   document.getElementById('npLogo').value.trim(),
+        bannerUrl: document.getElementById('npBanner').value.trim(),
+        phone:     document.getElementById('npPhone').value.trim(),
+        website:   document.getElementById('npWebsite').value.trim(),
+        motive:    document.getElementById('npMotive').value.trim()
+      })
+    });
+    
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Failed to update profile');
+    }
+    
+    const data = await res.json();
+    currentNgo = data.ngo || currentNgo;
+    showToast('NGO profile updated successfully! 🏢');
     fetchDashboard();
   } catch (err) {
     showToast(err.message, 'error');

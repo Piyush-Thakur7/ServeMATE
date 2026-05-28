@@ -95,13 +95,7 @@ app.get("/admin", (req, res) => {
   return res.sendFile(path.join(__dirname, "admin.html"));
 });
 
-app.get("/ngo", (req, res) => {
-  return res.sendFile(path.join(__dirname, "ngo-portal.html"));
-});
 
-app.get("/ngo-dashboard", (req, res) => {
-  return res.sendFile(path.join(__dirname, "ngo-dashboard.html"));
-});
 
 app.use((req, res, next) => {
   if (req.method !== "GET") {
@@ -110,9 +104,6 @@ app.use((req, res, next) => {
   const host = req.hostname.toLowerCase();
   if (host.startsWith("admin.")) {
     return res.sendFile(path.join(__dirname, "admin.html"));
-  }
-  if (host.endsWith("resence.in") && !["resence.in", "www.resence.in"].includes(host)) {
-    return res.sendFile(path.join(__dirname, "ngo.html"));
   }
   return res.sendFile(path.join(__dirname, "index.html"));
 });
