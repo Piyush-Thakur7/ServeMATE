@@ -293,6 +293,13 @@ input, textarea { font-family: inherit; outline: none; border: none; }
 }
 .btn-green:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(16,185,129,0.55); }
 
+.btn-danger {
+  background: linear-gradient(135deg, #EF4444, #B91C1C);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(239,68,68,0.35);
+}
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(239,68,68,0.55); }
+
 .tag {
   display: inline-flex;
   align-items: center;
@@ -1774,6 +1781,24 @@ function logout() {
   showToast('Logged out successfully.', 'info');
 }
 
+function logoutAndCloseDashboard() {
+  closeDashboard();
+  logout();
+}
+
+function shareImpact() {
+  if (navigator.share) {
+    navigator.share({
+      title: 'ServeMATE Changemaker',
+      text: `I'm a Level ${currentUser?.level || 1} Changemaker on ServeMATE, India's most transparent micro-donation platform! Join me in making real impact.`,
+      url: window.location.href
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(`I'm a Level ${currentUser?.level || 1} Changemaker on ServeMATE! Join me: ${window.location.href}`);
+    showToast('Profile share link copied to clipboard! 📋');
+  }
+}
+
 /* ============================================================
    NAV SCROLL EFFECT
    ============================================================ */
@@ -2420,6 +2445,14 @@ async function fetchDashboard() {
             <div class="donation-item-amount">₹${(d.amount||0).toLocaleString('en-IN')}</div>
           </div>`).join('')
         : '<div class="empty-state" style="padding:20px 0"><span class="empty-icon" style="font-size:1.8rem">🌱</span><p style="font-size:0.85rem">No donations yet. Start your journey!</p></div>'}
+      </div>
+      <div class="panel-section" style="margin-top: 10px;">
+        <h4>Changemaker Tools</h4>
+        <div style="display:flex;gap:10px;margin-bottom:16px;">
+          <button class="btn btn-ghost" style="flex:1;justify-content:center;font-size:0.82rem;padding:10px 14px;border-radius:var(--radius-sm);" onclick="shareImpact()">📢 Share Impact</button>
+          <button class="btn btn-ghost" style="flex:1;justify-content:center;font-size:0.82rem;padding:10px 14px;border-radius:var(--radius-sm);" onclick="scrollToSection('contact');closeDashboard();">💬 Get Help</button>
+        </div>
+        <button class="btn btn-danger" style="width:100%;justify-content:center;gap:8px;padding:12px;font-size:0.9rem;border-radius:var(--radius-sm);" onclick="logoutAndCloseDashboard()">🚪 Logout</button>
       </div>
     `;
   } catch(e) {
