@@ -294,9 +294,9 @@ input, textarea { font-family: inherit; outline: none; border: none; }
 .btn-green:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(16,185,129,0.55); }
 
 .btn-danger {
-  background: linear-gradient(135deg, #EF4444, #B91C1C);
+  background: linear-gradient(135deg, #7C3AED, #EF4444);
   color: #fff;
-  box-shadow: 0 0 20px rgba(239,68,68,0.35);
+  box-shadow: 0 0 20px rgba(124,58,237,0.35);
 }
 .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 0 32px rgba(239,68,68,0.55); }
 
@@ -1634,7 +1634,7 @@ footer {
             <label for="nlPass">Password</label>
             <input type="password" id="nlPass" class="form-input" placeholder="Your password" required/>
           </div>
-          <button type="submit" class="btn btn-green">🏢 NGO Login</button>
+          <button type="submit" class="btn btn-primary">🏢 NGO Login</button>
           <div id="nlError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none"></div>
         </form>
       </div>
@@ -1683,7 +1683,7 @@ footer {
             <label for="nrDesc">Brief Motive / Purpose</label>
             <textarea id="nrDesc" class="form-input" rows="3" placeholder="Tell us about your organization's mission..." required></textarea>
           </div>
-          <button type="submit" class="btn btn-green" style="width:100%;justify-content:center;padding:14px;border-radius:var(--radius-sm);">🏢 Submit NGO Application</button>
+          <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;border-radius:var(--radius-sm);">🏢 Submit NGO Application</button>
           <div id="nrError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none;margin-top:10px;"></div>
           <div id="nrSuccess" style="color:var(--green);font-size:0.9rem;text-align:center;display:none;font-weight:600;margin-top:10px;line-height:1.5;"></div>
         </form>
@@ -2121,7 +2121,7 @@ function renderCauses(causes) {
             <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
           </div>` : ''}
           <div class="xp-badge">⚡ +${xp} XP Earned per Donation</div>
-          <button class="btn-donate" onclick="openDonation('${c._id}')">💛 Donate Now</button>
+          <button class="btn-donate" onclick="openDonation('${c._id}')">Donate Now</button>
         </div>
       </div>`;
   }).join('');
