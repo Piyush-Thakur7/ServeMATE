@@ -1157,12 +1157,14 @@ footer {
    ============================================================ */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: translateY(36px) scale(0.96) rotateX(4deg);
+  transform-style: preserve-3d;
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
 }
 .reveal.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1) rotateX(0deg);
 }
 .reveal-delay-1 { transition-delay: 0.1s; }
 .reveal-delay-2 { transition-delay: 0.2s; }
@@ -1651,13 +1653,14 @@ window.addEventListener('scroll', () => {
 });
 
 /* ============================================================
-   SCROLL REVEAL
+   SCROLL REVEAL & 3D INTERACTIVE TILT
    ============================================================ */
 function initReveal() {
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  init3DTilt();
 }
 
 /* ============================================================
@@ -1873,6 +1876,7 @@ async function verifyPayment(response) {
     const data = await res.json();
     showSuccessModal(data);
     launchConfetti();
+    playGamifiedSound('xp');
     fetchStats();
     fetchLeaderboard();
   } catch(e) {
@@ -2318,6 +2322,7 @@ document.addEventListener('keydown', e => {
    ============================================================ */
 async function init() {
   initReveal();
+  initMouseParallax();
   updateNav();
   restoreSession();
 
@@ -2330,6 +2335,128 @@ async function init() {
     fetchNgos()
   ]);
 }
+
+/* ============================================================
+   3D CARD TILT, MOUSE PARALLAX & SOUND SYNTHESIS
+   ============================================================ */
+function init3DTilt() {
+  const cards = document.querySelectorAll('.cause-card, .ngo-card, .proof-card, .stat-card, .how-card, .profile-card');
+  cards.forEach(card => {
+    card.style.transition = 'transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.15s ease, border-color 0.15s ease';
+    card.style.transformStyle = 'preserve-3d';
+    
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const xc = rect.width / 2;
+      const yc = rect.height / 2;
+      const dx = (x - xc) / xc;
+      const dy = (y - yc) / yc;
+      
+      const tiltX = -dy * 8;
+      const tiltY = dx * 8;
+      
+      card.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-6px) scale(1.02)`;
+      
+      if (card.classList.contains('cause-card')) {
+        card.style.boxShadow = `0 15px 35px rgba(249,115,22,${0.25 + dy*0.1})`;
+      } else if (card.classList.contains('ngo-card')) {
+        card.style.boxShadow = `0 15px 35px rgba(16,185,129,${0.25 + dy*0.1})`;
+      } else {
+        card.style.boxShadow = `0 15px 35px rgba(79,142,247,${0.25 + dy*0.1})`;
+      }
+    });
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px) scale(1)';
+      card.style.boxShadow = '';
+    });
+  });
+}
+
+function initMouseParallax() {
+  const hero = document.getElementById('hero');
+  if (!hero) return;
+  const orbs = [
+    { el: document.querySelector('.orb-1'), speed: -0.04 },
+    { el: document.querySelector('.orb-2'), speed: 0.03 },
+    { el: document.querySelector('.orb-3'), speed: -0.02 }
+  ];
+  const content = document.querySelector('.hero-content');
+  
+  hero.addEventListener('mousemove', e => {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const dx = e.clientX - cx;
+    const dy = e.clientY - cy;
+    
+    orbs.forEach(orb => {
+      if (orb.el) {
+        const ox = dx * orb.speed;
+        const oy = dy * orb.speed;
+        orb.el.style.transform = `translate(${ox}px, ${oy}px)`;
+      }
+    });
+    
+    if (content) {
+      const cx_tilt = dx * 0.012;
+      const cy_tilt = dy * 0.012;
+      content.style.transform = `perspective(1000px) rotateY(${cx_tilt}deg) rotateX(${-cy_tilt}deg)`;
+    }
+  });
+  
+  hero.addEventListener('mouseleave', () => {
+    orbs.forEach(orb => {
+      if (orb.el) orb.el.style.transform = '';
+    });
+    if (content) content.style.transform = '';
+  });
+}
+
+function playGamifiedSound(type) {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    const gain = ctx.createGain();
+    gain.connect(ctx.destination);
+    const now = ctx.currentTime;
+    
+    if (type === 'xp') {
+      const freqs = [261.63, 329.63, 392.00, 523.25, 659.25, 1046.50];
+      gain.gain.setValueAtTime(0.06, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+      
+      freqs.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        osc.connect(gain);
+        osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
+        osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+        osc.start(now + idx * 0.08);
+        osc.stop(now + 0.35 + idx * 0.08);
+      });
+    } else if (type === 'click') {
+      const osc = ctx.createOscillator();
+      osc.connect(gain);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(450, now);
+      osc.frequency.exponentialRampToValueAtTime(150, now + 0.08);
+      gain.gain.setValueAtTime(0.03, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc.start(now);
+      osc.stop(now + 0.08);
+    }
+  } catch (e) {
+    console.warn('Audio synthesis disabled', e);
+  }
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('.btn, .tab-btn, .nav-links a, .nav-logo, .btn-donate')) {
+    playGamifiedSound('click');
+  }
+});
 
 document.addEventListener('DOMContentLoaded', init);
 </script>
