@@ -101,6 +101,30 @@
 }
 
 /* ============================================================
+   LIGHT MODE STYLING SYSTEM
+   ============================================================ */
+body.light-mode {
+  --bg:        #F8FAFC;
+  --bg2:       #FFFFFF;
+  --bg3:       #E2E8F0;
+  --surface:   rgba(15,23,42,0.035);
+  --surface2:  rgba(15,23,42,0.065);
+  --border:    rgba(15,23,42,0.07);
+  --border2:   rgba(15,23,42,0.12);
+  --text:      #0F172A;
+  --text2:     #475569;
+  --text3:     #64748B;
+  --glow-blue: 0 0 24px rgba(79,142,247,0.18);
+  --glow-green: 0 0 24px rgba(16,185,129,0.18);
+  --glow-or:  0 0 24px rgba(249,115,22,0.22);
+}
+
+/* Liquid Smooth Theme Transition Matrix */
+body, nav, section, footer, .glass, .glass2, .cause-card, .ngo-card, .proof-card, .stat-card, h1, h2, h3, h4, p, span, a, button, input, textarea {
+  transition: background 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.15s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ============================================================
    RESET & BASE
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1186,8 +1210,11 @@ footer {
       <li><a href="#ngos">NGOs</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
-    <div class="nav-actions" id="navActions">
-      <!-- Populated by JS -->
+    <div class="nav-actions" style="display:flex;align-items:center;gap:14px;">
+      <button id="themeToggle" onclick="toggleTheme()" aria-label="Toggle Light/Dark Theme" style="background:var(--surface);border:1px solid var(--border2);color:var(--text);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.15rem;cursor:pointer;transition:transform 0.2s ease, background 0.2s ease;outline:none;"><span id="themeIcon" style="display:inline-block;transition:transform 0.3s ease;">🌙</span></button>
+      <div id="navActions" style="display:flex;gap:10px;align-items:center;">
+        <!-- Populated by JS -->
+      </div>
     </div>
   </div>
 </nav>
@@ -2321,6 +2348,7 @@ document.addEventListener('keydown', e => {
    INIT
    ============================================================ */
 async function init() {
+  applyInitialTheme();
   makeLogoTransparent();
   initReveal();
   initMouseParallax();
@@ -2498,6 +2526,49 @@ function makeLogoTransparent() {
     }
   };
   img.src = '/logo.jpg';
+}
+
+/* ============================================================
+   THEME TOGGLE SYSTEM (LIGHT & DARK MODE)
+   ============================================================ */
+function applyInitialTheme() {
+  const savedTheme = localStorage.getItem('servemate_theme') || 'dark';
+  const body = document.body;
+  const icon = document.getElementById('themeIcon');
+  
+  if (savedTheme === 'light') {
+    body.classList.add('light-mode');
+    if (icon) {
+      icon.textContent = '☀️';
+      icon.style.transform = 'rotate(360deg)';
+    }
+  } else {
+    body.classList.remove('light-mode');
+    if (icon) {
+      icon.textContent = '🌙';
+      icon.style.transform = 'rotate(0deg)';
+    }
+  }
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const icon = document.getElementById('themeIcon');
+  
+  body.classList.toggle('light-mode');
+  const isLight = body.classList.contains('light-mode');
+  
+  localStorage.setItem('servemate_theme', isLight ? 'light' : 'dark');
+  
+  if (icon) {
+    icon.style.transform = 'scale(0.3) rotate(180deg)';
+    setTimeout(() => {
+      icon.textContent = isLight ? '☀️' : '🌙';
+      icon.style.transform = isLight ? 'scale(1) rotate(360deg)' : 'scale(1) rotate(0deg)';
+    }, 150);
+  }
+  
+  playGamifiedSound('click');
 }
 
 document.addEventListener('DOMContentLoaded', init);
