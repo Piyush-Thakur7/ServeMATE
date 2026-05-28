@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /ngo-dashboard
+
+Sitemap: https://www.resence.in/sitemap.xml
