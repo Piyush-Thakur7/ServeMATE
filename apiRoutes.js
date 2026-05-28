@@ -1,8 +1,8 @@
-﻿const express  = require("express");
+const express  = require("express");
 const crypto = require("crypto");
 const Razorpay = require("razorpay");
 const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings } = require("./models");
-const { authMiddleware } = require("./authRoutes");
+const { authMiddleware } = require("./authUtils");
 const { CORE_CAUSES, mergeCoreCauses } = require("./services/causeCatalog");
 const { getProgression } = require("./services/gamificationService");
 
@@ -359,17 +359,7 @@ router.get("/donations/history", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/donations", authMiddleware, async (req, res) => {
-  try {
-    const donations = await Donation.find({ user: req.user.id })
-      .populate("cause", "title icon category")
-      .populate("ngo", "name location")
-      .sort({ createdAt: -1 });
-    res.json(donations);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+
 
 // ════════════════════════════════════════════════════════════════════════════
 //  TRANSPARENCY LOG
@@ -491,37 +481,7 @@ router.get("/leaderboard/ngos", async (req, res) => {
   }
 });
 
-router.get("/leaderboard/:type", async (req, res) => {
-  if (req.params.type === "donors") {
-    try {
-      const donors = await User.find({ donationCount: { $gt: 0 } })
-        .select("name xp level title donationCount totalDonated badges avatar bio")
-        .sort({ totalDonated: -1, xp: -1, donationCount: -1 })
-        .limit(100);
-      return res.json(donors.map((donor) => {
-        const item = donor.toObject();
-        item.progression = getProgression(item.xp);
-        return item;
-      }));
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
-  }
 
-  if (req.params.type === "ngos") {
-    try {
-      const ngos = await NGO.find({ verified: true })
-        .select("name impactScore tasksCompleted rating onTimeRate areaOfWork location")
-        .sort({ impactScore: -1 })
-        .limit(100);
-      return res.json(ngos);
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
-  }
-
-  return res.status(404).json({ error: "Leaderboard not found" });
-});
 
 // ════════════════════════════════════════════════════════════════════════════
 //  USER DASHBOARD

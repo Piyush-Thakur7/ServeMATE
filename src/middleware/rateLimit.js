@@ -25,7 +25,13 @@ const apiLimiter = createRateLimiter({
   max: Number(process.env.RATE_LIMIT_MAX) || 300,
 });
 
+const authLimiter = createRateLimiter({
+  windowMs: Number(process.env.AUTH_RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000,
+  max: Number(process.env.AUTH_RATE_LIMIT_MAX) || 20,
+});
+
 module.exports = {
   apiLimiter,
+  authLimiter,
   createRateLimiter,
 };

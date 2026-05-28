@@ -230,10 +230,11 @@ router.post("/causes", adminOnly, async (req, res) => {
 
 router.patch("/causes/:id", adminOnly, async (req, res) => {
   try {
-    const cause = await Cause.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!cause) {
-      return res.status(404).json({ error: "Cause not found" });
-    }
+    const allowed = ["title", "description", "icon", "category", "goal", "impactPerRupee", "active"];
+    const update = {};
+    allowed.forEach(field => { if (req.body[field] !== undefined) update[field] = req.body[field]; });
+    const cause = await Cause.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!cause) return res.status(404).json({ error: "Cause not found" });
     return res.json(cause);
   } catch (err) {
     console.error("[admin] Cause update failed:", err.message);

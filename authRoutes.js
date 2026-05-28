@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const { User, NGO } = require("./models");
 const { ADMIN_EMAIL, authMiddleware, signToken } = require("./authUtils");
+const { authLimiter } = require("./src/middleware/rateLimit");
 
 const router = express.Router();
 
@@ -33,7 +34,7 @@ function slugify(value) {
     .slice(0, 60);
 }
 
-router.post("/register", async (req, res) => {
+router.post("/register", authLimiter, async (req, res) => {
   try {
     const { name, password } = req.body;
     const email = normalizeEmail(req.body.email);
@@ -64,7 +65,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", authLimiter, async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
     const { password } = req.body;
@@ -106,7 +107,7 @@ router.get("/me", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/ngo/register", async (req, res) => {
+router.post("/ngo/register", authLimiter, async (req, res) => {
   try {
     const {
       name,
@@ -160,7 +161,7 @@ router.post("/ngo/register", async (req, res) => {
   }
 });
 
-router.post("/ngo/login", async (req, res) => {
+router.post("/ngo/login", authLimiter, async (req, res) => {
   try {
     const email = normalizeEmail(req.body.email);
     const { password } = req.body;

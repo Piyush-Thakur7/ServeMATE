@@ -5,158 +5,904 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
   <title>ServeMate Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    :root { --blue:#2563eb; --orange:#f97316; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f8fafc; --card:#fff; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:Inter,system-ui,Segoe UI,sans-serif; background:var(--bg); color:var(--ink); }
-    header { position:sticky; top:0; background:#fff; border-bottom:1px solid var(--line); padding:16px 24px; display:flex; justify-content:space-between; align-items:center; gap:16px; z-index:2; }
-    h1,h2 { margin:0; }
-    h1 { font-size:22px; }
-    h2 { font-size:18px; margin-bottom:12px; }
-    main { max-width:1180px; margin:0 auto; padding:24px; display:grid; gap:18px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 8px 28px rgba(15,23,42,.05); }
-    label { display:block; font-size:13px; color:var(--muted); margin:10px 0 6px; }
-    input, textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font:inherit; background:#fff; }
-    textarea { min-height:86px; resize:vertical; }
-    button { border:0; border-radius:8px; padding:10px 13px; font-weight:700; cursor:pointer; background:var(--blue); color:#fff; }
-    button.secondary { background:#e2e8f0; color:#0f172a; }
-    button.warn { background:#dc2626; }
-    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-    .metric { font-size:28px; font-weight:800; }
-    .muted { color:var(--muted); }
-    .pill { display:inline-flex; border-radius:999px; background:#eef2ff; color:#3730a3; padding:4px 9px; font-size:12px; font-weight:700; }
-    table { width:100%; border-collapse:collapse; font-size:14px; }
-    th,td { text-align:left; border-bottom:1px solid var(--line); padding:10px 8px; vertical-align:top; }
-    .toast { position:fixed; right:18px; bottom:18px; background:#111827; color:#fff; border-radius:8px; padding:12px 14px; opacity:0; transform:translateY(12px); transition:.2s; }
-    .toast.show { opacity:1; transform:none; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --sidebar-bg: #0F172A;
+      --main-bg: #111827;
+      --card-bg: #1E293B;
+      --card-border: #334155;
+      --accent: #4F8EF7;
+      --accent-dim: #1D3461;
+      --text: #F1F5F9;
+      --muted: #94A3B8;
+      --green: #10B981;
+      --orange: #F59E0B;
+      --red: #EF4444;
+      --sidebar-w: 260px;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--main-bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w); min-height: 100vh; background: var(--sidebar-bg);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
+      border-right: 1px solid #1E293B; z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+      color: var(--accent);
+    }
+    .sidebar-logo span { color: var(--text); font-weight: 400; font-size: 13px; display: block; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: 10px; cursor: pointer;
+      font-size: 14px; font-weight: 500; color: var(--muted);
+      transition: all 0.15s; user-select: none; border: none; background: none; text-align: left; width: 100%;
+    }
+    .nav-item:hover { background: #1E293B; color: var(--text); }
+    .nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 700; }
+    .nav-item .icon { width: 20px; text-align: center; font-size: 16px; }
+    .sidebar-bottom { padding: 16px 12px; border-top: 1px solid #1E293B; }
+    .logout-btn {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 11px 14px; border-radius: 10px; cursor: pointer;
+      font-size: 14px; font-weight: 600; color: #EF4444;
+      background: none; border: none; transition: background 0.15s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); }
+
+    /* ── MAIN CONTENT ── */
+    #content {
+      margin-left: var(--sidebar-w); flex: 1;
+      min-height: 100vh; padding: 0;
+    }
+    .panel { display: none; padding: 36px 40px; }
+    .panel.active { display: block; }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 32px; padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .panel-header h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .panel-header .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ── LOGIN ── */
+    #loginScreen {
+      position: fixed; inset: 0; background: var(--main-bg);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999;
+    }
+    .login-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 48px 40px; width: 100%; max-width: 420px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    }
+    .login-card .login-logo { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
+    .login-card .login-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 12px 16px;
+      background: #0F172A; border: 1px solid var(--card-border);
+      border-radius: 10px; color: var(--text); font-family: inherit; font-size: 14px;
+      transition: border-color 0.15s; outline: none;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+    .form-group textarea { min-height: 90px; resize: vertical; }
+    .form-group select option { background: #1E293B; }
+    .error-msg { color: var(--red); font-size: 13px; margin-bottom: 14px; display: none; }
+    .error-msg.show { display: block; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 18px; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; border: none; transition: all 0.15s; text-decoration: none;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #3B7AE8; box-shadow: 0 4px 20px rgba(79,142,247,0.4); }
+    .btn-sm { padding: 7px 12px; font-size: 12px; }
+    .btn-danger { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+    .btn-danger:hover { background: rgba(239,68,68,0.25); }
+    .btn-success { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+    .btn-success:hover { background: rgba(16,185,129,0.25); }
+    .btn-warn { background: rgba(245,158,11,0.15); color: var(--orange); border: 1px solid rgba(245,158,11,0.3); }
+    .btn-warn:hover { background: rgba(245,158,11,0.25); }
+    .btn-ghost { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--card-border); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
+
+    /* ── METRIC CARDS ── */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; margin-bottom: 32px; }
+    .metric-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 24px 20px;
+      display: flex; flex-direction: column; gap: 8px;
+      position: relative; overflow: hidden;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .metric-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .metric-card::before {
+      content: ''; position: absolute; top: -30px; right: -20px;
+      width: 90px; height: 90px; border-radius: 50%;
+      background: rgba(79,142,247,0.08);
+    }
+    .metric-card .card-icon { font-size: 24px; }
+    .metric-card .card-value { font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+    .metric-card .card-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
+
+    /* ── TABLES ── */
+    .table-wrap { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; }
+    .table-wrap table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .table-wrap th {
+      background: #0F172A; padding: 14px 16px; text-align: left;
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--muted); border-bottom: 1px solid var(--card-border);
+    }
+    .table-wrap td { padding: 14px 16px; border-bottom: 1px solid rgba(51,65,85,0.5); vertical-align: middle; }
+    .table-wrap tr:last-child td { border-bottom: none; }
+    .table-wrap tbody tr { transition: background 0.12s; }
+    .table-wrap tbody tr:hover { background: rgba(79,142,247,0.04); }
+    .actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* ── BADGES / STATUS ── */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 700;
+    }
+    .badge-green { background: rgba(16,185,129,0.15); color: var(--green); }
+    .badge-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+    .badge-red { background: rgba(239,68,68,0.15); color: var(--red); }
+    .badge-blue { background: rgba(79,142,247,0.15); color: var(--accent); }
+    .badge-gray { background: rgba(148,163,184,0.15); color: var(--muted); }
+
+    /* ── FILTER TABS ── */
+    .filter-tabs { display: flex; gap: 6px; margin-bottom: 20px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 6px; }
+    .filter-tab {
+      padding: 8px 18px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; border: none; background: none; color: var(--muted); transition: all 0.15s;
+    }
+    .filter-tab.active { background: var(--accent); color: #fff; }
+    .filter-tab:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.05); }
+
+    /* ── CARDS / FORMS ── */
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 28px; }
+    .card + .card { margin-top: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 700px) { .form-row, .form-row-3 { grid-template-columns: 1fr; } }
+
+    /* ── CAUSE LIST ── */
+    .causes-grid { display: grid; gap: 14px; }
+    .cause-item {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 18px 20px;
+      transition: border-color 0.15s;
+    }
+    .cause-item:hover { border-color: var(--accent); }
+    .cause-icon { font-size: 28px; width: 48px; height: 48px; background: rgba(79,142,247,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .cause-info { flex: 1; }
+    .cause-info .cause-title { font-weight: 700; font-size: 15px; }
+    .cause-info .cause-meta { font-size: 12px; color: var(--muted); margin-top: 4px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .cause-progress { height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; margin-top: 8px; overflow: hidden; }
+    .cause-progress-fill { height: 100%; background: var(--accent); border-radius: 99px; }
+
+    /* ── MESSAGES ── */
+    .message-item {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 14px; padding: 20px 24px; margin-bottom: 14px;
+      display: flex; gap: 16px; align-items: flex-start;
+    }
+    .message-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--accent-dim); display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: var(--accent); flex-shrink: 0; font-size: 16px;
+    }
+    .message-body { flex: 1; }
+    .message-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+    .message-name { font-weight: 700; font-size: 14px; }
+    .message-email { font-size: 12px; color: var(--muted); }
+    .message-text { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .message-date { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    /* ── CREATE CAUSE FORM ── */
+    #createCauseForm { display: none; }
+    #createCauseForm.show { display: block; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 500; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 36px; width: 100%; max-width: 480px;
+      transform: scale(0.95); transition: transform 0.2s;
+    }
+    .modal-overlay.open .modal { transform: scale(1); }
+    .modal h3 { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
+    .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+    /* ── TOAST ── */
+    #toastContainer { position: fixed; right: 24px; bottom: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4); min-width: 280px; max-width: 400px;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { background: #0D2B1D; border: 1px solid #10B98150; color: var(--green); }
+    .toast.error { background: #2B0D0D; border: 1px solid #EF444450; color: var(--red); }
+    .toast.info { background: #0D1B2B; border: 1px solid #4F8EF750; color: var(--accent); }
+
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+
+    /* ── LOADING ── */
+    .loading-row td { text-align: center; color: var(--muted); padding: 40px; }
+
+    /* ── USERS ── */
+    .user-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent-dim); display: inline-flex; align-items: center; justify-content: center;
+      font-weight: 800; color: var(--accent); font-size: 13px;
+    }
+
+    /* ── SETTINGS ── */
+    .settings-section-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>ServeMate Admin</h1>
-      <div class="muted">Customize the site, approve NGOs, verify work, and manage token requests.</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">SM Admin</div>
+    <div class="login-sub">Sign in to manage the ServeMATE platform</div>
+    <div class="error-msg" id="loginError"></div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="admin@servemate.in">
     </div>
-    <div class="row">
-      <input id="email" placeholder="Admin email">
-      <input id="password" type="password" placeholder="Password">
-      <button onclick="login()">Sign in</button>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
     </div>
-  </header>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">Sign In</button>
+  </div>
+</div>
 
-  <main>
-    <section class="grid" id="stats"></section>
+<!-- SIDEBAR -->
+<nav id="sidebar" style="display:none">
+  <div class="sidebar-logo">SM Admin <span>Platform Control</span></div>
+  <div class="sidebar-nav">
+    <button class="nav-item active" id="nav-overview" onclick="showPanel('overview')">
+      <span class="icon">📊</span> Overview
+    </button>
+    <button class="nav-item" id="nav-ngos" onclick="showPanel('ngos')">
+      <span class="icon">🏢</span> NGOs
+    </button>
+    <button class="nav-item" id="nav-causes" onclick="showPanel('causes')">
+      <span class="icon">🌱</span> Causes
+    </button>
+    <button class="nav-item" id="nav-donations" onclick="showPanel('donations')">
+      <span class="icon">💳</span> Donations
+    </button>
+    <button class="nav-item" id="nav-users" onclick="showPanel('users')">
+      <span class="icon">👥</span> Users
+    </button>
+    <button class="nav-item" id="nav-messages" onclick="showPanel('messages')">
+      <span class="icon">💬</span> Messages
+    </button>
+    <button class="nav-item" id="nav-settings" onclick="showPanel('settings')">
+      <span class="icon">⚙️</span> Settings
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="logout-btn" onclick="logout()">
+      <span>🚪</span> Logout
+    </button>
+  </div>
+</nav>
 
-    <section class="card">
-      <h2>Website Customization</h2>
-      <div class="grid">
-        <div>
-          <label>Brand name</label><input id="brandName">
-          <label>Primary color</label><input id="primaryColor">
-          <label>Accent color</label><input id="accentColor">
-          <label>Announcement</label><input id="announcement">
-        </div>
-        <div>
-          <label>Hero title</label><input id="heroTitle">
-          <label>Hero subtitle</label><textarea id="heroSubtitle"></textarea>
-          <label>Logo URL</label><input id="logoUrl">
-        </div>
-        <div>
-          <label>SEO title</label><input id="seoTitle">
-          <label>SEO description</label><textarea id="seoDescription"></textarea>
-          <label>SEO keywords, comma separated</label><input id="seoKeywords">
-        </div>
+<!-- MAIN CONTENT -->
+<div id="content" style="display:none">
+
+  <!-- OVERVIEW PANEL -->
+  <div class="panel active" id="panel-overview">
+    <div class="panel-header">
+      <div>
+        <h2>Platform Overview</h2>
+        <div class="sub">Real-time metrics for the ServeMATE platform</div>
       </div>
-      <div class="row" style="margin-top:12px"><button onclick="saveSettings()">Save website settings</button><button class="secondary" onclick="loadAll()">Refresh</button></div>
-    </section>
+      <button class="btn btn-ghost btn-sm" onclick="loadOverview()">↺ Refresh</button>
+    </div>
+    <div class="metrics-grid" id="overviewMetrics">
+      <div class="metric-card"><div class="card-icon">⏳</div><div class="card-value">—</div><div class="card-label">Loading...</div></div>
+    </div>
+  </div>
 
-    <section class="grid">
-      <div class="card">
-        <h2>NGO Approvals</h2>
-        <table><thead><tr><th>NGO</th><th>Status</th><th>Action</th></tr></thead><tbody id="ngos"></tbody></table>
+  <!-- NGOs PANEL -->
+  <div class="panel" id="panel-ngos">
+    <div class="panel-header">
+      <div><h2>NGO Management</h2><div class="sub">Approve, reject or remove NGO partners</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="loadNgos()">↺ Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>NGO</th>
+            <th>Email</th>
+            <th>Reg #</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="ngosBody">
+          <tr class="loading-row"><td colspan="5">Loading NGOs…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CAUSES PANEL -->
+  <div class="panel" id="panel-causes">
+    <div class="panel-header">
+      <div><h2>Causes Management</h2><div class="sub">Manage donation causes and goals</div></div>
+      <button class="btn btn-primary btn-sm" onclick="toggleCreateCause()">＋ Create Cause</button>
+    </div>
+    <div id="createCauseForm" class="card" style="margin-bottom:24px">
+      <div class="settings-section-title">New Cause</div>
+      <div class="form-row">
+        <div class="form-group"><label>Title</label><input id="causeTitle" placeholder="Clean Water for Schools"></div>
+        <div class="form-group"><label>Icon Emoji</label><input id="causeIcon" placeholder="💧" maxlength="4"></div>
       </div>
-      <div class="card">
-        <h2>Submitted Work</h2>
-        <table><thead><tr><th>Task</th><th>NGO</th><th>Action</th></tr></thead><tbody id="tasks"></tbody></table>
+      <div class="form-group"><label>Description</label><textarea id="causeDesc" placeholder="Describe what donations will achieve…"></textarea></div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Category</label>
+          <select id="causeCat">
+            <option value="trees">Trees</option>
+            <option value="meals">Meals</option>
+            <option value="essentials">Essentials</option>
+            <option value="ngo-support">NGO Support</option>
+            <option value="education">Education</option>
+            <option value="health">Health</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Goal (₹)</label><input type="number" id="causeGoal" placeholder="100000"></div>
+        <div class="form-group"><label>Impact per ₹1</label><input id="causeImpact" placeholder="e.g. 1 meal"></div>
       </div>
-    </section>
-  </main>
-  <div class="toast" id="toast"></div>
+      <div class="form-group">
+        <label>Assign NGO (verified only)</label>
+        <select id="causeNgo"><option value="">Loading NGOs…</option></select>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button class="btn btn-primary" onclick="createCause()">Create Cause</button>
+        <button class="btn btn-ghost" onclick="toggleCreateCause()">Cancel</button>
+      </div>
+    </div>
+    <div class="causes-grid" id="causesGrid">
+      <div class="empty"><div class="empty-icon">⏳</div><p>Loading causes…</p></div>
+    </div>
+  </div>
 
-  <script>
-    const api = '';
-    let token = localStorage.getItem('servemate_admin_token') || '';
+  <!-- DONATIONS PANEL -->
+  <div class="panel" id="panel-donations">
+    <div class="panel-header">
+      <div><h2>Donations</h2><div class="sub">Track and verify all platform donations</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="loadDonations()">↺ Refresh</button>
+    </div>
+    <div class="filter-tabs" id="donationTabs">
+      <button class="filter-tab active" onclick="setDonationFilter('all', this)">All</button>
+      <button class="filter-tab" onclick="setDonationFilter('pending', this)">Pending</button>
+      <button class="filter-tab" onclick="setDonationFilter('completed', this)">Completed</button>
+      <button class="filter-tab" onclick="setDonationFilter('verified', this)">Verified</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Cause</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="donationsBody">
+          <tr class="loading-row"><td colspan="6">Loading donations…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    function headers() {
-      return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
-    }
-    function toast(message) {
-      const el = document.getElementById('toast');
-      el.textContent = message;
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2500);
-    }
-    async function request(path, options = {}) {
-      const res = await fetch(api + path, { ...options, headers: { ...headers(), ...(options.headers || {}) } });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Request failed');
-      return data;
-    }
-    async function login() {
-      const data = await request('/api/auth/login', {
+  <!-- USERS PANEL -->
+  <div class="panel" id="panel-users">
+    <div class="panel-header">
+      <div><h2>Users</h2><div class="sub">Platform user accounts and activity</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="loadUsers()">↺ Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Level</th>
+            <th>XP</th>
+            <th>Total Donated</th>
+            <th>Badges</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr class="loading-row"><td colspan="8">Loading users…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MESSAGES PANEL -->
+  <div class="panel" id="panel-messages">
+    <div class="panel-header">
+      <div><h2>Messages</h2><div class="sub">Contact form submissions</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="loadMessages()">↺ Refresh</button>
+    </div>
+    <div id="messagesList">
+      <div class="empty"><div class="empty-icon">⏳</div><p>Loading messages…</p></div>
+    </div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div class="panel" id="panel-settings">
+    <div class="panel-header">
+      <div><h2>Site Settings</h2><div class="sub">Customize the ServeMATE platform</div></div>
+    </div>
+    <div class="card">
+      <div class="settings-section-title">Brand & Identity</div>
+      <div class="form-row">
+        <div class="form-group"><label>Brand Name</label><input id="settingBrandName"></div>
+        <div class="form-group"><label>Logo URL</label><input id="settingLogoUrl"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Primary Color</label><input id="settingPrimaryColor" placeholder="#4F8EF7"></div>
+        <div class="form-group"><label>Accent Color</label><input id="settingAccentColor" placeholder="#10B981"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="settings-section-title">Hero Section</div>
+      <div class="form-group"><label>Hero Title</label><input id="settingHeroTitle"></div>
+      <div class="form-group"><label>Hero Subtitle</label><textarea id="settingHeroSubtitle"></textarea></div>
+      <div class="form-group"><label>Announcement Banner</label><input id="settingAnnouncement" placeholder="Special announcement text…"></div>
+    </div>
+    <div class="card">
+      <div class="settings-section-title">SEO</div>
+      <div class="form-group"><label>SEO Title</label><input id="settingSeoTitle"></div>
+      <div class="form-group"><label>SEO Description</label><textarea id="settingSeoDescription"></textarea></div>
+      <div class="form-group"><label>SEO Keywords (comma separated)</label><input id="settingSeoKeywords" placeholder="ngo, donations, india, charity"></div>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- PROOF MODAL -->
+<div class="modal-overlay" id="proofModal">
+  <div class="modal">
+    <h3>📎 Add Donation Proof</h3>
+    <input type="hidden" id="proofDonationId">
+    <div class="form-group"><label>Proof Video URL</label><input id="proofVideo" placeholder="https://…"></div>
+    <div class="form-group"><label>Proof Note</label><textarea id="proofNote" placeholder="Describe the proof of impact…"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('proofModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="submitProof()">Submit Proof</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toastContainer"></div>
+
+<script>
+  const API = 'https://servemate.onrender.com';
+  let token = localStorage.getItem('servemate_admin_token') || '';
+  let currentDonationFilter = 'all';
+
+  function headers() {
+    return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+  }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(API + path, { ...opts, headers: { ...headers(), ...(opts.headers || {}) } });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401 || res.status === 403) { logout(); throw new Error('Session expired'); }
+    if (!res.ok) throw new Error(data.error || data.message || 'Request failed');
+    return data;
+  }
+
+  function showToast(msg, type = 'success') {
+    const wrap = document.getElementById('toastContainer');
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    el.innerHTML = `<span>${icons[type] || '✅'}</span><span>${msg}</span>`;
+    wrap.appendChild(el);
+    requestAnimationFrame(() => { requestAnimationFrame(() => el.classList.add('show')); });
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 400);
+    }, 3500);
+  }
+
+  function showPanel(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    const loaders = { overview: loadOverview, ngos: loadNgos, causes: loadCauses, donations: loadDonations, users: loadUsers, messages: loadMessages, settings: loadSettings };
+    if (loaders[name]) loaders[name]();
+  }
+
+  function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('sidebar').style.display = 'flex';
+    document.getElementById('content').style.display = 'block';
+    loadOverview();
+  }
+
+  function showLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('sidebar').style.display = 'none';
+    document.getElementById('content').style.display = 'none';
+  }
+
+  function logout() {
+    localStorage.removeItem('servemate_admin_token');
+    token = '';
+    showLogin();
+  }
+
+  async function doLogin() {
+    const errEl = document.getElementById('loginError');
+    errEl.classList.remove('show');
+    const btn = document.getElementById('loginBtn');
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+    try {
+      const data = await api('/api/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email: email.value, password: password.value })
+        body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value })
       });
-      if (data.user.role !== 'admin') throw new Error('This account is not an admin');
+      if (!data.user || data.user.role !== 'admin') throw new Error('Access denied: not an admin account');
       token = data.token;
       localStorage.setItem('servemate_admin_token', token);
-      toast('Signed in');
-      loadAll();
+      showDashboard();
+    } catch (e) {
+      errEl.textContent = e.message;
+      errEl.classList.add('show');
+    } finally {
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
     }
-    async function loadAll() {
-      await Promise.all([loadStats(), loadSettings(), loadNgos(), loadTasks()]);
-    }
-    async function loadStats() {
-      const s = await request('/api/admin/stats');
-      stats.innerHTML = Object.entries(s).map(([k,v]) => `<div class="card"><div class="metric">${v}</div><div class="muted">${k}</div></div>`).join('');
-    }
-    async function loadSettings() {
-      const s = await request('/api/admin/settings');
-      ['brandName','primaryColor','accentColor','announcement','heroTitle','heroSubtitle','logoUrl','seoTitle','seoDescription'].forEach(id => document.getElementById(id).value = s[id] || '');
-      seoKeywords.value = (s.seoKeywords || []).join(', ');
-    }
-    async function saveSettings() {
-      await request('/api/admin/settings', {
-        method: 'PATCH',
+  }
+
+  // Allow Enter key in login
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') doLogin();
+  });
+
+  // ── OVERVIEW ──
+  async function loadOverview() {
+    try {
+      const d = await api('/api/admin/overview');
+      const fields = [
+        { key: 'totalUsers', label: 'Total Users', icon: '👥', fmt: v => v },
+        { key: 'verifiedNGOs', label: 'Verified NGOs', icon: '🏢', fmt: v => v },
+        { key: 'totalDonated', label: 'Total Donated', icon: '💰', fmt: v => `₹${Number(v).toLocaleString('en-IN')}` },
+        { key: 'totalDonations', label: 'Donations', icon: '💳', fmt: v => v },
+        { key: 'pendingNGOs', label: 'Pending NGOs', icon: '⏳', fmt: v => v },
+        { key: 'unreadMessages', label: 'Unread Messages', icon: '💬', fmt: v => v }
+      ];
+      document.getElementById('overviewMetrics').innerHTML = fields.map(f => `
+        <div class="metric-card">
+          <div class="card-icon">${f.icon}</div>
+          <div class="card-value">${f.fmt(d[f.key] ?? 0)}</div>
+          <div class="card-label">${f.label}</div>
+        </div>`).join('');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── NGOs ──
+  async function loadNgos() {
+    try {
+      const list = await api('/api/admin/ngos');
+      const tbody = document.getElementById('ngosBody');
+      if (!list.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">🏢</div><p>No NGOs found</p></div></td></tr>`; return; }
+      tbody.innerHTML = list.map(n => `
+        <tr>
+          <td><strong>${esc(n.name)}</strong></td>
+          <td style="color:var(--muted);font-size:13px">${esc(n.email || '')}</td>
+          <td style="color:var(--muted);font-size:13px">${esc(n.registrationNumber || n.regNo || '—')}</td>
+          <td>${n.verified ? '<span class="badge badge-green">✓ Approved</span>' : '<span class="badge badge-orange">⏳ Pending</span>'}</td>
+          <td>
+            <div class="actions">
+              ${!n.verified ? `<button class="btn btn-success btn-sm" onclick="approveNgo('${n._id}')">Approve</button>` : ''}
+              <button class="btn btn-warn btn-sm" onclick="rejectNgo('${n._id}')">Reject</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteNgo('${n._id}')">Delete</button>
+            </div>
+          </td>
+        </tr>`).join('');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function approveNgo(id) {
+    try { await api(`/api/admin/ngos/${id}/verify`, { method: 'PATCH' }); showToast('NGO approved!'); loadNgos(); } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function rejectNgo(id) {
+    if (!confirm('Reject this NGO?')) return;
+    try { await api(`/api/admin/reject-ngo/${id}`, { method: 'PATCH' }); showToast('NGO rejected.', 'info'); loadNgos(); } catch (e) { showToast(e.message, 'error'); }
+  }
+  async function deleteNgo(id) {
+    if (!confirm('Permanently delete this NGO? This cannot be undone.')) return;
+    try { await api(`/api/admin/ngos/${id}`, { method: 'DELETE' }); showToast('NGO deleted.', 'info'); loadNgos(); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── CAUSES ──
+  let _verifiedNgos = [];
+
+  async function loadCauses() {
+    try {
+      const [causes, ngos] = await Promise.all([api('/api/admin/causes'), api('/api/admin/ngos')]);
+      _verifiedNgos = ngos.filter(n => n.verified);
+      document.getElementById('causeNgo').innerHTML = `<option value="">— No NGO —</option>` + _verifiedNgos.map(n => `<option value="${n._id}">${esc(n.name)}</option>`).join('');
+      const grid = document.getElementById('causesGrid');
+      if (!causes.length) { grid.innerHTML = `<div class="empty"><div class="empty-icon">🌱</div><p>No causes yet. Create one!</p></div>`; return; }
+      grid.innerHTML = causes.map(c => {
+        const pct = c.goal ? Math.min(100, Math.round((c.raised || 0) / c.goal * 100)) : 0;
+        return `
+          <div class="cause-item">
+            <div class="cause-icon">${c.icon || '🌱'}</div>
+            <div class="cause-info">
+              <div class="cause-title">${esc(c.title)}</div>
+              <div class="cause-meta">
+                <span>₹${(c.raised || 0).toLocaleString('en-IN')} / ₹${(c.goal || 0).toLocaleString('en-IN')}</span>
+                <span>${esc(c.category || '')}</span>
+                <span>${c.ngo?.name ? esc(c.ngo.name) : (c.assignedNgo?.name ? esc(c.assignedNgo.name) : '—')}</span>
+                ${c.active ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-gray">Inactive</span>'}
+              </div>
+              <div class="cause-progress"><div class="cause-progress-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-sm ${c.active ? 'btn-warn' : 'btn-success'}" onclick="toggleCause('${c._id}', ${!c.active})">${c.active ? 'Disable' : 'Enable'}</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteCause('${c._id}')">Delete</button>
+            </div>
+          </div>`;
+      }).join('');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function toggleCreateCause() {
+    const f = document.getElementById('createCauseForm');
+    f.classList.toggle('show');
+  }
+
+  async function createCause() {
+    try {
+      await api('/api/admin/causes', {
+        method: 'POST',
         body: JSON.stringify({
-          brandName: brandName.value,
-          primaryColor: primaryColor.value,
-          accentColor: accentColor.value,
-          announcement: announcement.value,
-          heroTitle: heroTitle.value,
-          heroSubtitle: heroSubtitle.value,
-          logoUrl: logoUrl.value,
-          seoTitle: seoTitle.value,
-          seoDescription: seoDescription.value,
-          seoKeywords: seoKeywords.value.split(',').map(x => x.trim()).filter(Boolean)
+          title: document.getElementById('causeTitle').value,
+          description: document.getElementById('causeDesc').value,
+          icon: document.getElementById('causeIcon').value,
+          category: document.getElementById('causeCat').value,
+          goal: Number(document.getElementById('causeGoal').value),
+          impactPerRupee: document.getElementById('causeImpact').value,
+          assignedNgo: document.getElementById('causeNgo').value || undefined
         })
       });
-      toast('Website settings saved');
-    }
-    async function loadNgos() {
-      const list = await request('/api/admin/ngos');
-      ngos.innerHTML = list.map(ngo => `<tr><td><strong>${ngo.name}</strong><br><span class="muted">${ngo.email || ''}<br>${ngo.slug || ngo._id}.resence.in</span></td><td><span class="pill">${ngo.verified ? 'Approved' : 'Pending'}</span></td><td class="row"><button onclick="approveNgo('${ngo._id}')">Approve</button><button class="warn" onclick="rejectNgo('${ngo._id}')">Reject</button></td></tr>`).join('');
-    }
-    async function approveNgo(id) { await request(`/api/admin/verify-ngo/${id}`, { method:'PATCH' }); toast('NGO approved'); loadAll(); }
-    async function rejectNgo(id) { await request(`/api/admin/reject-ngo/${id}`, { method:'PATCH' }); toast('NGO rejected'); loadAll(); }
-    async function loadTasks() {
-      const list = await request('/api/admin/tasks');
-      tasks.innerHTML = list.map(task => `<tr><td><strong>${task.title}</strong><br><span class="muted">${task.status}</span></td><td>${task.ngoId?.name || ''}</td><td class="row"><button onclick="verifyTask('${task._id}')">Verify</button><button class="warn" onclick="rejectTask('${task._id}')">Reject</button></td></tr>`).join('');
-    }
-    async function verifyTask(id) { await request(`/api/admin/tasks/${id}/verify`, { method:'PATCH' }); toast('Task verified'); loadAll(); }
-    async function rejectTask(id) { await request(`/api/admin/tasks/${id}/reject`, { method:'PATCH' }); toast('Task rejected'); loadAll(); }
-    if (token) loadAll().catch(err => toast(err.message));
-  </script>
+      showToast('Cause created!');
+      document.getElementById('createCauseForm').classList.remove('show');
+      loadCauses();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function deleteCause(id) {
+    if (!confirm('Delete this cause?')) return;
+    try { await api(`/api/admin/causes/${id}`, { method: 'DELETE' }); showToast('Cause deleted.', 'info'); loadCauses(); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function toggleCause(id, active) {
+    try { await api(`/api/admin/causes/${id}`, { method: 'PATCH', body: JSON.stringify({ active }) }); showToast(`Cause ${active ? 'enabled' : 'disabled'}.`); loadCauses(); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── DONATIONS ──
+  function setDonationFilter(f, btn) {
+    currentDonationFilter = f;
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    loadDonations();
+  }
+
+  async function loadDonations() {
+    try {
+      const qs = currentDonationFilter !== 'all' ? `?status=${currentDonationFilter}` : '';
+      const list = await api(`/api/admin/donations${qs}`);
+      const tbody = document.getElementById('donationsBody');
+      if (!list.length) { tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">💳</div><p>No donations found</p></div></td></tr>`; return; }
+      const statusMap = { pending: 'badge-orange', completed: 'badge-blue', verified: 'badge-green' };
+      tbody.innerHTML = list.map(d => `
+        <tr>
+          <td>${esc(d.user?.name || d.user?.email || '—')}</td>
+          <td>${esc(d.cause?.title || '—')}</td>
+          <td><strong>₹${Number(d.amount || 0).toLocaleString('en-IN')}</strong></td>
+          <td><span class="badge ${statusMap[d.status] || 'badge-gray'}">${esc(d.status || '—')}</span></td>
+          <td style="color:var(--muted);font-size:12px">${fmtDate(d.createdAt)}</td>
+          <td>
+            <div class="actions">
+              ${d.status !== 'verified' ? `<button class="btn btn-success btn-sm" onclick="verifyDonation('${d._id}')">Verify</button>` : ''}
+              ${d.status === 'pending' ? `<button class="btn btn-ghost btn-sm" onclick="openProofModal('${d._id}')">Add Proof</button>` : ''}
+            </div>
+          </td>
+        </tr>`).join('');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function openProofModal(id) {
+    document.getElementById('proofDonationId').value = id;
+    document.getElementById('proofVideo').value = '';
+    document.getElementById('proofNote').value = '';
+    document.getElementById('proofModal').classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  async function submitProof() {
+    const id = document.getElementById('proofDonationId').value;
+    try {
+      await api(`/api/admin/donations/${id}/complete`, {
+        method: 'PATCH',
+        body: JSON.stringify({ proofVideo: document.getElementById('proofVideo').value, proofNote: document.getElementById('proofNote').value })
+      });
+      showToast('Proof submitted!');
+      closeModal('proofModal');
+      loadDonations();
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function verifyDonation(id) {
+    try { await api(`/api/admin/donations/${id}/verify`, { method: 'PATCH' }); showToast('Donation verified!'); loadDonations(); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── USERS ──
+  async function loadUsers() {
+    try {
+      const list = await api('/api/admin/users');
+      const tbody = document.getElementById('usersBody');
+      if (!list.length) { tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">👥</div><p>No users found</p></div></td></tr>`; return; }
+      tbody.innerHTML = list.map(u => `
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="user-avatar">${(u.name || 'U')[0].toUpperCase()}</div>
+              <strong>${esc(u.name || '—')}</strong>
+            </div>
+          </td>
+          <td style="color:var(--muted);font-size:13px">${esc(u.email || '—')}</td>
+          <td>${u.level || 1}</td>
+          <td>${(u.xp || 0).toLocaleString()}</td>
+          <td>₹${(u.totalDonated || 0).toLocaleString('en-IN')}</td>
+          <td>${(u.badges || []).length}</td>
+          <td style="color:var(--muted);font-size:12px">${fmtDate(u.createdAt)}</td>
+          <td>
+            <button class="btn btn-warn btn-sm" onclick="resetActivity('${u._id}')">Reset Activity</button>
+          </td>
+        </tr>`).join('');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function resetActivity(id) {
+    if (!confirm('Reset this user\'s activity? This cannot be undone.')) return;
+    try { await api(`/api/admin/users/${id}/reset-activity`, { method: 'POST' }); showToast('User activity reset.', 'info'); loadUsers(); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── MESSAGES ──
+  async function loadMessages() {
+    try {
+      const list = await api('/api/admin/contacts');
+      const wrap = document.getElementById('messagesList');
+      if (!list.length) { wrap.innerHTML = `<div class="empty"><div class="empty-icon">💬</div><p>No messages yet</p></div>`; return; }
+      wrap.innerHTML = list.map(m => `
+        <div class="message-item">
+          <div class="message-avatar">${(m.name || 'U')[0].toUpperCase()}</div>
+          <div class="message-body">
+            <div class="message-header">
+              <div class="message-name">${esc(m.name || '—')}</div>
+              <div class="message-email">${esc(m.email || '')}</div>
+              ${m.read ? '<span class="badge badge-gray">Read</span>' : '<span class="badge badge-blue">Unread</span>'}
+            </div>
+            <div class="message-text">${esc(m.message || '')}</div>
+            <div class="message-date">${fmtDate(m.createdAt)}</div>
+          </div>
+          <div>
+            ${!m.read ? `<button class="btn btn-ghost btn-sm" onclick="markRead('${m._id}')">Mark Read</button>` : ''}
+          </div>
+        </div>`).join('');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function markRead(id) {
+    try { await api(`/api/admin/contacts/${id}/read`, { method: 'PATCH' }); showToast('Marked as read.', 'info'); loadMessages(); } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── SETTINGS ──
+  async function loadSettings() {
+    try {
+      const s = await api('/api/admin/settings');
+      document.getElementById('settingBrandName').value = s.brandName || '';
+      document.getElementById('settingLogoUrl').value = s.logoUrl || '';
+      document.getElementById('settingPrimaryColor').value = s.primaryColor || '';
+      document.getElementById('settingAccentColor').value = s.accentColor || '';
+      document.getElementById('settingHeroTitle').value = s.heroTitle || '';
+      document.getElementById('settingHeroSubtitle').value = s.heroSubtitle || '';
+      document.getElementById('settingAnnouncement').value = s.announcement || '';
+      document.getElementById('settingSeoTitle').value = s.seoTitle || '';
+      document.getElementById('settingSeoDescription').value = s.seoDescription || '';
+      document.getElementById('settingSeoKeywords').value = (s.seoKeywords || []).join(', ');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function saveSettings() {
+    try {
+      await api('/api/admin/settings', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          brandName: document.getElementById('settingBrandName').value,
+          logoUrl: document.getElementById('settingLogoUrl').value,
+          primaryColor: document.getElementById('settingPrimaryColor').value,
+          accentColor: document.getElementById('settingAccentColor').value,
+          heroTitle: document.getElementById('settingHeroTitle').value,
+          heroSubtitle: document.getElementById('settingHeroSubtitle').value,
+          announcement: document.getElementById('settingAnnouncement').value,
+          seoTitle: document.getElementById('settingSeoTitle').value,
+          seoDescription: document.getElementById('settingSeoDescription').value,
+          seoKeywords: document.getElementById('settingSeoKeywords').value.split(',').map(x => x.trim()).filter(Boolean)
+        })
+      });
+      showToast('Settings saved!');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── UTILS ──
+  function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); }
+
+  // ── INIT ──
+  if (token) {
+    showDashboard();
+  } else {
+    showLogin();
+  }
+</script>
 </body>
 </html>

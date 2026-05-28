@@ -4,148 +4,531 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>ServeMate NGO Dashboard</title>
+  <title>NGO Hub — ServeMATE Partner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    :root { --blue:#2563eb; --orange:#f97316; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0; --bg:#f8fafc; --card:#fff; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:Inter,system-ui,Segoe UI,sans-serif; background:var(--bg); color:var(--ink); }
-    header { background:#fff; border-bottom:1px solid var(--line); padding:18px 24px; display:flex; justify-content:space-between; gap:16px; align-items:center; }
-    main { max-width:1120px; margin:0 auto; padding:24px; display:grid; gap:18px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
-    .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; box-shadow:0 8px 28px rgba(15,23,42,.05); }
-    h1,h2 { margin:0; } h1 { font-size:22px; } h2 { font-size:18px; margin-bottom:12px; }
-    label { display:block; margin:10px 0 6px; color:var(--muted); font-size:13px; }
-    input, textarea { width:100%; border:1px solid var(--line); border-radius:8px; padding:10px 12px; font:inherit; background:#fff; }
-    textarea { min-height:90px; resize:vertical; }
-    button { border:0; border-radius:8px; padding:10px 13px; font-weight:800; cursor:pointer; background:var(--blue); color:#fff; }
-    .orange { background:var(--orange); }
-    .muted { color:var(--muted); }
-    .pill { display:inline-flex; border-radius:999px; background:#eef2ff; color:#3730a3; padding:5px 10px; font-size:12px; font-weight:800; }
-    table { width:100%; border-collapse:collapse; font-size:14px; }
-    th,td { text-align:left; border-bottom:1px solid var(--line); padding:10px 8px; vertical-align:top; }
-    .toast { position:fixed; right:18px; bottom:18px; background:#111827; color:#fff; border-radius:8px; padding:12px 14px; opacity:0; transform:translateY(12px); transition:.2s; }
-    .toast.show { opacity:1; transform:none; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --sidebar-bg: #0F172A;
+      --main-bg: #111827;
+      --card-bg: #1E293B;
+      --card-border: #334155;
+      --accent: #10B981;
+      --accent-dim: #0D2B1D;
+      --text: #F1F5F9;
+      --muted: #94A3B8;
+      --orange: #F59E0B;
+      --red: #EF4444;
+      --sidebar-w: 260px;
+    }
+    html, body { height: 100%; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--main-bg); color: var(--text); display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w); min-height: 100vh; background: var(--sidebar-bg);
+      display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
+      border-right: 1px solid #1E293B; z-index: 100;
+    }
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+      color: var(--accent);
+    }
+    .sidebar-logo span { color: var(--text); font-weight: 400; font-size: 13px; display: block; margin-top: 2px; }
+    .sidebar-nav { flex: 1; padding: 8px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 11px 14px; border-radius: 10px; cursor: pointer;
+      font-size: 14px; font-weight: 500; color: var(--muted);
+      transition: all 0.15s; user-select: none; border: none; background: none; text-align: left; width: 100%;
+    }
+    .nav-item:hover { background: #1E293B; color: var(--text); }
+    .nav-item.active { background: var(--accent-dim); color: var(--accent); font-weight: 700; }
+    .nav-item .icon { width: 20px; text-align: center; font-size: 16px; }
+    .sidebar-bottom { padding: 16px 12px; border-top: 1px solid #1E293B; }
+    .logout-btn {
+      display: flex; align-items: center; gap: 12px; width: 100%;
+      padding: 11px 14px; border-radius: 10px; cursor: pointer;
+      font-size: 14px; font-weight: 600; color: #EF4444;
+      background: none; border: none; transition: background 0.15s;
+    }
+    .logout-btn:hover { background: rgba(239,68,68,0.1); }
+
+    /* ── MAIN CONTENT ── */
+    #content { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; }
+    .panel { display: none; padding: 36px 40px; }
+    .panel.active { display: block; }
+    .panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 32px; padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .panel-header h2 { font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+    .panel-header .sub { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+    /* ── LOGIN SCREEN ── */
+    #loginScreen {
+      position: fixed; inset: 0; background: var(--main-bg);
+      display: flex; align-items: center; justify-content: center; z-index: 999;
+    }
+    .login-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 20px; padding: 48px 40px; width: 100%; max-width: 420px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    }
+    .login-logo { font-size: 28px; font-weight: 900; color: var(--accent); margin-bottom: 8px; }
+    .login-sub { font-size: 14px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 12px 16px;
+      background: #0F172A; border: 1px solid var(--card-border);
+      border-radius: 10px; color: var(--text); font-family: inherit; font-size: 14px;
+      transition: border-color 0.15s; outline: none;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .error-msg { color: var(--red); font-size: 13px; margin-bottom: 14px; display: none; }
+    .error-msg.show { display: block; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 10px 18px; border-radius: 10px; font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; border: none; transition: all 0.15s;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #0CA873; box-shadow: 0 4px 20px rgba(16,185,129,0.4); }
+    .btn-full { width: 100%; justify-content: center; padding: 14px; font-size: 15px; }
+    .btn-ghost { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--card-border); }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .btn-sm { padding: 7px 12px; font-size: 12px; }
+
+    /* ── METRIC CARDS ── */
+    .metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 18px; margin-bottom: 32px; }
+    .metric-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: 16px; padding: 24px 20px;
+      display: flex; flex-direction: column; gap: 8px;
+      position: relative; overflow: hidden; transition: transform 0.2s, border-color 0.2s;
+    }
+    .metric-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+    .metric-card::before {
+      content: ''; position: absolute; top: -30px; right: -20px;
+      width: 90px; height: 90px; border-radius: 50%; background: rgba(16,185,129,0.08);
+    }
+    .metric-card .card-icon { font-size: 24px; }
+    .metric-card .card-value { font-size: 32px; font-weight: 900; letter-spacing: -1px; }
+    .metric-card .card-label { font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
+
+    /* ── CARD ── */
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 28px; }
+    .card + .card { margin-top: 20px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 700px) { .form-row { grid-template-columns: 1fr; } }
+
+    /* ── STATUS BADGE ── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .badge-green { background: rgba(16,185,129,0.15); color: var(--accent); }
+    .badge-orange { background: rgba(245,158,11,0.15); color: var(--orange); }
+
+    /* ── TABLE ── */
+    .table-wrap { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; overflow: hidden; }
+    .table-wrap table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    .table-wrap th { background: #0F172A; padding: 14px 16px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); border-bottom: 1px solid var(--card-border); }
+    .table-wrap td { padding: 14px 16px; border-bottom: 1px solid rgba(51,65,85,0.5); vertical-align: middle; }
+    .table-wrap tr:last-child td { border-bottom: none; }
+    .table-wrap tbody tr:hover { background: rgba(16,185,129,0.04); }
+
+    /* ── TOAST ── */
+    #toastContainer { position: fixed; right: 24px; bottom: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600;
+      display: flex; align-items: center; gap: 10px;
+      transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4); min-width: 280px;
+    }
+    .toast.show { transform: translateX(0); }
+    .toast.success { background: #0D2B1D; border: 1px solid #10B98150; color: var(--accent); }
+    .toast.error { background: #2B0D0D; border: 1px solid #EF444450; color: var(--red); }
+    .toast.info { background: #0D2B1D; border: 1px solid #10B98130; color: var(--muted); }
+
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; }
+
+    /* ── DASHBOARD HERO ── */
+    .ngo-hero {
+      background: linear-gradient(135deg, #0D2B1D 0%, #111827 60%);
+      border: 1px solid var(--card-border); border-radius: 20px;
+      padding: 32px 36px; margin-bottom: 28px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .ngo-hero .ngo-name { font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+    .ngo-hero .ngo-url { font-size: 13px; color: var(--accent); text-decoration: none; }
+    .ngo-hero .ngo-url:hover { text-decoration: underline; }
+
+    /* ── WORK HISTORY PROOF LINK ── */
+    .proof-link { color: var(--accent); font-size: 12px; text-decoration: none; }
+    .proof-link:hover { text-decoration: underline; }
+
+    /* ── SECTION TITLE ── */
+    .section-title { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px; }
+
+    /* ── FORM SUCCESS ── */
+    .form-success { background: var(--accent-dim); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; padding: 14px 18px; color: var(--accent); font-size: 13px; font-weight: 600; display: none; margin-top: 16px; }
+    .form-success.show { display: flex; align-items: center; gap: 8px; }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>NGO Dashboard</h1>
-      <div class="muted">Manage your NGO details, public page, and submitted work.</div>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🌿 NGO Hub</div>
+    <div class="login-sub">Sign in to manage your NGO profile and submit verified work on ServeMATE</div>
+    <div class="error-msg" id="loginError"></div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="ngo@example.org">
     </div>
-    <a href="/" style="color:var(--blue);font-weight:800;text-decoration:none;">ServeMate Home</a>
-  </header>
-  <main>
-    <section class="card">
-      <h2 id="ngo-title">NGO Profile</h2>
-      <div id="ngo-status" class="pill">Loading</div>
-      <p class="muted" id="public-url"></p>
-      <div class="grid">
-        <div>
-          <label>NGO name</label><input id="name">
-          <label>Location</label><input id="location">
-          <label>Phone</label><input id="phone">
-          <label>Website</label><input id="website">
-        </div>
-        <div>
-          <label>Logo URL</label><input id="logoUrl">
-          <label>Banner URL</label><input id="bannerUrl">
-          <label>Donation link</label><input id="donationLink">
-          <label>Impact motive</label><textarea id="motive"></textarea>
-        </div>
-        <div>
-          <label>Public description</label><textarea id="description"></textarea>
-        </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()" id="loginBtn">Sign In as NGO Partner</button>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar" style="display:none">
+  <div class="sidebar-logo">🌿 NGO Hub <span>ServeMATE Partner</span></div>
+  <div class="sidebar-nav">
+    <button class="nav-item active" id="nav-dashboard" onclick="showPanel('dashboard')">
+      <span class="icon">📊</span> Dashboard
+    </button>
+    <button class="nav-item" id="nav-profile" onclick="showPanel('profile')">
+      <span class="icon">✏️</span> Profile
+    </button>
+    <button class="nav-item" id="nav-submit" onclick="showPanel('submit')">
+      <span class="icon">📤</span> Submit Work
+    </button>
+    <button class="nav-item" id="nav-history" onclick="showPanel('history')">
+      <span class="icon">📋</span> Work History
+    </button>
+  </div>
+  <div class="sidebar-bottom">
+    <button class="logout-btn" onclick="logout()">
+      <span>🚪</span> Logout
+    </button>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div id="content" style="display:none">
+
+  <!-- DASHBOARD PANEL -->
+  <div class="panel active" id="panel-dashboard">
+    <div class="panel-header">
+      <div><h2 id="dashNgoName">Loading…</h2><div class="sub">Your NGO dashboard</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="loadDashboard()">↺ Refresh</button>
+    </div>
+
+    <div class="ngo-hero" id="ngoHero">
+      <div class="ngo-name" id="heroNgoName">—</div>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <span id="heroStatus"></span>
+        <a class="ngo-url" id="heroUrl" href="#" target="_blank">—</a>
       </div>
-      <button style="margin-top:12px" onclick="saveProfile()">Save NGO profile</button>
-    </section>
-    <section class="grid">
-      <div class="card">
-        <h2>Submit Work</h2>
-        <label>Title</label><input id="taskTitle" placeholder="Example: 100 meals served in Lucknow">
-        <label>Description</label><textarea id="taskDescription"></textarea>
-        <label>Location</label><input id="taskLocation">
-        <label>Impact amount</label><input id="taskImpact" type="number">
-        <label>Proof URL</label><input id="taskProof" placeholder="Photo/video/report URL">
-        <button class="orange" style="margin-top:12px" onclick="submitTask()">Submit for verification</button>
+    </div>
+
+    <div class="metrics-grid" id="dashMetrics">
+      <div class="metric-card"><div class="card-icon">⏳</div><div class="card-value">—</div><div class="card-label">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- PROFILE PANEL -->
+  <div class="panel" id="panel-profile">
+    <div class="panel-header">
+      <div><h2>Profile</h2><div class="sub">Update your NGO's public information</div></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Basic Information</div>
+      <div class="form-row">
+        <div class="form-group"><label>NGO Name</label><input id="profName" placeholder="Organization name"></div>
+        <div class="form-group"><label>Location</label><input id="profLocation" placeholder="City, State"></div>
       </div>
-      <div class="card">
-        <h2>Work History</h2>
-        <table><thead><tr><th>Task</th><th>Status</th></tr></thead><tbody id="tasks"></tbody></table>
+      <div class="form-row">
+        <div class="form-group"><label>Phone</label><input id="profPhone" placeholder="+91 00000 00000"></div>
+        <div class="form-group"><label>Website</label><input id="profWebsite" placeholder="https://"></div>
       </div>
-    </section>
-  </main>
-  <div class="toast" id="toast"></div>
-  <script>
-    const token = localStorage.getItem('servemate_token') || '';
-    let currentNgo = null;
-    function toast(message) {
-      const el = document.getElementById('toast');
-      el.textContent = message;
-      el.classList.add('show');
-      setTimeout(() => el.classList.remove('show'), 2600);
-    }
-    async function request(path, options = {}) {
-      const res = await fetch(path, {
-        ...options,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...(options.headers || {}) }
+      <div class="form-row">
+        <div class="form-group"><label>Logo URL</label><input id="profLogo" placeholder="https://…"></div>
+        <div class="form-group"><label>Banner URL</label><input id="profBanner" placeholder="https://…"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="section-title">About Your NGO</div>
+      <div class="form-group"><label>Mission (Motive)</label><textarea id="profAbout" placeholder="Why your NGO exists and what you stand for…"></textarea></div>
+      <div class="form-group"><label>Detailed Description</label><textarea id="profDescription" placeholder="What your NGO does, its programs, impact…"></textarea></div>
+    </div>
+    <div style="margin-top:20px">
+      <button class="btn btn-primary" onclick="saveProfile()">💾 Save Profile</button>
+    </div>
+  </div>
+
+  <!-- SUBMIT WORK PANEL -->
+  <div class="panel" id="panel-submit">
+    <div class="panel-header">
+      <div><h2>Submit Work</h2><div class="sub">Submit completed work for admin verification</div></div>
+    </div>
+    <div class="card">
+      <div class="section-title">Work Report</div>
+      <div class="form-group"><label>Title</label><input id="workTitle" placeholder="e.g. Planted 500 trees in Rajasthan"></div>
+      <div class="form-group"><label>Description</label><textarea id="workDesc" placeholder="Describe the work done, the impact, beneficiaries, location…"></textarea></div>
+      <div class="form-group"><label>Proof URL (Photo / Video)</label><input id="workProof" placeholder="https://drive.google.com/…"></div>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="submitWork()">📤 Submit for Verification</button>
+      <div class="form-success" id="submitSuccess">✅ Work submitted! Our team will review it shortly.</div>
+    </div>
+  </div>
+
+  <!-- WORK HISTORY PANEL -->
+  <div class="panel" id="panel-history">
+    <div class="panel-header">
+      <div><h2>Work History</h2><div class="sub">All submitted work and updates</div></div>
+      <button class="btn btn-ghost btn-sm" onclick="loadHistory()">↺ Refresh</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Proof</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="4" style="text-align:center;padding:40px;color:var(--muted)">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+  const API = 'https://servemate.onrender.com';
+  let token = localStorage.getItem('servemate_ngo_token') || '';
+  let currentNgo = null;
+
+  function headers() {
+    return { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
+  }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(API + path, { ...opts, headers: { ...headers(), ...(opts.headers || {}) } });
+    const data = await res.json().catch(() => ({}));
+    if (res.status === 401 || res.status === 403) { logout(); throw new Error('Session expired'); }
+    if (!res.ok) throw new Error(data.error || data.message || 'Request failed');
+    return data;
+  }
+
+  function showToast(msg, type = 'success') {
+    const wrap = document.getElementById('toastContainer');
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    el.innerHTML = `<span>${icons[type] || '✅'}</span><span>${msg}</span>`;
+    wrap.appendChild(el);
+    requestAnimationFrame(() => { requestAnimationFrame(() => el.classList.add('show')); });
+    setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 3500);
+  }
+
+  function showPanel(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('panel-' + name).classList.add('active');
+    document.getElementById('nav-' + name).classList.add('active');
+    if (name === 'dashboard') loadDashboard();
+    if (name === 'profile') loadProfile();
+    if (name === 'history') loadHistory();
+  }
+
+  function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('sidebar').style.display = 'flex';
+    document.getElementById('content').style.display = 'block';
+    loadDashboard();
+  }
+
+  function showLogin() {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('sidebar').style.display = 'none';
+    document.getElementById('content').style.display = 'none';
+  }
+
+  function logout() {
+    localStorage.removeItem('servemate_ngo_token');
+    token = '';
+    currentNgo = null;
+    showLogin();
+  }
+
+  async function doLogin() {
+    const errEl = document.getElementById('loginError');
+    errEl.classList.remove('show');
+    const btn = document.getElementById('loginBtn');
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+    try {
+      const data = await api('/api/auth/ngo/login', {
+        method: 'POST',
+        body: JSON.stringify({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value })
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Request failed');
-      return data;
+      token = data.token;
+      localStorage.setItem('servemate_ngo_token', token);
+      showDashboard();
+    } catch (e) {
+      let msg = e.message;
+      if (msg.toLowerCase().includes('not verified') || msg.toLowerCase().includes('pending')) {
+        msg = 'Your NGO is pending admin approval. Please wait for verification.';
+      }
+      errEl.textContent = msg;
+      errEl.classList.add('show');
+    } finally {
+      btn.textContent = 'Sign In as NGO Partner';
+      btn.disabled = false;
     }
-    async function load() {
-      if (!token) { toast('Please login as an NGO first'); return; }
-      const data = await request('/api/ngo/me');
-      currentNgo = data.ngo;
-      document.getElementById('ngo-title').textContent = currentNgo.name;
-      document.getElementById('ngo-status').textContent = currentNgo.verified ? 'Approved' : 'Pending approval';
-      document.getElementById('public-url').textContent = currentNgo.verified ? `Public site: https://${currentNgo.slug || currentNgo._id}.resence.in` : 'Your public subdomain activates after admin approval.';
-      document.getElementById('name').value = currentNgo.name || '';
-      document.getElementById('location').value = currentNgo.location || '';
-      document.getElementById('phone').value = currentNgo.contact?.phone || '';
-      document.getElementById('website').value = currentNgo.contact?.website || '';
-      document.getElementById('logoUrl').value = currentNgo.logo || '';
-      document.getElementById('bannerUrl').value = currentNgo.banner || '';
-      document.getElementById('donationLink').value = currentNgo.contact?.website || '';
-      document.getElementById('motive').value = currentNgo.about || '';
-      document.getElementById('description').value = currentNgo.description || '';
-      tasks.innerHTML = data.tasks.map(task => `<tr><td><strong>${task.title}</strong><br><span class="muted">${task.note || ''}</span></td><td><span class="pill">Published</span></td></tr>`).join('');
-    }
-    async function saveProfile() {
-      await request('/api/ngo/me', {
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') doLogin();
+  });
+
+  // ── DASHBOARD ──
+  async function loadDashboard() {
+    try {
+      const data = await api('/api/ngo/me');
+      currentNgo = data.ngo || data;
+      const ngo = currentNgo;
+      const name = ngo.name || 'My NGO';
+      document.getElementById('dashNgoName').textContent = name;
+      document.getElementById('heroNgoName').textContent = name;
+      document.getElementById('heroStatus').innerHTML = ngo.verified
+        ? '<span class="badge badge-green">Verified ✓</span>'
+        : '<span class="badge badge-orange">⏳ Pending Approval</span>';
+      const slug = ngo.slug || '';
+      const url = `https://${slug}.resence.in`;
+      const heroUrl = document.getElementById('heroUrl');
+      heroUrl.href = url;
+      heroUrl.textContent = url;
+
+      const metrics = [
+        { icon: '✅', value: ngo.tasksCompleted || (ngo.updates || []).length || 0, label: 'Tasks Completed' },
+        { icon: '⚡', value: ngo.impactScore || 0, label: 'Impact Score' },
+        { icon: '💰', value: `₹${(ngo.totalReceived || 0).toLocaleString('en-IN')}`, label: 'Total Received' },
+        { icon: '🤝', value: ngo.volunteerCount || 0, label: 'Volunteers' }
+      ];
+      document.getElementById('dashMetrics').innerHTML = metrics.map(m => `
+        <div class="metric-card">
+          <div class="card-icon">${m.icon}</div>
+          <div class="card-value">${m.value}</div>
+          <div class="card-label">${m.label}</div>
+        </div>`).join('');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── PROFILE ──
+  async function loadProfile() {
+    try {
+      const data = await api('/api/ngo/me');
+      const ngo = data.ngo || data;
+      document.getElementById('profName').value = ngo.name || '';
+      document.getElementById('profLocation').value = ngo.location || '';
+      document.getElementById('profPhone').value = ngo.contact?.phone || ngo.phone || '';
+      document.getElementById('profWebsite').value = ngo.contact?.website || ngo.website || '';
+      document.getElementById('profLogo').value = ngo.logoUrl || ngo.logo || '';
+      document.getElementById('profBanner').value = ngo.bannerUrl || ngo.banner || '';
+      document.getElementById('profAbout').value = ngo.about || '';
+      document.getElementById('profDescription').value = ngo.description || '';
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  async function saveProfile() {
+    try {
+      await api('/api/ngo/me', {
         method: 'PATCH',
         body: JSON.stringify({
-          name: document.getElementById('name').value,
-          location: document.getElementById('location').value,
-          phone: document.getElementById('phone').value,
-          website: document.getElementById('website').value,
-          logoUrl: document.getElementById('logoUrl').value,
-          bannerUrl: document.getElementById('bannerUrl').value,
-          donationLink: document.getElementById('donationLink').value,
-          motive: document.getElementById('motive').value,
-          description: document.getElementById('description').value
+          name: document.getElementById('profName').value,
+          location: document.getElementById('profLocation').value,
+          phone: document.getElementById('profPhone').value,
+          website: document.getElementById('profWebsite').value,
+          logoUrl: document.getElementById('profLogo').value,
+          bannerUrl: document.getElementById('profBanner').value,
+          about: document.getElementById('profAbout').value,
+          description: document.getElementById('profDescription').value
         })
       });
-      toast('NGO profile saved');
-      load();
-    }
-    async function submitTask() {
-      await request('/api/ngo/tasks', {
+      showToast('Profile saved!');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── SUBMIT WORK ──
+  async function submitWork() {
+    const title = document.getElementById('workTitle').value.trim();
+    const desc = document.getElementById('workDesc').value.trim();
+    const proof = document.getElementById('workProof').value.trim();
+    if (!title || !desc) { showToast('Title and description are required.', 'error'); return; }
+    try {
+      await api('/api/ngo/tasks', {
         method: 'POST',
-        body: JSON.stringify({
-          title: document.getElementById('taskTitle').value,
-          description: document.getElementById('taskDescription').value,
-          location: document.getElementById('taskLocation').value,
-          impactAmount: Number(document.getElementById('taskImpact').value || 0),
-          proofUrl: document.getElementById('taskProof').value
-        })
+        body: JSON.stringify({ title, description: desc, proofUrl: proof })
       });
-      toast('Work submitted for verification');
-      ['taskTitle','taskDescription','taskLocation','taskImpact','taskProof'].forEach(id => document.getElementById(id).value = '');
-      load();
-    }
-    load().catch(err => toast(err.message));
-  </script>
+      document.getElementById('workTitle').value = '';
+      document.getElementById('workDesc').value = '';
+      document.getElementById('workProof').value = '';
+      const succ = document.getElementById('submitSuccess');
+      succ.classList.add('show');
+      setTimeout(() => succ.classList.remove('show'), 5000);
+      showToast('Work submitted for verification!');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  // ── WORK HISTORY ──
+  async function loadHistory() {
+    try {
+      const data = await api('/api/ngo/me');
+      const ngo = data.ngo || data;
+      const updates = ngo.updates || [];
+      const tbody = document.getElementById('historyBody');
+      if (!updates.length) {
+        tbody.innerHTML = `<tr><td colspan="4"><div class="empty"><div class="empty-icon">📋</div><p>No work submitted yet</p></div></td></tr>`;
+        return;
+      }
+      tbody.innerHTML = updates.map(u => `
+        <tr>
+          <td><strong>${esc(u.title || u.cause?.title || '—')}</strong></td>
+          <td style="color:var(--muted);max-width:260px;font-size:13px">${esc(u.description || u.note || u.proofNote || '—')}</td>
+          <td>${u.proofUrl || u.proofVideo ? `<a class="proof-link" href="${esc(u.proofUrl || u.proofVideo)}" target="_blank" rel="noopener">View Proof ↗</a>` : '<span style="color:var(--muted);font-size:12px">—</span>'}</td>
+          <td style="color:var(--muted);font-size:12px">${fmtDate(u.createdAt || u.date)}</td>
+        </tr>`).join('');
+    } catch (e) { showToast(e.message, 'error'); }
+  }
+
+  function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function fmtDate(d) { if (!d) return '—'; return new Date(d).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }); }
+
+  if (token) {
+    showDashboard();
+  } else {
+    showLogin();
+  }
+</script>
 </body>
 </html>

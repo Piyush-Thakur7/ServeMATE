@@ -2,7 +2,7 @@ const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const { User } = require("./models");
 
-const ADMIN_EMAIL = "th.piyushsingh2007@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "th.piyushsingh2007@gmail.com";
 
 let jwtSecret = process.env.JWT_SECRET;
 if (!jwtSecret) {
@@ -14,11 +14,7 @@ if (!jwtSecret) {
 
 function signToken(user) {
   return jwt.sign(
-    {
-      id: user._id.toString(),
-      role: user.role,
-      email: user.email,
-    },
+    { id: user._id.toString(), role: user.role, email: user.email },
     jwtSecret,
     { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
   );
@@ -29,9 +25,25 @@ async function authMiddleware(req, res, next) {
   if (!auth || !auth.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Authentication required" });
   }
-
   try {
     req.user = jwt.verify(auth.slice(7), jwtSecret);
+    return next();
+  } catch (err) {
+    return res.status(401).json({ error: "Invalid or expired token" });
+  }
+}
+
+async function ngoAuthMiddleware(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth || !auth.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  try {
+    const decoded = jwt.verify(auth.slice(7), jwtSecret);
+    if (decoded.role !== "ngo") {
+      return res.status(403).json({ error: "NGO access required" });
+    }
+    req.user = decoded;
     return next();
   } catch (err) {
     return res.status(401).json({ error: "Invalid or expired token" });
@@ -44,17 +56,14 @@ async function adminOnly(req, res, next) {
       if (req.user.role !== "admin" || req.user.email !== ADMIN_EMAIL) {
         return res.status(403).json({ error: "Admin access required" });
       }
-
       const admin = await User.findOne({
         _id: req.user.id,
         email: ADMIN_EMAIL,
         role: "admin",
       }).select("_id email role");
-
       if (!admin) {
         return res.status(403).json({ error: "Admin access required" });
       }
-
       req.admin = admin;
       return next();
     } catch (err) {
@@ -64,9 +73,4 @@ async function adminOnly(req, res, next) {
   });
 }
 
-module.exports = {
-  ADMIN_EMAIL,
-  signToken,
-  authMiddleware,
-  adminOnly,
-};
+module.exports = { ADMIN_EMAIL, signToken, authMiddleware, ngoAuthMiddleware, adminOnly };
