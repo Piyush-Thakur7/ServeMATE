@@ -1236,12 +1236,49 @@ footer {
    RESPONSIVE
    ============================================================ */
 @media (max-width: 768px) {
+  /* Navigation mobile cleanup */
+  #navbar { padding: 0 16px; }
+  .nav-inner { gap: 12px; justify-content: space-between; }
+  .nav-logo { font-size: 1.25rem; letter-spacing: -1.5px; }
+  .nav-logo img { height: 26px !important; }
+  .nav-actions { gap: 8px !important; }
+  #themeToggle { width: 34px !important; height: 34px !important; font-size: 0.95rem !important; }
   .nav-links { display: none; }
-  .hero-title { letter-spacing: -0.5px; }
+  
+  /* Section spacing cleanup */
+  section { padding: 60px 16px; }
+  
+  /* Hero mobile optimization */
+  #hero { padding: 100px 16px 40px; min-height: auto; }
+  .hero-eyebrow { font-size: 0.78rem; padding: 6px 14px; margin-bottom: 18px; }
+  .hero-title { font-size: clamp(1.9rem, 7vw, 2.8rem) !important; line-height: 1.2; letter-spacing: -1px; margin-bottom: 16px; }
+  .hero-sub { font-size: 0.95rem; margin-bottom: 28px; line-height: 1.5; }
+  .hero-ctas { gap: 10px; width: 100%; }
+  .hero-ctas .btn { width: 100%; justify-content: center; padding: 14px 20px; }
+  
+  /* Stats Cards mobile cleanup */
+  .hero-stats { grid-template-columns: 1fr; gap: 12px; width: 100%; }
+  .stat-card { padding: 16px 20px; display: flex; align-items: center; gap: 16px; }
+  .stat-card .stat-icon { font-size: 1.3rem; margin-bottom: 0; }
+  .stat-card .stat-label { margin-bottom: 2px; font-size: 0.75rem; }
+  .stat-card .stat-value { font-size: 1.6rem; }
+  
+  /* Grid form row wrapper */
   .form-row { grid-template-columns: 1fr; }
-  .footer-top { flex-direction: column; }
-  .footer-links { gap: 30px; }
-  .amount-presets { grid-template-columns: repeat(2, 1fr); }
+  
+  /* Footer mobile branding alignment */
+  .footer-top { flex-direction: column; gap: 32px; text-align: left; }
+  .footer-brand { max-width: 100%; }
+  .footer-logo { font-size: 1.5rem; letter-spacing: -1.5px; }
+  .footer-links { gap: 40px; justify-content: space-between; width: 100%; }
+  .footer-bottom { flex-direction: column; gap: 16px; align-items: flex-start; text-align: left; }
+  
+  /* Modals and popups mobile sizing */
+  .modal-box { border-radius: 16px; max-height: 85vh; }
+  .modal-header, .modal-body { padding: 20px; }
+  .modal-tab { padding: 10px 14px; font-size: 0.85rem; }
+  .amount-presets { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .btn-donate { padding: 12px; }
 }
 
 /* ============================================================
