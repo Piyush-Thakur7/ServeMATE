@@ -593,10 +593,10 @@ router.get("/stats", async (req, res) => {
   try {
     const [totalDonated, verifiedTasks, verifiedNGOs, totalDonations] =
       await Promise.all([
-        Donation.aggregate([{ $match: { status: "verified" } }, { $group: { _id: null, total: { $sum: "$amount" } } }]),
+        Donation.aggregate([{ $match: { status: { $in: ["completed", "verified"] } } }, { $group: { _id: null, total: { $sum: "$amount" } } }]),
         Transparency.countDocuments({ proofVideo: { $nin: ["", null] } }),
         NGO.countDocuments({ verified: true }),
-        Donation.countDocuments({ status: "verified" })
+        Donation.countDocuments({ status: { $in: ["completed", "verified"] } })
       ]);
 
     res.json({
