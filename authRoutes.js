@@ -226,4 +226,17 @@ router.post("/ngo/login", authLimiter, async (req, res) => {
   }
 });
 
+router.get("/ngo/me", authMiddleware, async (req, res) => {
+  try {
+    const ngo = await NGO.findById(req.user.id).select("-password");
+    if (!ngo) {
+      return res.status(404).json({ error: "NGO not found" });
+    }
+    return res.json(ngo);
+  } catch (err) {
+    console.error("[auth] NGO me check failed:", err.message);
+    return res.status(500).json({ error: "Unable to load NGO" });
+  }
+});
+
 module.exports = { router, authMiddleware };

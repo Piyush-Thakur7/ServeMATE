@@ -1770,6 +1770,31 @@ footer {
 </div>
 
 <!-- ============================================================
+     EDIT PROFILE MODAL
+     ============================================================ -->
+<div class="modal-overlay hidden" id="editProfileModal" onclick="handleModalOverlayClick(event,'editProfileModal')">
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">✏️ Edit Profile</div>
+      <button class="modal-close" onclick="closeModal('editProfileModal')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <form class="auth-form" onsubmit="saveUserProfile(event)" id="editProfileForm">
+        <div class="form-group">
+          <label for="profAvatarInput">Profile Picture URL</label>
+          <input type="url" id="profAvatarInput" class="form-input" placeholder="https://images.unsplash.com/..." />
+        </div>
+        <div class="form-group">
+          <label for="profBioInput">Biography</label>
+          <textarea id="profBioInput" class="form-input" placeholder="Tell us about yourself..." maxlength="500" rows="3" style="resize:vertical; min-height:80px;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;border-radius:var(--radius-sm);margin-top:10px;">💾 Save Changes</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
      DASHBOARD PANEL
      ============================================================ -->
 <div class="dashboard-overlay hidden" id="dashboardOverlay" onclick="closeDashboard()"></div>
@@ -2078,17 +2103,17 @@ async function fetchStats() {
     const obs = new IntersectionObserver((entries) => {
       if (entries[0].isIntersecting) {
         countUp(document.getElementById('statDonated'), d.totalDonated || 0, '₹');
-        countUp(document.getElementById('statTasks'),   d.verifiedTasks || d.totalTasks || 0);
-        countUp(document.getElementById('statNgos'),    d.totalNgos || 1);
+        countUp(document.getElementById('statTasks'),   d.verifiedTasks || 0);
+        countUp(document.getElementById('statNgos'),    d.verifiedNGOs || 0);
         obs.disconnect();
       }
     }, { threshold: 0.3 });
     obs.observe(statsSection);
   } catch(e) {
     console.warn('Stats fetch failed', e);
-    document.getElementById('statDonated').textContent = '₹2,840';
-    document.getElementById('statTasks').textContent   = '47';
-    document.getElementById('statNgos').textContent    = '1';
+    document.getElementById('statDonated').textContent = '₹0';
+    document.getElementById('statTasks').textContent   = '0';
+    document.getElementById('statNgos').textContent    = '0';
   }
 }
 
@@ -2618,10 +2643,13 @@ function renderLeaderboard(type) {
       const donated = item.totalDonated || item.donated || 0;
       const level   = item.level || 1;
       const initial = name.charAt(0).toUpperCase();
+      const avatarHtml = item.avatar
+        ? `<img class="leader-avatar" src="${escHtml(item.avatar)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" alt="${escHtml(name)} avatar" />`
+        : `<div class="leader-avatar" style="background:${grad}">${initial}</div>`;
       return `
         <div class="leader-card ${rClass}">
           <div class="leader-rank">${medal}</div>
-          <div class="leader-avatar" style="background:${grad}">${initial}</div>
+          ${avatarHtml}
           <div class="leader-info">
             <div class="leader-name">${escHtml(name)}</div>
             <div class="leader-meta"><span class="level-badge" style="font-size:0.7rem;padding:2px 8px">⭐ Lv.${level}</span></div>
@@ -2634,10 +2662,14 @@ function renderLeaderboard(type) {
       const tasks = item.completedTasks || item.tasksCompleted || 0;
       const score = item.impactScore || 0;
       const initial = name.charAt(0).toUpperCase();
+      const logoUrl = item.logo || item.logoUrl;
+      const logoHtml = logoUrl
+        ? `<img class="leader-avatar" src="${escHtml(logoUrl)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(255,255,255,0.15);" alt="${escHtml(name)} logo" />`
+        : `<div class="leader-avatar" style="background:${grad}">${initial}</div>`;
       return `
         <div class="leader-card ${rClass}">
           <div class="leader-rank">${medal}</div>
-          <div class="leader-avatar" style="background:${grad}">${initial}</div>
+          ${logoHtml}
           <div class="leader-info">
             <div class="leader-name">${escHtml(name)}</div>
             <div class="leader-meta">${escHtml(area)} · ${tasks} tasks</div>
@@ -2719,9 +2751,13 @@ function renderNgos(ngos) {
     const area  = ngo.area || ngo.areaOfWork || 'Social Impact';
     const score = ngo.impactScore || 0;
     const tasks = ngo.completedTasks || ngo.tasksCompleted || 0;
+    const logoUrl = ngo.logo || ngo.logoUrl;
+    const logoHtml = logoUrl
+      ? `<div class="ngo-icon" style="background:none;box-shadow:none;padding:0;overflow:hidden;border:1px solid var(--border);"><img src="${escHtml(logoUrl)}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;" alt="${escHtml(name)} Logo" /></div>`
+      : `<div class="ngo-icon">🏢</div>`;
     return `
       <div class="glass ngo-card reveal" style="transition-delay:${delay}s">
-        <div class="ngo-icon">🏢</div>
+        ${logoHtml}
         <div class="ngo-name">${escHtml(name)}</div>
         <div class="ngo-location">📍 ${escHtml(loc)}</div>
         <span class="verified-badge" style="font-size:0.78rem;padding:4px 12px">✓ Verified Partner</span>
@@ -2771,12 +2807,18 @@ async function fetchDashboard() {
     const email     = user.email || '';
     const initial   = name.charAt(0).toUpperCase();
 
+    const avatarHtml = user.avatar
+      ? `<img src="${escHtml(user.avatar)}" class="profile-avatar" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--blue);box-shadow:var(--glow-blue);margin-bottom:12px;" />`
+      : `<div class="profile-avatar">${initial}</div>`;
+
     el.innerHTML = `
       <div class="profile-card">
-        <div class="profile-avatar">${initial}</div>
+        ${avatarHtml}
         <div class="profile-name">${escHtml(name)}</div>
         <div class="profile-email">${escHtml(email)}</div>
-        <span class="level-badge">⭐ Level ${level}</span>
+        <span class="level-badge" style="margin-bottom:8px;">⭐ Level ${level}</span>
+        ${user.bio ? `<p style="font-size:0.85rem;color:var(--text2);margin:8px auto 12px;max-width:320px;line-height:1.4;font-style:italic;">"${escHtml(user.bio)}"</p>` : ''}
+        <button class="btn btn-ghost btn-sm" style="margin-top:12px;font-size:0.8rem;padding:6px 12px;border-radius:var(--radius-sm);" onclick="openEditProfile()">✏️ Edit Profile</button>
       </div>
       <div class="xp-bar-wrap">
         <div class="xp-bar-label"><span>⚡ ${xp} XP</span><span>${xpMax} XP</span></div>
@@ -2815,6 +2857,42 @@ async function fetchDashboard() {
     `;
   } catch(e) {
     el.innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span><p>Could not load dashboard.</p></div>';
+  }
+}
+
+function openEditProfile() {
+  if (!currentUser) return;
+  document.getElementById('profAvatarInput').value = currentUser.avatar || '';
+  document.getElementById('profBioInput').value = currentUser.bio || '';
+  openModal('editProfileModal');
+}
+
+async function saveUserProfile(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const oldText = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ Saving…';
+  try {
+    const res = await api('/api/profile', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        avatar: document.getElementById('profAvatarInput').value.trim(),
+        bio:    document.getElementById('profBioInput').value.trim()
+      })
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || 'Failed to update profile');
+    }
+    const data = await res.json();
+    currentUser = data;
+    showToast('Profile updated successfully!');
+    closeModal('editProfileModal');
+    fetchDashboard();
+  } catch (err) {
+    showToast(err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = oldText;
   }
 }
 

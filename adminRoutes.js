@@ -467,7 +467,10 @@ router.get("/overview", adminOnly, async (req, res) => {
     const [users, ngos, donations, pendingNgos, unreadMessages] = await Promise.all([
       User.countDocuments(),
       NGO.countDocuments({ verified: true }),
-      Donation.aggregate([{ $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } }]),
+      Donation.aggregate([
+        { $match: { status: { $in: ["completed", "verified"] } } },
+        { $group: { _id: null, total: { $sum: "$amount" }, count: { $sum: 1 } } }
+      ]),
       NGO.countDocuments({ verified: false }),
       Contact.countDocuments({ read: false }),
     ]);
