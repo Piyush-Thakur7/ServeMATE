@@ -430,7 +430,8 @@ section { padding: 100px 24px; }
   letter-spacing: -2px;
   flex-shrink: 0;
 }
-.nav-logo span { background: var(--grad-bp); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.nav-logo span { background: var(--grad-bp); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-left: -3px; }
+.footer-logo span { margin-left: -3px; }
 
 .nav-links {
   display: flex;
@@ -476,7 +477,7 @@ section { padding: 100px 24px; }
   justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: 0 24px;
+  padding: calc(var(--nav-h) + 80px) 24px 60px;
   text-align: center;
 }
 
@@ -519,6 +520,7 @@ section { padding: 100px 24px; }
   position: relative;
   z-index: 1;
   max-width: 900px;
+  margin-top: 40px;
 }
 .hero-eyebrow {
   display: inline-flex;
@@ -1245,6 +1247,9 @@ footer {
   #themeToggle { width: 34px !important; height: 34px !important; font-size: 0.95rem !important; }
   .nav-links { display: none; }
   
+  .nav-register-btn, .nav-logout-btn, .user-greeting, .level-badge { display: none !important; }
+  .hero-content { margin-top: 0 !important; }
+  
   /* Section spacing cleanup */
   section { padding: 60px 16px; }
   
@@ -1523,19 +1528,13 @@ footer {
           <a href="#ngos">NGO Partners</a>
         </div>
         <div class="footer-col">
-          <h4>Partners</h4>
-          <a href="https://admin.resence.in" target="_blank">Admin Panel</a>
-          <a href="https://ngo-dashboard.resence.in" target="_blank">NGO Dashboard</a>
+          <h4>Support</h4>
           <a href="#contact">Contact</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
       <p>© 2026 ServeMATE | resence.in — Building a more compassionate India, one rupee at a time.</p>
-      <div style="display:flex;gap:16px;align-items:center">
-        <a href="https://admin.resence.in" target="_blank" class="tag tag-blue" style="font-size:0.75rem">⚙️ Admin</a>
-        <a href="https://ngo-dashboard.resence.in" target="_blank" class="tag tag-green" style="font-size:0.75rem">🏢 NGO Panel</a>
-      </div>
     </div>
   </div>
 </footer>
@@ -1745,19 +1744,19 @@ function updateNav() {
       <span class="user-greeting">Hi, ${name}</span>
       <span class="level-badge">⭐ Lv.${lvl}</span>
       <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="openDashboard()">Dashboard</button>
-      <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
+      <button class="btn btn-ghost nav-logout-btn" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else if (ngoToken && currentNgo) {
     const name = currentNgo.name || 'NGO';
     el.innerHTML = `
       <span class="user-greeting">🏢 ${name}</span>
       <a href="https://ngo-dashboard.resence.in" target="_blank" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">NGO Panel</a>
-      <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
+      <button class="btn btn-ghost nav-logout-btn" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else {
     el.innerHTML = `
       <button class="btn btn-ghost" style="padding:8px 18px;font-size:0.9rem" onclick="openModal('authModal')">Login</button>
-      <button class="btn btn-primary" style="padding:8px 18px;font-size:0.9rem" onclick="openAuthRegister()">Register</button>
+      <button class="btn btn-primary nav-register-btn" style="padding:8px 18px;font-size:0.9rem" onclick="openAuthRegister()">Register</button>
     `;
   }
 }
