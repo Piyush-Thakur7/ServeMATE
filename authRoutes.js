@@ -3,8 +3,23 @@ const bcrypt = require("bcryptjs");
 const { User, NGO } = require("./models");
 const { ADMIN_EMAIL, authMiddleware, signToken } = require("./authUtils");
 const { authLimiter } = require("./src/middleware/rateLimit");
+const { sendOtp, verifyOtp } = require("./services/otpService");
 
 const router = express.Router();
+
+router.post("/otp/send", authLimiter, async (req, res) => {
+  try {
+    const email = String(req.body.email || "").trim().toLowerCase();
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+    const result = await sendOtp(email);
+    return res.json(result);
+  } catch (err) {
+    console.error("[auth] OTP send failed:", err.message);
+    return res.status(500).json({ error: "Failed to send verification code" });
+  }
+});
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -36,15 +51,21 @@ function slugify(value) {
 
 router.post("/register", authLimiter, async (req, res) => {
   try {
-    const { name, password } = req.body;
+    const { name, password, otp } = req.body;
     const email = normalizeEmail(req.body.email);
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: "All fields required" });
+    if (!name || !email || !password || !otp) {
+      return res.status(400).json({ error: "All fields including verification OTP are required" });
     }
 
     if (email === ADMIN_EMAIL) {
       return res.status(403).json({ error: "This email is reserved for the platform admin" });
+    }
+
+    // Verify OTP code
+    const isOtpValid = verifyOtp(email, otp);
+    if (!isOtpValid) {
+      return res.status(400).json({ error: "Invalid or expired email verification code (OTP)" });
     }
 
     const exists = await User.findOne({ email });
@@ -118,11 +139,18 @@ router.post("/ngo/register", authLimiter, async (req, res) => {
       description,
       location,
       volunteerCount,
+      otp,
     } = req.body;
     const email = normalizeEmail(req.body.email);
 
-    if (!name || !email || !password || !regNumber || !taxStatus || !areaOfWork) {
-      return res.status(400).json({ error: "All required fields must be filled" });
+    if (!name || !email || !password || !regNumber || !taxStatus || !areaOfWork || !otp) {
+      return res.status(400).json({ error: "All required fields including verification OTP must be filled" });
+    }
+
+    // Verify OTP code
+    const isOtpValid = verifyOtp(email, otp);
+    if (!isOtpValid) {
+      return res.status(400).json({ error: "Invalid or expired email verification code (OTP)" });
     }
 
     const exists = await NGO.findOne({ email });

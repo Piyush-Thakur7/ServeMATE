@@ -1334,7 +1334,7 @@ footer {
       <li><a href="#leaderboard">Leaderboard</a></li>
       <li><a href="#transparency">Transparency</a></li>
       <li><a href="#ngos">NGOs</a></li>
-      <li><a href="/ngo">NGO Portal</a></li>
+      <li><a href="/ngo" id="navNgoPortalLink">NGO Portal</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-actions" style="display:flex;align-items:center;gap:14px;">
@@ -1622,7 +1622,14 @@ footer {
           </div>
           <div class="form-group">
             <label for="regEmail">Email</label>
-            <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" required/>
+            <div style="display:flex;gap:8px;">
+              <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" style="flex:1" required/>
+              <button type="button" class="btn btn-ghost btn-sm" id="btnUserSendOtp" onclick="sendOtpCode('user')" style="padding:10px 14px;font-size:0.82rem;white-space:nowrap;border-radius:var(--radius-sm)">📩 Send OTP</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="regOtp">Verification Code (OTP)</label>
+            <input type="text" id="regOtp" class="form-input" placeholder="Enter 6-digit code" maxlength="6" required/>
           </div>
           <div class="form-group">
             <label for="regPass">Password</label>
@@ -1657,7 +1664,10 @@ footer {
             </div>
             <div class="form-group">
               <label for="nrEmail">NGO Email</label>
-              <input type="email" id="nrEmail" class="form-input" placeholder="contact@ngo.org" required/>
+              <div style="display:flex;gap:8px;">
+                <input type="email" id="nrEmail" class="form-input" placeholder="contact@ngo.org" style="flex:1" required/>
+                <button type="button" class="btn btn-ghost btn-sm" id="btnNgoSendOtp" onclick="sendOtpCode('ngo')" style="padding:10px 14px;font-size:0.82rem;white-space:nowrap;border-radius:var(--radius-sm)">📩 Send OTP</button>
+              </div>
             </div>
           </div>
           <div class="form-row">
@@ -1691,6 +1701,10 @@ footer {
           <div class="form-group">
             <label for="nrDesc">Brief Motive / Purpose</label>
             <textarea id="nrDesc" class="form-input" rows="3" placeholder="Tell us about your organization's mission..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="nrOtp">Email Verification Code (OTP)</label>
+            <input type="text" id="nrOtp" class="form-input" placeholder="Enter 6-digit code" maxlength="6" required/>
           </div>
           <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;border-radius:var(--radius-sm);">🏢 Submit NGO Application</button>
           <div id="nrError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none;margin-top:10px;"></div>
@@ -1788,7 +1802,7 @@ footer {
   
   <!-- Navigation Links Cards -->
   <div style="display:flex;flex-direction:column;gap:14px;flex:1;">
-    <a href="/ngo" onclick="closeMobileMenu()" class="glass" style="display:flex;align-items:center;gap:16px;padding:14px 18px;text-decoration:none;">
+    <a href="/ngo" id="mobileNgoPortalLink" onclick="closeMobileMenu()" class="glass" style="display:flex;align-items:center;gap:16px;padding:14px 18px;text-decoration:none;">
       <div style="font-size:1.4rem;background:rgba(16,185,129,0.1);width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">🏢</div>
       <div style="display:flex;flex-direction:column;">
         <span style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);">NGO Partner Portal</span>
@@ -1947,7 +1961,13 @@ function showToast(message, type = 'success') {
    ============================================================ */
 function updateNav() {
   const el = document.getElementById('navActions');
+  const navLink = document.getElementById('navNgoPortalLink');
+  const mobLink = document.getElementById('mobileNgoPortalLink');
+  
   if (authToken && currentUser) {
+    if (navLink) navLink.parentNode.style.display = 'none';
+    if (mobLink) mobLink.style.display = 'none';
+    
     const lvl = currentUser.level || 1;
     const name = currentUser.name?.split(' ')[0] || 'User';
     el.innerHTML = `
@@ -1957,6 +1977,9 @@ function updateNav() {
       <button class="btn btn-ghost nav-logout-btn" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else if (ngoToken && currentNgo) {
+    if (navLink) navLink.parentNode.style.display = '';
+    if (mobLink) mobLink.style.display = '';
+    
     const name = currentNgo.name || 'NGO';
     el.innerHTML = `
       <span class="user-greeting">🏢 ${name}</span>
@@ -1964,6 +1987,9 @@ function updateNav() {
       <button class="btn btn-ghost nav-logout-btn" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else {
+    if (navLink) navLink.parentNode.style.display = '';
+    if (mobLink) mobLink.style.display = '';
+    
     el.innerHTML = `
       <button class="btn btn-ghost" style="padding:8px 18px;font-size:0.9rem" onclick="openModal('authModal')">Login</button>
       <button class="btn btn-primary nav-register-btn" style="padding:8px 18px;font-size:0.9rem" onclick="openAuthRegister()">Register</button>
@@ -2366,6 +2392,58 @@ async function loginUser(e) {
   }
 }
 
+async function sendOtpCode(type) {
+  const emailInputId = type === 'user' ? 'regEmail' : 'nrEmail';
+  const btnId = type === 'user' ? 'btnUserSendOtp' : 'btnNgoSendOtp';
+  const errorElId = type === 'user' ? 'regError' : 'nrError';
+  
+  const emailVal = document.getElementById(emailInputId).value.trim();
+  const btn = document.getElementById(btnId);
+  const errEl = document.getElementById(errorElId);
+  
+  if (!emailVal) {
+    showToast('Please enter an email address first', 'error');
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ Sending…';
+  errEl.style.display = 'none';
+  
+  try {
+    const res = await fetch(API + '/api/auth/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: emailVal })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+    
+    showToast(data.message || 'Verification code sent!');
+    
+    if (data.simulated && data.otp) {
+      alert(`[SANDBOX TEST MODE] Verification OTP is: ${data.otp}\n(This is shown because SMTP is not configured in your .env)`);
+    }
+    
+    let timeLeft = 60;
+    const interval = setInterval(() => {
+      timeLeft -= 1;
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        btn.disabled = false;
+        btn.textContent = '📩 Send OTP';
+      } else {
+        btn.textContent = `⏳ Resend (${timeLeft}s)`;
+      }
+    }, 1000);
+    
+  } catch (err) {
+    showToast(err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '📩 Send OTP';
+  }
+}
+
 async function registerUser(e) {
   e.preventDefault();
   const errEl = document.getElementById('regError');
@@ -2377,7 +2455,8 @@ async function registerUser(e) {
       body: JSON.stringify({
         name:     document.getElementById('regName').value,
         email:    document.getElementById('regEmail').value,
-        password: document.getElementById('regPass').value
+        password: document.getElementById('regPass').value,
+        otp:      document.getElementById('regOtp').value
       })
     });
     const data = await res.json();
@@ -2439,6 +2518,7 @@ async function registerNgo(e) {
         areaOfWork:      document.getElementById('nrArea').value,
         location:        document.getElementById('nrLoc').value,
         description:     document.getElementById('nrDesc').value,
+        otp:             document.getElementById('nrOtp').value,
         volunteerCount:  0
       })
     });
@@ -2620,19 +2700,18 @@ async function fetchNgos() {
     const res  = await api('/api/ngos');
     const data = res.ok ? await res.json() : [];
     const arr  = Array.isArray(data) ? data : (data.ngos || []);
-    // Ensure our known NGO is shown
-    if (!arr.length) {
-      renderNgos([{ name:'Resence Help People', location:'India', area:'Community Development', impactScore:95, verified:true }]);
-    } else {
-      renderNgos(arr);
-    }
+    renderNgos(arr);
   } catch(e) {
-    renderNgos([{ name:'Resence Help People', location:'India', area:'Community Development', impactScore:95, verified:true }]);
+    renderNgos([]);
   }
 }
 
 function renderNgos(ngos) {
   const el = document.getElementById('ngosContainer');
+  if (!ngos.length) {
+    el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><span class="empty-icon">🏢</span><p>No verified NGO partners are currently active.</p></div>';
+    return;
+  }
   el.innerHTML = ngos.map((ngo, i) => {
     const delay = i * 0.08;
     const name  = ngo.name || 'NGO Partner';
@@ -2719,6 +2798,11 @@ async function fetchDashboard() {
             <div class="donation-item-amount">₹${(d.amount||0).toLocaleString('en-IN')}</div>
           </div>`).join('')
         : '<div class="empty-state" style="padding:20px 0"><span class="empty-icon" style="font-size:1.8rem">🌱</span><p style="font-size:0.85rem">No donations yet. Start your journey!</p></div>'}
+      </div>
+      <div class="panel-section" style="margin-top: 10px;">
+        <h4>NGO Partnership</h4>
+        <p style="font-size:0.78rem;color:var(--text3);margin-bottom:10px;line-height:1.4">Want to register an NGO and receive donations transparently?</p>
+        <a href="/ngo" class="btn btn-ghost" style="width:100%;justify-content:center;font-size:0.82rem;padding:10px 14px;border-radius:var(--radius-sm);color:var(--green);border-color:rgba(16,185,129,0.3);margin-bottom:12px;" onclick="closeDashboard()">🏢 NGO Registration Portal</a>
       </div>
       <div class="panel-section" style="margin-top: 10px;">
         <h4>Changemaker Tools</h4>

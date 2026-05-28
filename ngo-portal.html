@@ -241,7 +241,10 @@
           </div>
           <div class="form-group">
             <label class="form-label">Email Address *</label>
-            <input class="form-input" type="email" id="regEmail" placeholder="contact@yourngo.org" required>
+            <div style="display:flex;gap:8px;">
+              <input class="form-input" type="email" id="regEmail" placeholder="contact@yourngo.org" style="flex:1" required>
+              <button type="button" class="form-btn" id="btnSendOtp" onclick="sendOtpCode()" style="width:auto;margin:0;padding:12px 18px;font-size:13px;white-space:nowrap;">📩 Send OTP</button>
+            </div>
           </div>
           <div class="form-group">
             <label class="form-label">Password *</label>
@@ -288,8 +291,8 @@
             <input class="form-input" type="text" id="regDesc" placeholder="Briefly describe your mission and work">
           </div>
           <div class="form-group">
-            <label class="form-label">Volunteer Count</label>
-            <input class="form-input" type="number" id="regVolunteers" placeholder="0" min="0">
+            <label class="form-label">Email Verification Code (OTP) *</label>
+            <input class="form-input" type="text" id="regOtp" placeholder="Enter 6-digit code" maxlength="6" required>
           </div>
           <button class="form-btn" type="submit" id="regSubmitBtn">🚀 Register NGO</button>
         </form>
@@ -405,6 +408,54 @@
     el.textContent = text;
     el.className = 'msg-box ' + type;
   }
+
+  async function sendOtpCode() {
+    const emailVal = document.getElementById('regEmail').value.trim();
+    const btn = document.getElementById('btnSendOtp');
+    
+    if (!emailVal) {
+      showMsg('Please enter an email address first', 'error');
+      return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = '⏳ Sending…';
+    hideMsg();
+    
+    try {
+      const res = await fetch(`${API}/api/auth/otp/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: emailVal })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send OTP');
+      
+      showMsg(data.message || 'Verification code sent!', 'success');
+      
+      if (data.simulated && data.otp) {
+        alert(`[SANDBOX TEST MODE] Verification OTP is: ${data.otp}\n(This is shown because SMTP is not configured in your .env)`);
+      }
+      
+      let timeLeft = 60;
+      const interval = setInterval(() => {
+        timeLeft -= 1;
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          btn.disabled = false;
+          btn.textContent = '📩 Send OTP';
+        } else {
+          btn.textContent = `⏳ Resend (${timeLeft}s)`;
+        }
+      }, 1000);
+      
+    } catch (err) {
+      showMsg(err.message, 'error');
+      btn.disabled = false;
+      btn.textContent = '📩 Send OTP';
+    }
+  }
+
   function hideMsg() {
     const el = document.getElementById('msgBox');
     el.className = 'msg-box';
@@ -427,7 +478,8 @@
         areaOfWork: document.getElementById('regArea').value,
         location: document.getElementById('regLocation').value.trim(),
         description: document.getElementById('regDesc').value.trim(),
-        volunteerCount: parseInt(document.getElementById('regVolunteers').value) || 0,
+        otp: document.getElementById('regOtp').value.trim(),
+        volunteerCount: parseInt(document.getElementById('regVolunteers')?.value) || 0,
       };
 
       const res = await fetch(`${API}/api/auth/ngo/register`, {
