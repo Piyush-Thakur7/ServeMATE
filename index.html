@@ -1622,14 +1622,7 @@ footer {
           </div>
           <div class="form-group">
             <label for="regEmail">Email</label>
-            <div style="display:flex;gap:8px;">
-              <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" style="flex:1" required/>
-              <button type="button" class="btn btn-ghost btn-sm" id="btnUserSendOtp" onclick="sendOtpCode('user')" style="padding:10px 14px;font-size:0.82rem;white-space:nowrap;border-radius:var(--radius-sm)">📩 Send OTP</button>
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="regOtp">Verification Code (OTP)</label>
-            <input type="text" id="regOtp" class="form-input" placeholder="Enter 6-digit code" maxlength="6" required/>
+            <input type="email" id="regEmail" class="form-input" placeholder="you@example.com" required/>
           </div>
           <div class="form-group">
             <label for="regPass">Password</label>
@@ -1664,10 +1657,7 @@ footer {
             </div>
             <div class="form-group">
               <label for="nrEmail">NGO Email</label>
-              <div style="display:flex;gap:8px;">
-                <input type="email" id="nrEmail" class="form-input" placeholder="contact@ngo.org" style="flex:1" required/>
-                <button type="button" class="btn btn-ghost btn-sm" id="btnNgoSendOtp" onclick="sendOtpCode('ngo')" style="padding:10px 14px;font-size:0.82rem;white-space:nowrap;border-radius:var(--radius-sm)">📩 Send OTP</button>
-              </div>
+              <input type="email" id="nrEmail" class="form-input" placeholder="contact@ngo.org" required/>
             </div>
           </div>
           <div class="form-row">
@@ -1702,10 +1692,7 @@ footer {
             <label for="nrDesc">Brief Motive / Purpose</label>
             <textarea id="nrDesc" class="form-input" rows="3" placeholder="Tell us about your organization's mission..." required></textarea>
           </div>
-          <div class="form-group">
-            <label for="nrOtp">Email Verification Code (OTP)</label>
-            <input type="text" id="nrOtp" class="form-input" placeholder="Enter 6-digit code" maxlength="6" required/>
-          </div>
+
           <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;border-radius:var(--radius-sm);">🏢 Submit NGO Application</button>
           <div id="nrError" style="color:var(--red);font-size:0.85rem;text-align:center;display:none;margin-top:10px;"></div>
           <div id="nrSuccess" style="color:var(--green);font-size:0.9rem;text-align:center;display:none;font-weight:600;margin-top:10px;line-height:1.5;"></div>
@@ -2480,8 +2467,7 @@ async function registerUser(e) {
       body: JSON.stringify({
         name:     document.getElementById('regName').value,
         email:    document.getElementById('regEmail').value,
-        password: document.getElementById('regPass').value,
-        otp:      document.getElementById('regOtp').value
+        password: document.getElementById('regPass').value
       })
     });
     const data = await res.json();
@@ -2543,7 +2529,6 @@ async function registerNgo(e) {
         areaOfWork:      document.getElementById('nrArea').value,
         location:        document.getElementById('nrLoc').value,
         description:     document.getElementById('nrDesc').value,
-        otp:             document.getElementById('nrOtp').value,
         volunteerCount:  0
       })
     });

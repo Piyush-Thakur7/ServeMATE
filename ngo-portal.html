@@ -241,10 +241,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Email Address *</label>
-            <div style="display:flex;gap:8px;">
-              <input class="form-input" type="email" id="regEmail" placeholder="contact@yourngo.org" style="flex:1" required>
-              <button type="button" class="form-btn" id="btnSendOtp" onclick="sendOtpCode()" style="width:auto;margin:0;padding:12px 18px;font-size:13px;white-space:nowrap;">📩 Send OTP</button>
-            </div>
+            <input class="form-input" type="email" id="regEmail" placeholder="contact@yourngo.org" required>
           </div>
           <div class="form-group">
             <label class="form-label">Password *</label>
@@ -290,10 +287,7 @@
             <label class="form-label">Description</label>
             <input class="form-input" type="text" id="regDesc" placeholder="Briefly describe your mission and work">
           </div>
-          <div class="form-group">
-            <label class="form-label">Email Verification Code (OTP) *</label>
-            <input class="form-input" type="text" id="regOtp" placeholder="Enter 6-digit code" maxlength="6" required>
-          </div>
+
           <button class="form-btn" type="submit" id="regSubmitBtn">🚀 Register NGO</button>
         </form>
         <div class="form-footer">Already registered? <a onclick="switchTab('login')">Login here</a></div>
@@ -478,7 +472,6 @@
         areaOfWork: document.getElementById('regArea').value,
         location: document.getElementById('regLocation').value.trim(),
         description: document.getElementById('regDesc').value.trim(),
-        otp: document.getElementById('regOtp').value.trim(),
         volunteerCount: parseInt(document.getElementById('regVolunteers')?.value) || 0,
       };
 
