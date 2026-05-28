@@ -140,6 +140,27 @@ async function connectMongo() {
       maxPoolSize: Number(process.env.MONGO_MAX_POOL_SIZE) || 10,
     });
     console.log("[mongo] Connected to MongoDB");
+    
+    // Dynamic Index Audit & Cleanup to prevent E11000 duplicate key errors on old removed schema fields
+    try {
+      const db = mongoose.connection.db;
+      const collections = await db.listCollections().toArray();
+      const hasUsers = collections.some(c => c.name === 'users');
+      if (hasUsers) {
+        console.log("[mongo] Auditing users collection indexes...");
+        const indexes = await db.collection('users').indexes();
+        console.log("[mongo] Current indexes:", indexes.map(i => i.name));
+        for (const idx of indexes) {
+          if (idx.name !== '_id_' && idx.name !== 'email_1' && idx.name !== 'email_1_lowercase_1') {
+            console.log(`[mongo] Dropping legacy unique index: ${idx.name}`);
+            await db.collection('users').dropIndex(idx.name).catch(() => {});
+          }
+        }
+      }
+    } catch (idxErr) {
+      console.warn("[mongo] Index auditing skipped or failed:", idxErr.message);
+    }
+
     await seedDatabase();
   } catch (err) {
     console.error("[mongo] Initial connection failed:", err.message);
