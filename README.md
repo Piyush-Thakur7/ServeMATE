@@ -1,48 +1,65 @@
-ServeMate 🚀
+# ServeMATE by Resence
 
-Small contributions. Real impact.
+### Small Contributions. Real Impact.
 
-🌐 Live Website: https://resence.in
+🌐 Live Website: https://www.resence.in
 
-💡 What is ServeMate?
+ServeMATE is a social impact platform that helps people contribute to meaningful causes through transparency, community engagement, gamification, and AI-powered guidance.
 
-ServeMate is a gamified micro-donation platform that helps people contribute small amounts and track real-world impact with transparency.
+Many people want to help but often lose trust, motivation, or visibility into the impact of their contributions. ServeMATE aims to solve this by creating a more engaging and transparent experience where users can participate consistently and understand the difference they are making.
 
-Instead of one-time donations, users stay engaged through:
+## What ServeMATE Offers
 
-Leaderboards
-Progress tracking
-Impact visibility
-🎯 Problem It Solves
+* Contribution tracking
+* NGO participation system
+* Community engagement
+* Gamification and leaderboards
+* Impact visibility
+* User dashboards
+* Razorpay integration
+* ServeMATE AI Advisor
 
-Most people want to help but:
+## ServeMATE AI Advisor
 
-don’t trust where money goes
-lose motivation after one donation
-ServeMate solves this by making giving: 👉 transparent 👉 engaging 👉 consistent
+ServeMATE AI Advisor is an AI-powered feature that helps users better understand their impact journey.
 
-⚙️ Current Features (v1)
+Users can:
 
-Landing page UI
-Branding & concept
-Deployed on custom domain
-Built using Vite + JavaScript
-🚧 In Progress
+* Explore causes aligned with their interests
+* Receive personalized guidance
+* Generate impact plans
+* Understand how consistent contributions can create meaningful change
+* Stay motivated through AI-powered recommendations
 
-Donate button functionality
-Leaderboard system
-User interaction logic
-🛠️ Tech Stack
+Powered by Google Gemini AI.
 
-HTML, CSS, JavaScript
-Vite
-Vercel (Deployment)
-🔮 Future Plans
+## Why ServeMATE?
 
-Real payment integration
-User accounts
-College-level leaderboards
-Gamification system
-👨‍💻 Developer
+Traditional giving platforms often focus only on transactions.
 
-Piyush Singh BCA Student | Aspiring AI Engineer
+ServeMATE focuses on engagement, transparency, and long-term participation by helping users stay connected to the causes they support.
+
+We believe that meaningful change doesn't require massive contributions.
+
+It starts with consistent action.
+
+## Technology Stack
+
+* HTML
+* CSS
+* JavaScript
+* Node.js
+* Express.js
+* Google Gemini AI
+* Razorpay
+* Vercel
+
+## Vision
+
+To build a future where social impact is accessible, transparent, and engaging for everyone.
+
+### Small Contributions. Real Impact.
+
+---
+
+Built by Piyush Singh
