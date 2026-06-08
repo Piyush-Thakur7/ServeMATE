@@ -1334,6 +1334,7 @@ footer {
       <li><a href="#leaderboard">Leaderboard</a></li>
       <li><a href="#transparency">Transparency</a></li>
       <li><a href="#ngos">NGOs</a></li>
+      <li><a href="#ai-advisor">Ask AI</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-actions" style="display:flex;align-items:center;gap:14px;">
@@ -1417,6 +1418,55 @@ footer {
         <div class="how-step">Step 03</div>
         <h3>See Real Proof</h3>
         <p>Get verified videos and reports from NGOs. Track your XP, climb the leaderboard, and earn impact badges.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SERVEMATE AI IMPACT ADVISOR
+     ============================================================ -->
+<section id="ai-advisor" class="reveal">
+  <div class="container" style="max-width: 700px;">
+    <div class="section-header">
+      <h2>Ask ServeMATE <span class="grad-text">AI</span></h2>
+      <p>Visualize how small contributions build a big long-term impact for causes you care about.</p>
+    </div>
+    <div class="glass2" style="padding: 40px; border-radius: var(--radius);">
+      <form id="aiAdvisorForm" onsubmit="generateImpactPlan(event)" class="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="aiBudget">Monthly Budget (₹)</label>
+            <input type="number" id="aiBudget" class="form-input" placeholder="E.g. 100" min="10" required />
+          </div>
+          <div class="form-group">
+            <label for="aiCause">Cause Category</label>
+            <select id="aiCause" class="form-input" required style="padding: 14px; background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-sm);">
+              <option value="Education" style="background: #0F172A;">Education</option>
+              <option value="Healthcare" style="background: #0F172A;">Healthcare</option>
+              <option value="Environment" style="background: #0F172A;">Environment</option>
+              <option value="Animal Welfare" style="background: #0F172A;">Animal Welfare</option>
+              <option value="Community Development" style="background: #0F172A;">Community Development</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top: 12px;">
+          <label for="aiGoal">Your Specific Impact Goal (Optional)</label>
+          <input type="text" id="aiGoal" class="form-input" placeholder="E.g. Help underprivileged students get school bags" />
+        </div>
+        <button type="submit" class="btn btn-primary" id="aiAdvisorSubmit" style="padding: 14px 32px; width: 100%; justify-content: center; margin-top: 16px;">
+          🤖 Generate Impact Plan
+        </button>
+      </form>
+      
+      <div id="aiAdvisorLoading" class="hidden" style="text-align: center; padding: 30px 0;">
+        <div style="width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px;"></div>
+        <p style="color: var(--text2); font-size: 0.95rem;">Consulting ServeMATE AI Impact Matrix...</p>
+      </div>
+      
+      <div id="aiAdvisorResult" class="hidden" style="margin-top: 30px; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); position: relative; animation: scaleIn 0.3s ease;">
+        <div style="font-size: 1.5rem; margin-bottom: 12px;">🤖</div>
+        <p id="aiAdvisorPlanText" style="line-height: 1.7; color: var(--text); font-size: 1rem; white-space: pre-line;"></p>
       </div>
     </div>
   </div>
@@ -1825,6 +1875,14 @@ footer {
       <div style="display:flex;flex-direction:column;">
         <span style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);">How It Works</span>
         <span style="font-size:0.75rem;color:var(--text2);margin-top:2px;">Learn about our transparent micro-donation process</span>
+      </div>
+    </a>
+
+    <a href="#ai-advisor" onclick="closeMobileMenu()" class="glass" style="display:flex;align-items:center;gap:16px;padding:14px 18px;text-decoration:none;">
+      <div style="font-size:1.4rem;background:rgba(124,58,237,0.1);width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">🤖</div>
+      <div style="display:flex;flex-direction:column;">
+        <span style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;color:var(--text);">Ask ServeMATE AI</span>
+        <span style="font-size:0.75rem;color:var(--text2);margin-top:2px;">Get a personalized micro-donation impact advisor plan</span>
       </div>
     </a>
     
@@ -3234,6 +3292,41 @@ function toggleTheme() {
   }
   
   playGamifiedSound('click');
+}
+
+async function generateImpactPlan(event) {
+  event.preventDefault();
+  const budget = document.getElementById('aiBudget').value;
+  const cause = document.getElementById('aiCause').value;
+  const goal = document.getElementById('aiGoal').value;
+  const submitBtn = document.getElementById('aiAdvisorSubmit');
+  const loadingDiv = document.getElementById('aiAdvisorLoading');
+  const resultDiv = document.getElementById('aiAdvisorResult');
+  const planTextEl = document.getElementById('aiAdvisorPlanText');
+  
+  submitBtn.disabled = true;
+  submitBtn.textContent = '⏳ Preparing Plan...';
+  loadingDiv.classList.remove('hidden');
+  resultDiv.classList.add('hidden');
+  
+  try {
+    const res = await api('/api/ai/advisor', {
+      method: 'POST',
+      body: JSON.stringify({ amount: budget, category: cause, goal })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to generate impact plan');
+    
+    planTextEl.textContent = data.plan;
+    resultDiv.classList.remove('hidden');
+    playGamifiedSound('xp');
+  } catch(err) {
+    showToast(err.message || 'Error communicating with AI Advisor', 'error');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = '🤖 Generate Impact Plan';
+    loadingDiv.classList.add('hidden');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
