@@ -27,6 +27,8 @@ const userSchema = new mongoose.Schema({
   // Streak
   lastDonation: { type: Date },
   streak:       { type: Number, default: 0 },
+  // Communities
+  communities:  [{ type: mongoose.Schema.Types.ObjectId, ref: "Community" }],
 }, { timestamps: true });
 
 // Auto-set level based on XP
@@ -89,7 +91,7 @@ const causeSchema = new mongoose.Schema({
   title:        { type: String, required: true },
   description:  { type: String, required: true },
   icon:         { type: String, default: "SM" },
-  category:     { type: String, enum: ["meals","trees","essentials","ngo-support","education","health","other"], required: true },
+  category:     { type: String, enum: ["education", "healthcare", "food", "environment", "animal-welfare", "disaster-relief", "women-empowerment", "children", "other"], required: true },
   goal:         { type: Number, required: true },
   raised:       { type: Number, default: 0 },
   impactPerRupee:{ type: String, default: "Rs 10 = 1 impact unit" },
@@ -114,6 +116,7 @@ const donationSchema = new mongoose.Schema({
   proofNote:  { type: String, default: "" },
   location:   { type: String, default: "" },
   verifiedAt: { type: Date },
+  community:  { type: mongoose.Schema.Types.ObjectId, ref: "Community" },
 }, { timestamps: true });
 
 // ─── TRANSPARENCY LOG ────────────────────────────────────────────────────────
@@ -152,6 +155,20 @@ const siteSettingsSchema = new mongoose.Schema({
   seoKeywords: { type: [String], default: ["ServeMate", "resence.in", "verified NGOs", "micro donations", "social impact"] },
 }, { timestamps: true });
 
+// ─── COMMUNITY (GUILD) SCHEMA ────────────────────────────────────────────────
+const communitySchema = new mongoose.Schema({
+  name:          { type: String, required: true, unique: true, trim: true },
+  description:   { type: String, required: true },
+  logo:          { type: String, default: "" },
+  code:          { type: String, unique: true, required: true, uppercase: true, trim: true },
+  category:      { type: String, enum: ["College Club", "School Group", "Friend Circle", "Open Community", "Social Impact Group"], required: true },
+  creator:       { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  members:       [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  totalRaised:   { type: Number, default: 0 },
+  impactScore:   { type: Number, default: 0 },
+  supportedNgos: [{ type: mongoose.Schema.Types.ObjectId, ref: "NGO" }],
+}, { timestamps: true });
+
 module.exports = {
   User:         mongoose.model("User", userSchema),
   NGO:          mongoose.model("NGO", ngoSchema),
@@ -160,4 +177,5 @@ module.exports = {
   Transparency: mongoose.model("Transparency", transparencySchema),
   Contact:      mongoose.model("Contact", contactSchema),
   SiteSettings: mongoose.model("SiteSettings", siteSettingsSchema),
+  Community:    mongoose.model("Community", communitySchema),
 };

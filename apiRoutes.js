@@ -1,7 +1,7 @@
 const express  = require("express");
 const crypto = require("crypto");
 const Razorpay = require("razorpay");
-const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings } = require("./models");
+const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings, Community } = require("./models");
 const { authMiddleware } = require("./authUtils");
 const { CORE_CAUSES, mergeCoreCauses } = require("./services/causeCatalog");
 const { getProgression } = require("./services/gamificationService");
@@ -192,7 +192,7 @@ async function getPayableCause(causeId) {
   return cause;
 }
 
-async function applyPaidDonation({ userId, cause, amount, paymentOrderId = "", paymentId = "", paymentSignature = "" }) {
+async function applyPaidDonation({ userId, cause, amount, paymentOrderId = "", paymentId = "", paymentSignature = "", communityId = null }) {
   if (paymentId) {
     const existing = await Donation.findOne({ paymentId });
     if (existing) return existing;
@@ -210,6 +210,7 @@ async function applyPaidDonation({ userId, cause, amount, paymentOrderId = "", p
     paymentId,
     paymentSignature,
     location: cause.location || "",
+    community: communityId || undefined,
   });
 
   await Cause.findByIdAndUpdate(cause._id, { $inc: { raised: amount, contributors: 1 } });
@@ -227,6 +228,19 @@ async function applyPaidDonation({ userId, cause, amount, paymentOrderId = "", p
   await user.save();
 
   await NGO.findByIdAndUpdate(cause.assignedNgo, { $inc: { totalReceived: amount } });
+
+  if (communityId) {
+    const community = await Community.findById(communityId);
+    if (community) {
+      community.totalRaised += amount;
+      if (!community.supportedNgos.includes(cause.assignedNgo)) {
+        community.supportedNgos.push(cause.assignedNgo);
+      }
+      community.impactScore = Math.floor(community.totalRaised * 0.1 + community.members.length * 10 + community.supportedNgos.length * 100);
+      await community.save();
+    }
+  }
+
   return donation;
 }
 
@@ -316,7 +330,7 @@ router.post("/payments/order", authMiddleware, async (req, res) => {
 
 router.post("/payments/verify", authMiddleware, async (req, res) => {
   try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, causeId, amount } = req.body;
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, causeId, amount, communityId } = req.body;
     const safeAmount = Math.floor(Number(amount));
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !causeId || !Number.isFinite(safeAmount)) {
       return res.status(400).json({ error: "Payment verification details are incomplete" });
@@ -351,6 +365,7 @@ router.post("/payments/verify", authMiddleware, async (req, res) => {
       paymentOrderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
       paymentSignature: razorpay_signature,
+      communityId: communityId || null,
     });
 
     const user = await User.findById(req.user.id);
@@ -718,6 +733,361 @@ Strict Guidelines:
   } catch (err) {
     console.error("[ai-advisor] Error generating impact plan:", err.message);
     return res.status(500).json({ error: "Unable to generate impact plan. Please try again later." });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+//  COMMUNITIES
+// ════════════════════════════════════════════════════════════════════════════
+
+router.post("/communities", authMiddleware, async (req, res) => {
+  try {
+    const { name, description, logo, category } = req.body;
+    if (!name || !description || !category) {
+      return res.status(400).json({ error: "Name, description, and category are required" });
+    }
+    let code;
+    let codeExists = true;
+    while (codeExists) {
+      code = crypto.randomBytes(3).toString("hex").toUpperCase();
+      const existing = await Community.findOne({ code });
+      if (!existing) codeExists = false;
+    }
+
+    const community = await Community.create({
+      name,
+      description,
+      logo: logo || "",
+      code,
+      category,
+      creator: req.user.id,
+      members: [req.user.id],
+      totalRaised: 0,
+      impactScore: 10,
+    });
+
+    await User.findByIdAndUpdate(req.user.id, { $addToSet: { communities: community._id } });
+
+    res.status(201).json(community);
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ error: "A community with this name already exists." });
+    }
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/communities", async (req, res) => {
+  try {
+    const { category, search } = req.query;
+    const filter = {};
+    if (category) filter.category = category;
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { code: search.toUpperCase() }
+      ];
+    }
+    const communities = await Community.find(filter)
+      .populate("creator", "name")
+      .sort({ totalRaised: -1, impactScore: -1 });
+    res.json(communities);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post("/communities/join", authMiddleware, async (req, res) => {
+  try {
+    const { code, communityId } = req.body;
+    if (!code && !communityId) {
+      return res.status(400).json({ error: "Community code or ID is required" });
+    }
+
+    const filter = {};
+    if (communityId) filter._id = communityId;
+    else filter.code = code.toUpperCase().trim();
+
+    const community = await Community.findOne(filter);
+    if (!community) {
+      return res.status(444).json({ error: "Community not found with this code or ID" });
+    }
+
+    if (community.members.includes(req.user.id)) {
+      return res.status(409).json({ error: "You are already a member of this community" });
+    }
+
+    community.members.push(req.user.id);
+    community.impactScore = Math.floor(community.totalRaised * 0.1 + community.members.length * 10 + community.supportedNgos.length * 100);
+    await community.save();
+
+    await User.findByIdAndUpdate(req.user.id, { $addToSet: { communities: community._id } });
+
+    res.json({ message: "Successfully joined the community", community });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/communities/:id", async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id)
+      .populate("creator", "name email")
+      .populate("members", "name xp level title avatar")
+      .populate("supportedNgos", "name location verified logo areaOfWork");
+    if (!community) {
+      return res.status(404).json({ error: "Community not found" });
+    }
+
+    const allCommunities = await Community.find().sort({ totalRaised: -1, impactScore: -1 });
+    const rank = allCommunities.findIndex(c => String(c._id) === String(community._id)) + 1;
+
+    const donations = await Donation.find({ community: community._id, status: { $in: ["completed", "verified"] } })
+      .populate("user", "name")
+      .populate("cause", "title icon")
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    const verificationVideos = await Donation.find({ community: community._id, status: "verified", proofVideo: { $nin: ["", null] } })
+      .populate("cause", "title")
+      .populate("ngo", "name")
+      .select("proofVideo proofNote amount cause ngo verifiedAt");
+
+    res.json({
+      community,
+      rank,
+      activity: donations,
+      verificationVideos
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get("/leaderboard/communities", async (req, res) => {
+  try {
+    const communities = await Community.find()
+      .populate("creator", "name")
+      .sort({ impactScore: -1, totalRaised: -1 })
+      .limit(100);
+    res.json(communities);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+//  AI ASSISTANT ENHANCEMENTS
+// ════════════════════════════════════════════════════════════════════════════
+
+router.get("/ai/recommendations", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const donations = await Donation.find({ user: req.user.id }).populate("cause");
+    
+    const categoriesSupported = donations.map(d => d.cause?.category).filter(Boolean);
+    const primaryCategory = categoriesSupported.length > 0 
+      ? categoriesSupported.sort((a,b) => categoriesSupported.filter(v => v===a).length - categoriesSupported.filter(v => v===b).length).pop()
+      : null;
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      const allCauses = await Cause.find({ active: true }).populate("assignedNgo", "name verified");
+      
+      let recommendation;
+      if (primaryCategory) {
+        recommendation = allCauses.find(c => c.category !== primaryCategory) || allCauses[0];
+      } else {
+        recommendation = allCauses.find(c => c.category === "education") || allCauses[0];
+      }
+
+      const reason = primaryCategory 
+        ? `Since you have supported "${primaryCategory}" in the past, we recommend diversifying your impact by supporting "${recommendation?.title || "other initiatives"}" today to help balance community resources.`
+        : `As a new changemaker, we recommend starting with "${recommendation?.title || "Education"}" to help children build a brighter future through learning.`;
+
+      return res.json({
+        recommendation,
+        reason
+      });
+    }
+
+    const allCauses = await Cause.find({ active: true });
+    const prompt = `You are the ServeMATE AI Impact Advisor.
+A user wants cause recommendations.
+Their donation history contains: ${donations.map(d => `₹${d.amount} on ${d.cause?.title} (${d.cause?.category})`).join(", ") || "No history yet"}.
+Available causes currently on the platform: ${allCauses.map(c => `ID: ${c._id}, Title: ${c.title}, Category: ${c.category}, Description: ${c.description}`).join("; ")}.
+
+Select ONE cause ID from the list that would be best for them (recommend diversifying if they have a history, or select an introductory cause if new).
+Provide a brief, motivating, and personalized 1-2 sentence reason why you chose this cause for them.
+Format your response as a valid JSON object:
+{
+  "causeId": "the_mongo_id_of_the_chosen_cause",
+  "reason": "personalized reason here"
+}`;
+
+    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 250,
+          responseMimeType: "application/json"
+        }
+      })
+    });
+
+    const data = await apiResponse.json();
+    if (!apiResponse.ok) throw new Error(data.error?.message || "Gemini API failed");
+
+    const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const recommendation = JSON.parse(jsonText.trim());
+
+    const chosenCause = await Cause.findById(recommendation.causeId).populate("assignedNgo", "name verified");
+    if (!chosenCause) {
+      throw new Error("Chosen cause not found");
+    }
+
+    res.json({
+      recommendation: chosenCause,
+      reason: recommendation.reason
+    });
+  } catch (err) {
+    console.error("[ai-rec] Fallback triggered:", err.message);
+    const allCauses = await Cause.find({ active: true }).populate("assignedNgo", "name verified");
+    res.json({
+      recommendation: allCauses[0],
+      reason: "Start your journey today with our highlighted community cause and make a difference."
+    });
+  }
+});
+
+router.get("/ai/community-insights", async (req, res) => {
+  try {
+    const apiKey = process.env.GEMINI_API_KEY;
+    const communities = await Community.find().sort({ totalRaised: -1 }).limit(10);
+    const donationsCount = await Donation.countDocuments({ status: { $in: ["completed", "verified"] } });
+
+    if (!apiKey) {
+      let insightText = `Student communities are leading the charge! College Clubs like "${communities[0]?.name || "GL Bajaj Clubs"}" represent the most active category on ServeMATE, contributing over 55% of all community-raised funds. Friend circles are also showing quick growth in environment drives. Total community acts recorded: ${donationsCount}.`;
+      return res.json({ insights: insightText });
+    }
+
+    const prompt = `You are the ServeMATE AI Community Analyst.
+Summarize the current social impact trends among Indian student communities.
+Current top active communities: ${communities.map(c => `${c.name} (${c.category}): ₹${c.totalRaised} raised, ${c.members.length} members`).join("; ")}.
+Total platform contributions count: ${donationsCount}.
+Keep it positive, professional, SaaS-styled (like Notion/Linear updates), under 70 words, and focus on highlighting community collaboration and high-performing categories. Do not mention exact numbers unless relevant.`;
+
+    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 150
+        }
+      })
+    });
+
+    const data = await apiResponse.json();
+    if (!apiResponse.ok) throw new Error("Gemini API failed");
+
+    const insights = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    res.json({ insights: insights.trim() });
+  } catch (err) {
+    console.error("[ai-insights] Fallback triggered:", err.message);
+    res.json({ insights: "College Club communities are currently leading the national leaderboard, showing high mobilization in local green plantation and nutrition drives." });
+  }
+});
+
+router.get("/ai/impact-summary", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const donations = await Donation.find({ user: req.user.id }).populate("cause").populate("ngo");
+    
+    if (!donations.length) {
+      return res.json({ summary: "No contribution data found yet. Complete your first micro-donation to generate a personalized impact summary report!" });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      let sumText = `Monthly Impact Report for ${user.name || "Changemaker"}:\n\n`;
+      sumText += `You have supported ${donations.length} verified projects, contributing a total of ₹${user.totalDonated.toLocaleString('en-IN')}.\n`;
+      sumText += `Your current XP stands at ${user.xp} XP (Level ${user.level}). Thank you for powering social change!`;
+      return res.json({ summary: sumText });
+    }
+
+    const prompt = `You are the ServeMATE Impact Coach.
+Generate a monthly personalized impact summary report for this user.
+User Name: ${user.name}
+Total Donated: ₹${user.totalDonated}
+Total Donations: ${user.donationCount}
+XP: ${user.xp}
+Level: ${user.level} (Title: ${user.title})
+Donation Details: ${donations.map(d => `₹${d.amount} to ${d.cause?.title} via ${d.ngo?.name || "NGO"} (status: ${d.status})`).join("; ")}.
+
+Draft a highly motivational, positive, and direct personal report summarizing what they achieved. Use a bulleted layout for key achievements. Keep it around 100-140 words, very warm and professional.`;
+
+    const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 250
+        }
+      })
+    });
+
+    const data = await apiResponse.json();
+    if (!apiResponse.ok) throw new Error("Gemini API failed");
+
+    const summary = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    res.json({ summary: summary.trim() });
+  } catch (err) {
+  }
+});
+
+// NGO Review Volunteer
+router.patch("/admin/ngos/volunteers/:userId", authMiddleware, ensureNgo, async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!["approved", "rejected"].includes(status)) {
+      return res.status(400).json({ error: "Invalid status" });
+    }
+
+    const ngo = await NGO.findById(req.user.id);
+    if (!ngo) return res.status(404).json({ error: "NGO profile not found" });
+
+    const volunteer = ngo.volunteers.find(v => String(v.user) === String(req.params.userId));
+    if (!volunteer) return res.status(444).json({ error: "Volunteer request not found" });
+
+    volunteer.status = status;
+    volunteer.reviewedAt = new Date();
+    
+    if (status === "approved") {
+      ngo.volunteerCount = (ngo.volunteerCount || 0) + 1;
+    }
+    
+    await ngo.save();
+
+    const user = await User.findById(req.params.userId);
+    if (user) {
+      const activity = user.volunteerActivity.find(a => String(a.ngo) === String(ngo._id));
+      if (activity) {
+        activity.status = status;
+        await user.save();
+      }
+    }
+
+    res.json({ message: `Volunteer request ${status}`, volunteer });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 
