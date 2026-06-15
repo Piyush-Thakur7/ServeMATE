@@ -415,12 +415,17 @@ async function seedDatabase() {
       });
       console.log(`[seed] Created Cause: ${info.title}`);
     } else {
-      // Keep it active and update image if missing
+      // Force update existing cause fields to ensure premium properties and distinct covers
+      exists.description = info.description;
+      exists.category = info.category;
+      exists.goal = info.goal;
+      exists.impactPerRupee = info.impactPerRupee;
+      exists.image = info.image;
+      exists.icon = info.icon;
+      exists.assignedNgo = ngoId;
       exists.active = true;
-      if (!exists.image || exists.image.startsWith("/")) {
-        exists.image = info.image;
-        await exists.save();
-      }
+      await exists.save();
+      console.log(`[seed] Updated Cause: ${info.title} with premium configuration.`);
     }
   }
 

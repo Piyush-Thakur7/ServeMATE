@@ -1476,12 +1476,16 @@ footer {
     display: none;
   }
 }
-@media (max-width: 768px) {
+@media (max-width: 1150px) {
   #navbar { padding: 0 16px; }
   .nav-inner { gap: 12px; justify-content: space-between; }
   .nav-logo { font-size: 1.25rem; letter-spacing: -1.5px; }
   .nav-actions { gap: 8px !important; }
-  .nav-links { display: none; }
+  .nav-links { display: none !important; }
+  .mobile-menu-btn { display: flex !important; }
+}
+@media (max-width: 768px) {
+  #navActions { display: none !important; }
   section { padding: 60px 16px; }
   #hero { padding: 100px 16px 40px; min-height: auto; }
   .hero-title { font-size: clamp(1.9rem, 7vw, 2.8rem) !important; line-height: 1.2; }
@@ -1779,7 +1783,7 @@ body.light-mode select.form-input option {
   margin-bottom: 12px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1150px) {
   .mobile-menu-btn {
     display: flex;
   }
