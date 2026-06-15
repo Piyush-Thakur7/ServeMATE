@@ -404,8 +404,9 @@ function renderCauses(filter) {
     const raised = c.raised || 0;
     const goal = c.goal || 50000;
     const pct = Math.min((raised / goal) * 100, 100).toFixed(1);
-    const image = causeImages[c.category] || causeImages.default;
+    const image = c.image || causeImages[c.category] || causeImages.default;
     const ngoName = c.assignedNgo?.name || 'Assigned Verified NGO';
+    const contributors = c.contributors || 0;
     
     return `
       <div class="glass cause-card reveal" style="transition-delay: ${i * 0.05}s">
@@ -421,6 +422,7 @@ function renderCauses(filter) {
           </div>
           <p class="cause-desc">${esc(c.description)}</p>
           <div style="font-size: 0.78rem; color: var(--text3); margin-bottom: 12px; font-weight: 600;">🏢 NGO: ${esc(ngoName)}</div>
+          
           <div class="progress-wrap">
             <div class="progress-label">
               <span>₹${raised.toLocaleString('en-IN')} raised</span>
@@ -430,8 +432,26 @@ function renderCauses(filter) {
               <div class="progress-fill" style="width: ${pct}%"></div>
             </div>
           </div>
-          <div class="xp-badge">⚡ +${c.xp || 50} XP per Donation</div>
-          <button class="btn btn-donate" onclick="openDonationModal('${c._id}')">Donate Now</button>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.8rem; color: var(--text2); margin-bottom: 12px; border-top: 1px solid var(--border); padding-top: 12px;">
+            <div>👥 <strong>${contributors.toLocaleString('en-IN')}</strong> donors</div>
+            <div style="text-align: right;">🎯 Goal: <strong>₹${goal.toLocaleString('en-IN')}</strong></div>
+          </div>
+
+          <div style="font-size: 0.78rem; color: var(--green); background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 8px 12px; margin-bottom: 16px; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+            <span>📈</span>
+            <span>${esc(c.impactPerRupee)}</span>
+          </div>
+
+          <div class="xp-badge" style="margin-bottom: 16px;">⚡ +${c.xp || 50} XP per Donation</div>
+
+          <div class="cause-actions" style="margin-top: auto; display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn btn-donate" style="width: 100%; border-radius: var(--radius-sm); margin: 0; padding: 12px;" onclick="openDonationModal('${c._id}')">Donate</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button class="btn btn-outline" style="font-size: 0.78rem; padding: 10px 8px; border-radius: var(--radius-sm); justify-content: center;" onclick="navigate('/impact')">View Impact</button>
+              <button class="btn btn-outline" style="font-size: 0.78rem; padding: 10px 8px; border-radius: var(--radius-sm); justify-content: center;" onclick="openNgoProfileModal('${c.assignedNgo?._id || c.assignedNgo}')">View NGO</button>
+            </div>
+          </div>
         </div>
       </div>
     `;

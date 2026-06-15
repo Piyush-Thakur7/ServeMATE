@@ -251,14 +251,10 @@ async function applyPaidDonation({ userId, cause, amount, paymentOrderId = "", p
 // GET /api/causes  — all active causes (for homepage cards)
 router.get("/causes", async (req, res) => {
   try {
-    const verifiedNgoIds = await NGO.find({ verified: true }).distinct("_id");
-    if (verifiedNgoIds.length) {
-      await Promise.all(CORE_CAUSES.map((cause) => ensureCategoryCause(cause.category)));
-    }
-    const causes = await Cause.find({ active: true, assignedNgo: { $in: verifiedNgoIds } })
+    const causes = await Cause.find({ active: true })
       .populate("assignedNgo", "name verified rating")
       .sort({ raised: -1 });
-    res.json(mergeCoreCauses(causes));
+    res.json(causes);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

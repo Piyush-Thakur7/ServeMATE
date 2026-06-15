@@ -76,15 +76,7 @@ body.light-mode .toast {
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
   border-color: rgba(15, 23, 42, 0.1);
 }
-body.light-mode .form-input, body.light-mode .form-group input, body.light-mode .form-group textarea, body.light-mode .form-group select {
-  background: #F1F5F9;
-  color: #0F172A;
-  border-color: #CBD5E1;
-}
-body.light-mode .form-input:focus, body.light-mode .form-group input:focus, body.light-mode .form-group textarea:focus, body.light-mode .form-group select:focus {
-  background: #FFFFFF;
-  border-color: #2563EB;
-}
+/* Legacy light-mode form styling removed - defined in global forms section below */
 body.light-mode .donation-item {
   border-bottom-color: #E2E8F0;
 }
@@ -1518,3 +1510,148 @@ footer {
 .reveal-delay-1 { transition-delay: 0.1s; }
 .reveal-delay-2 { transition-delay: 0.2s; }
 .reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ============================================================
+   FORM FIELD DESIGN SYSTEM (STRIPE, LINEAR & VERCEL STYLE)
+   ============================================================ */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text2);
+  display: block;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-input, 
+.search-input, 
+.form-group input, 
+.form-group textarea, 
+.form-group select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border-radius: 14px;
+  height: 52px;
+  padding: 0 16px;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  width: 100%;
+  outline: none;
+  box-sizing: border-box;
+}
+
+/* Custom styles for select elements to ensure the default arrow is removed and styling is premium */
+select.form-input,
+.form-group select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(255%252C255%252C255%252C0.45)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+body.light-mode select.form-input,
+body.light-mode .form-group select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22rgba(15%252C23%252C42%252C0.5)%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E");
+}
+
+.form-group textarea.form-input,
+textarea.form-input,
+.form-group textarea {
+  height: auto;
+  min-height: 120px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+
+.form-input::placeholder,
+.search-input::placeholder,
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.form-input:hover, 
+.search-input:hover,
+.form-group input:hover, 
+.form-group textarea:hover, 
+.form-group select:hover {
+  border-color: rgba(37, 99, 235, 0.5);
+}
+
+.form-input:focus, 
+.search-input:focus,
+.form-group input:focus, 
+.form-group textarea:focus, 
+.form-group select:focus {
+  border-color: #2563EB;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.form-group select option,
+select.form-input option {
+  background: #0D1428;
+  color: #FFFFFF;
+}
+
+/* Light Mode Overrides */
+body.light-mode .form-input,
+body.light-mode .search-input,
+body.light-mode .form-group input,
+body.light-mode .form-group textarea,
+body.light-mode .form-group select {
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  color: #0F172A;
+}
+
+body.light-mode .form-input::placeholder,
+body.light-mode .search-input::placeholder,
+body.light-mode .form-group input::placeholder,
+body.light-mode .form-group textarea::placeholder {
+  color: rgba(15, 23, 42, 0.5);
+}
+
+body.light-mode .form-input:hover,
+body.light-mode .search-input:hover,
+body.light-mode .form-group input:hover,
+body.light-mode .form-group textarea:hover,
+body.light-mode .form-group select:hover {
+  border-color: rgba(37, 99, 235, 0.4);
+}
+
+body.light-mode .form-input:focus,
+body.light-mode .search-input:focus,
+body.light-mode .form-group input:focus,
+body.light-mode .form-group textarea:focus,
+body.light-mode .form-group select:focus {
+  background: #FFFFFF;
+  border-color: #2563EB;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+body.light-mode .form-group select option,
+body.light-mode select.form-input option {
+  background: #FFFFFF;
+  color: #0F172A;
+}
+

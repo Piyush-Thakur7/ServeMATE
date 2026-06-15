@@ -91,6 +91,7 @@ const causeSchema = new mongoose.Schema({
   title:        { type: String, required: true },
   description:  { type: String, required: true },
   icon:         { type: String, default: "SM" },
+  image:        { type: String, default: "" },
   category:     { type: String, enum: ["education", "healthcare", "food", "environment", "animal-welfare", "disaster-relief", "women-empowerment", "children", "other"], required: true },
   goal:         { type: Number, required: true },
   raised:       { type: Number, default: 0 },
