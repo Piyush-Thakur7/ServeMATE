@@ -191,85 +191,38 @@ async function seedDatabase() {
     );
   }
 
-  // 1. Seed the 3 mock NGOs
-  const ngoData = [
-    {
-      name: "Resence Foundation",
-      email: "foundation@resence.in",
-      password: "Resence123!",
-      regNumber: "MOCK-12345-RESENCE",
-      taxStatus: "Both",
-      areaOfWork: "All Causes",
-      slug: "resence-foundation",
-      description: "Default platform partner foundation facilitating micro-donations across India.",
-      about: "Resence Foundation connects student groups with grassroots transparency-driven charity actions.",
-      location: "New Delhi, Delhi",
-      verified: true,
-      verifiedAt: new Date(),
-      rating: 4.9,
-      impactScore: 4200,
-      tasksCompleted: 15,
-      volunteerCount: 8,
-      logo: "https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=150&auto=format&fit=crop&q=80",
-    },
-    {
-      name: "Green India Trust",
-      email: "green@india.org",
-      password: "Green123!",
-      regNumber: "MOCK-9999-GREEN",
-      taxStatus: "Both",
-      areaOfWork: "Environment & Trees",
-      slug: "green-india-trust",
-      description: "Dedicated to tree planting, animal care, and environmental cleanups across India.",
-      about: "Green India Trust mobilizes volunteers to restore ecosystems and nurture street animals.",
-      location: "Bengaluru, Karnataka",
-      verified: true,
-      verifiedAt: new Date(),
-      rating: 4.8,
-      impactScore: 3500,
-      tasksCompleted: 12,
-      volunteerCount: 6,
-      logo: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=150&auto=format&fit=crop&q=80",
-    },
-    {
-      name: "HelpAge India",
-      email: "help@helpage.org",
-      password: "Help123!",
-      regNumber: "MOCK-8888-HELP",
-      taxStatus: "Both",
-      areaOfWork: "Healthcare & Education",
-      slug: "helpage-india",
-      description: "Providing life-saving healthcare and primary learning support for underprivileged families.",
-      about: "HelpAge India provides medical assistance, tuition clinics, and disaster support packs.",
-      location: "Mumbai, Maharashtra",
-      verified: true,
-      verifiedAt: new Date(),
-      rating: 4.9,
-      impactScore: 4800,
-      tasksCompleted: 18,
-      volunteerCount: 11,
-      logo: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=150&auto=format&fit=crop&q=80",
-    }
-  ];
+  // Delete mock/fake NGOs if they exist
+  await NGO.deleteMany({ email: { $in: ["foundation@resence.in", "green@india.org", "help@helpage.org"] } });
 
-  const ngos = {};
-  for (const info of ngoData) {
-    let ngo = await NGO.findOne({ email: info.email });
-    if (!ngo) {
-      const hashed = await bcrypt.hash(info.password, 10);
-      ngo = await NGO.create({
-        ...info,
-        password: hashed
-      });
-      console.log(`[seed] Created NGO: ${info.name}`);
-    } else {
-      if (!ngo.verified) {
-        ngo.verified = true;
-        ngo.verifiedAt = new Date();
-        await ngo.save();
-      }
-    }
-    ngos[info.slug] = ngo._id;
+  // 1. Seed/Find the authentic Resence Help NGO
+  let resenceHelp = await NGO.findOne({ name: "Resence Help" }) || await NGO.findOne({ slug: "resence-help" });
+  if (!resenceHelp) {
+    const hashed = await bcrypt.hash("ResenceHelp123!", 10);
+    resenceHelp = await NGO.create({
+      name: "Resence Help",
+      email: "help@resence.in",
+      password: hashed,
+      regNumber: "MOCK-54321-HELP",
+      taxStatus: "Both",
+      areaOfWork: "Education, Hunger, Environment, Healthcare, Children, Animal Welfare, Women Empowerment, Disaster Relief",
+      slug: "resence-help",
+      description: "Authentic platform partner facilitating micro-donations and transparency-driven social impact.",
+      about: "We Help Humanity. Resence Help connects student communities with transparent, verified social actions across India.",
+      location: "Greater Noida, Uttar Pradesh",
+      verified: true,
+      verifiedAt: new Date(),
+      rating: 4.9,
+      impactScore: 100,
+      tasksCompleted: 5,
+      volunteerCount: 2,
+      logo: "https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=150&auto=format&fit=crop&q=80",
+    });
+    console.log(`[seed] Created Resence Help NGO.`);
+  } else {
+    // Make sure it is verified and has correct authentic properties
+    resenceHelp.verified = true;
+    resenceHelp.verifiedAt = resenceHelp.verifiedAt || new Date();
+    await resenceHelp.save();
   }
 
   // 2. Seed the 12 premium causes
@@ -397,7 +350,7 @@ async function seedDatabase() {
   ];
 
   for (const info of causeData) {
-    const ngoId = ngos[info.assignedNgoSlug] || Object.values(ngos)[0];
+    const ngoId = resenceHelp._id;
     const exists = await Cause.findOne({ title: info.title });
     if (!exists) {
       await Cause.create({
