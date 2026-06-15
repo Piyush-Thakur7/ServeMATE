@@ -148,29 +148,36 @@ function showToast(message, type = 'success') {
    ============================================================ */
 function updateNav() {
   const el = document.getElementById('navActions');
+  const mobEl = document.getElementById('mobileDrawerActions');
   if (!el) return;
 
+  let html = '';
   if (authToken && currentUser) {
     const lvl = currentUser.level || 1;
     const name = currentUser.name?.split(' ')[0] || 'User';
-    el.innerHTML = `
+    html = `
       <span class="user-greeting">Hi, ${name}</span>
-      <span class="level-badge">⭐ Lv.${lvl}</span>
+      <span class="level-badge" style="margin-left:6px;">⭐ Lv.${lvl}</span>
       <a href="/dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">Dashboard</a>
       <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else if (ngoToken && currentNgo) {
     const name = currentNgo.name?.split(' ')[0] || 'NGO';
-    el.innerHTML = `
+    html = `
       <span class="user-greeting">${name} Partner</span>
       <a href="/ngo-dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">Dashboard</a>
       <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else {
-    el.innerHTML = `
+    html = `
       <a href="/login" class="btn btn-ghost" style="padding:8px 18px;font-size:0.9rem">Login</a>
       <a href="/register" class="btn btn-primary" style="padding:8px 18px;font-size:0.9rem">Register</a>
     `;
+  }
+
+  el.innerHTML = html;
+  if (mobEl) {
+    mobEl.innerHTML = html;
   }
 }
 
@@ -1885,9 +1892,32 @@ function initReveal() {
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    ['donationModal','successModal','createCommunityModal','ngoProfileModal','editProfileModal'].forEach(id => closeModal(id));
+    ['donationModal','successModal','createCommunityModal','ngoProfileModal','editProfileModal','mobileMenuDrawer'].forEach(id => closeModal(id));
+    const btn = document.getElementById('mobileMenuToggle');
+    if (btn) btn.classList.remove('open');
+    const drawer = document.getElementById('mobileMenuDrawer');
+    if (drawer) drawer.classList.remove('active');
   }
 });
+
+function toggleMobileMenu() {
+  const drawer = document.getElementById('mobileMenuDrawer');
+  const btn = document.getElementById('mobileMenuToggle');
+  if (drawer) {
+    const isOpening = drawer.classList.contains('hidden');
+    if (isOpening) {
+      drawer.classList.remove('hidden');
+      drawer.classList.add('active');
+      if (btn) btn.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    } else {
+      drawer.classList.add('hidden');
+      drawer.classList.remove('active');
+      if (btn) btn.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+}
 
 /* ============================================================
    INIT ON LOAD
@@ -1931,3 +1961,5 @@ window.searchCommunities = searchCommunities;
 window.openNgoProfileModal = openNgoProfileModal;
 window.closeModal = closeModal;
 window.handleOverlayClick = handleOverlayClick;
+window.toggleMobileMenu = toggleMobileMenu;
+

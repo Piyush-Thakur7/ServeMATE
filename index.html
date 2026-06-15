@@ -45,6 +45,11 @@
         <div id="navActions" style="display:flex;gap:10px;align-items:center;">
           <!-- Populated by JS -->
         </div>
+        <button id="mobileMenuToggle" class="mobile-menu-btn" onclick="toggleMobileMenu()" aria-label="Toggle Navigation Menu">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
       </div>
     </div>
   </nav>
@@ -1126,6 +1131,30 @@
        TOAST CONTAINER
        ============================================================ -->
   <div id="toastContainer"></div>
+
+  <!-- MOBILE MENU DRAWER -->
+  <div id="mobileMenuDrawer" class="mobile-drawer hidden">
+    <div class="drawer-overlay" onclick="toggleMobileMenu()"></div>
+    <div class="drawer-content glass">
+      <div class="drawer-header">
+        <span class="brand-text" style="font-family:'Space Grotesk',sans-serif; font-size:1.4rem; font-weight:800; letter-spacing:-1.5px;">Serve<span class="brand-mate" style="background:var(--grad-bp); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">Mate</span></span>
+        <button class="drawer-close" onclick="toggleMobileMenu()">✕</button>
+      </div>
+      <ul class="drawer-links">
+        <li><a href="/" onclick="toggleMobileMenu()">Home</a></li>
+        <li><a href="/about" onclick="toggleMobileMenu()">About</a></li>
+        <li><a href="/causes" onclick="toggleMobileMenu()">Causes</a></li>
+        <li><a href="/communities" onclick="toggleMobileMenu()">Communities</a></li>
+        <li><a href="/ngos" onclick="toggleMobileMenu()">NGOs</a></li>
+        <li><a href="/impact" onclick="toggleMobileMenu()">Impact Center</a></li>
+        <li><a href="/leaderboard" onclick="toggleMobileMenu()">Leaderboard</a></li>
+        <li><a href="/contact" onclick="toggleMobileMenu()">Contact</a></li>
+      </ul>
+      <div id="mobileDrawerActions" class="drawer-actions">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
 
   <!-- Client-side Application Scripts -->
   <script src="/js/app.js"></script>

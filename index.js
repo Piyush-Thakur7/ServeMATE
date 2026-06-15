@@ -53,7 +53,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-    version: "v2-reg-fix-forced",
+    version: "v3-premium-causes-seeded",
     time: new Date().toISOString(),
   });
 });

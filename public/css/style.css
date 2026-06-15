@@ -1655,3 +1655,134 @@ body.light-mode select.form-input option {
   color: #0F172A;
 }
 
+/* ============================================================
+   MOBILE NAVIGATION DRAWER & TOGGLE SYSTEM
+   ============================================================ */
+.mobile-menu-btn {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 24px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1010;
+  padding: 0;
+}
+.mobile-menu-btn .bar {
+  width: 100%;
+  height: 2px;
+  background-color: var(--text);
+  border-radius: 2px;
+  transition: all var(--trans);
+}
+
+/* Open states for hamburger bars */
+.mobile-menu-btn.open .bar:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.mobile-menu-btn.open .bar:nth-child(2) {
+  opacity: 0;
+}
+.mobile-menu-btn.open .bar:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+/* Mobile Drawer Overlay and Content */
+.mobile-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  display: flex;
+  justify-content: flex-end;
+  transition: visibility 0.3s ease;
+}
+.mobile-drawer.hidden {
+  display: none !important;
+}
+.drawer-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 8, 18, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.drawer-content {
+  position: relative;
+  width: 80%;
+  max-width: 320px;
+  height: 100%;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mobile-drawer.active .drawer-content {
+  transform: translateX(0);
+}
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.drawer-close {
+  width: 36px;
+  height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text2);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+.drawer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.drawer-links a {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text2);
+  padding: 8px 0;
+  display: block;
+  transition: color var(--trans);
+}
+.drawer-links a:hover, .drawer-links a.active {
+  color: var(--text);
+}
+.drawer-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 24px;
+}
+.drawer-actions .user-greeting {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  display: block;
+}
+.drawer-actions .level-badge {
+  align-self: flex-start;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex;
+  }
+}
+
+
