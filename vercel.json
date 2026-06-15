@@ -4,7 +4,19 @@
   "outputDirectory": ".",
   "rewrites": [
     {
-      "source": "/((?!api|frontendIntegration\\.js|api\\.js).*)",
+      "source": "/css/(.*)",
+      "destination": "/public/css/$1"
+    },
+    {
+      "source": "/js/(.*)",
+      "destination": "/public/js/$1"
+    },
+    {
+      "source": "/logo.jpg",
+      "destination": "/public/logo.jpg"
+    },
+    {
+      "source": "/((?!api|public|css|js|admin|robots\\.txt|sitemap\\.xml).*)",
       "destination": "/index.html"
     }
   ],
