@@ -1,7 +1,9 @@
 /* ============================================================
    STATE & CONSTANTS
    ============================================================ */
-const API = window.location.origin;
+const API = (window.location.origin && (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1') || window.location.origin.includes('192.168.')))
+  ? window.location.origin
+  : 'https://servemate.onrender.com';
 const RAZORPAY_KEY = 'rzp_test_Smq8h0IFgOhCyb';
 
 let authToken = localStorage.getItem('servemate_token') || '';
