@@ -210,9 +210,9 @@ async function seedDatabase() {
       console.log(`[seed] Admin user created: ${ADMIN_EMAIL}`);
     }
   } else if (adminExists.role !== "admin") {
-    console.warn(
-      `[seed] ${ADMIN_EMAIL} exists but is not an admin. Update this user role manually before using admin APIs.`
-    );
+    adminExists.role = "admin";
+    await adminExists.save();
+    console.log(`[seed] Promoted existing user ${ADMIN_EMAIL} to admin role.`);
   }
 
   // Delete mock/fake NGOs if they exist
