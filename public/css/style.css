@@ -350,6 +350,7 @@ section { padding: 100px 24px; }
   font-weight: 500;
   transition: all var(--trans);
   cursor: pointer;
+  white-space: nowrap;
 }
 .nav-links a:hover, .nav-links a.active {
   color: var(--text);
@@ -1507,6 +1508,11 @@ footer {
   .mockup-sidebar {
     display: none;
   }
+}
+@media (max-width: 1350px) and (min-width: 1151px) {
+  .nav-inner { gap: 16px; }
+  .nav-links a { padding: 8px 10px; font-size: 0.85rem; }
+  .nav-actions { gap: 6px !important; }
 }
 @media (max-width: 1150px) {
   #navbar { padding: 0 16px; }
