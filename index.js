@@ -47,6 +47,27 @@ app.use((req, res, next) => {
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+// Custom NoSQL Injection Protection Middleware (Express 5 compatible)
+function mongoSanitize(req, res, next) {
+  const sanitizeObj = (obj) => {
+    if (obj && typeof obj === "object") {
+      for (const key in obj) {
+        if (key.startsWith("$")) {
+          delete obj[key];
+        } else {
+          sanitizeObj(obj[key]);
+        }
+      }
+    }
+  };
+  if (req.body) sanitizeObj(req.body);
+  if (req.query) sanitizeObj(req.query);
+  if (req.params) sanitizeObj(req.params);
+  next();
+}
+app.use(mongoSanitize);
+
 app.use("/api", apiLimiter);
 
 app.get("/api/health", (req, res) => {

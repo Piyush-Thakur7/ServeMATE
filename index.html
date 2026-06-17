@@ -808,6 +808,9 @@
               <label for="lUserPass">Password</label>
               <input type="password" id="lUserPass" class="form-input" placeholder="••••••••" required />
             </div>
+            <div class="form-group" style="text-align: right; margin-top: -8px; margin-bottom: 16px;">
+              <a href="/forgot-password" style="font-size: 0.8rem; color: var(--blue); font-weight: 500;">Forgot Password?</a>
+            </div>
             <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
             <button type="submit" class="btn btn-primary">Login Account</button>
           </form>
@@ -821,6 +824,9 @@
             <div class="form-group">
               <label for="lNgoPass">Password</label>
               <input type="password" id="lNgoPass" class="form-input" placeholder="••••••••" required />
+            </div>
+            <div class="form-group" style="text-align: right; margin-top: -8px; margin-bottom: 16px;">
+              <a href="/forgot-password" style="font-size: 0.8rem; color: var(--blue); font-weight: 500;">Forgot Password?</a>
             </div>
             <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
             <button type="submit" class="btn btn-primary" style="background:var(--grad-gt);">Login NGO</button>
@@ -853,14 +859,21 @@
             </div>
             <div class="form-group">
               <label for="rUserEmail">Email Address</label>
-              <input type="email" id="rUserEmail" class="form-input" placeholder="email@resence.in" required />
+              <div style="display:flex; gap:8px;">
+                <input type="email" id="rUserEmail" class="form-input" placeholder="email@resence.in" required style="flex:1;" />
+                <button type="button" class="btn btn-ghost" id="btnSendUserOtp" onclick="sendRegistrationOtp('user')" style="padding:0 12px; font-size:0.8rem; border-radius:10px; white-space:nowrap; height:45px;">Send OTP</button>
+              </div>
             </div>
             <div class="form-group">
               <label for="rUserPass">Password</label>
               <input type="password" id="rUserPass" class="form-input" placeholder="••••••••" required />
             </div>
+            <div class="form-group">
+              <label for="rUserOtp">Verification Code (OTP)</label>
+              <input type="text" id="rUserOtp" class="form-input" placeholder="6-digit code" required disabled />
+            </div>
             <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
-            <button type="submit" class="btn btn-primary">Create Account</button>
+            <button type="submit" class="btn btn-primary" id="btnRegisterUser" disabled>Create Account</button>
           </form>
 
           <!-- NGO registration -->
@@ -871,11 +884,18 @@
             </div>
             <div class="form-group">
               <label for="rNgoEmail">Official Email</label>
-              <input type="email" id="rNgoEmail" class="form-input" placeholder="foundation@resence.in" required />
+              <div style="display:flex; gap:8px;">
+                <input type="email" id="rNgoEmail" class="form-input" placeholder="foundation@resence.in" required style="flex:1;" />
+                <button type="button" class="btn btn-ghost" id="btnSendNgoOtp" onclick="sendRegistrationOtp('ngo')" style="padding:0 12px; font-size:0.8rem; border-radius:10px; white-space:nowrap; height:45px;">Send OTP</button>
+              </div>
             </div>
             <div class="form-group">
               <label for="rNgoPass">Password</label>
               <input type="password" id="rNgoPass" class="form-input" placeholder="••••••••" required />
+            </div>
+            <div class="form-group">
+              <label for="rNgoOtp">Verification Code (OTP)</label>
+              <input type="text" id="rNgoOtp" class="form-input" placeholder="6-digit code" required disabled />
             </div>
             <div class="form-group">
               <label for="rNgoReg">Registration Number</label>
@@ -902,14 +922,150 @@
               <textarea id="rNgoDesc" class="form-input" placeholder="Details about your social works..." required style="min-height:80px;"></textarea>
             </div>
             <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
-            <button type="submit" class="btn btn-primary" style="background:var(--grad-gt);">Submit NGO Registration</button>
+            <button type="submit" class="btn btn-primary" id="btnRegisterNgo" style="background:var(--grad-gt);" disabled>Submit NGO Registration</button>
           </form>
 
           <div style="margin-top: 24px; text-align: center; font-size: 0.85rem; color: var(--text3);">
             Already have an account? <a href="/login" style="color: var(--blue); font-weight:700;">Login here</a>
+    </div>
+
+    <!-- 14. FORGOT PASSWORD VIEW -->
+    <div id="view-forgot-password" class="view-container hidden">
+      <div class="auth-page-container">
+        <div class="glass auth-card">
+          <h2 class="auth-title">Reset Password</h2>
+          <p class="auth-subtitle">Recover access to your ServeMate account</p>
+          
+          <form id="forgotPasswordForm" onsubmit="handleForgotPassword(event)" class="auth-form">
+            <div class="form-group">
+              <label for="fpEmail">Registered Email</label>
+              <div style="display:flex; gap:8px;">
+                <input type="email" id="fpEmail" class="form-input" placeholder="email@resence.in" required style="flex:1;" />
+                <button type="button" class="btn btn-ghost" id="btnSendFpOtp" onclick="sendForgotPasswordOtp()" style="padding:0 12px; font-size:0.8rem; border-radius:10px; white-space:nowrap; height:45px;">Send OTP</button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="fpOtp">Verification Code (OTP)</label>
+              <input type="text" id="fpOtp" class="form-input" placeholder="6-digit code" required disabled />
+            </div>
+            
+            <div class="form-group">
+              <label for="fpNewPass">New Password</label>
+              <input type="password" id="fpNewPass" class="form-input" placeholder="••••••••" required disabled />
+            </div>
+            
+            <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
+            <button type="submit" class="btn btn-primary" id="btnResetPassword" disabled>Reset Password</button>
+          </form>
+
+          <div style="margin-top: 24px; text-align: center; font-size: 0.85rem; color: var(--text3);">
+            Remembered your password? <a href="/login" style="color: var(--blue); font-weight:700;">Login here</a>
           </div>
         </div>
       </div>
+    </div>
+
+    <!-- 15. PRIVACY POLICY VIEW -->
+    <div id="view-privacy" class="view-container hidden">
+      <section>
+        <div class="container" style="max-width: 800px; margin: 0 auto; padding: 40px 24px;">
+          <div class="glass" style="padding: 40px; border-radius: var(--radius-lg);">
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size: 2.2rem; font-weight:800; margin-bottom:12px;" class="grad-text">Privacy Policy</h1>
+            <p style="color:var(--text3); font-size:0.85rem; margin-bottom:30px;">Last Updated: June 17, 2026</p>
+            
+            <div style="color:var(--text2); font-size:0.95rem; line-height:1.7; display:flex; flex-direction:column; gap:24px;">
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">1. Information We Collect</h3>
+                <p>We collect personal information that you provide to us directly when creating an account, donating, or applying as an NGO partner. This includes your name, email address, password hash, and metadata associated with proof submissions (such as GPS coordinates, timestamp, and device details for video verifications).</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">2. How We Use Your Data</h3>
+                <p>Your data is used to verify donations, compute community leaderboards, rank impact scores, generate personalized AI recommendations via the Gemini API, and display verified proof videos on the public Impact Ledger. We do not sell or lease your data to third parties.</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">3. Payment Processing Security</h3>
+                <p>All donation payments are processed securely through our payment gateway partner, Razorpay. ServeMATE does not store your card details, UPI credentials, or banking passwords. All transactions comply with standard payment security guidelines.</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">4. Contact Us</h3>
+                <p>If you have any questions or data deletion requests, please contact our privacy officer at <a href="mailto:info@resence.in" style="color:var(--blue); text-decoration:underline;">info@resence.in</a>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 16. TERMS OF SERVICE VIEW -->
+    <div id="view-terms" class="view-container hidden">
+      <section>
+        <div class="container" style="max-width: 800px; margin: 0 auto; padding: 40px 24px;">
+          <div class="glass" style="padding: 40px; border-radius: var(--radius-lg);">
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size: 2.2rem; font-weight:800; margin-bottom:12px;" class="grad-text">Terms of Service</h1>
+            <p style="color:var(--text3); font-size:0.85rem; margin-bottom:30px;">Last Updated: June 17, 2026</p>
+            
+            <div style="color:var(--text2); font-size:0.95rem; line-height:1.7; display:flex; flex-direction:column; gap:24px;">
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">1. Platform Agreement</h3>
+                <p>By registering an account or making donations on ServeMATE (resence.in), you agree to comply with these terms, our privacy policy, and all applicable Indian laws regulating micro-donations and charitable organizations.</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">2. Micro-Donation Pooling</h3>
+                <p>To maximize operational efficiency and reduce payment gateway overhead, ServeMATE employs a pooled funding model. Micro-donations (starting at ₹10) are accumulated into campaign buckets. Once the pool reaches a threshold (typically ₹10,000 to ₹20,000), funds are disbursed directly to the designated NGO for campaign execution.</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">3. NGO & Volunteer Proof Requirements</h3>
+                <p>All NGO partners agree to use only the in-app ServeMATE camera system to capture real-time, geotagged, and timestamped video proof of campaign execution. Uploading pre-recorded, edited, or un-geotagged media is strictly prohibited and constitutes grounds for immediate de-verification and platform ban.</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">4. User Conduct & Abuse</h3>
+                <p>Users must not manipulate the leaderboard, exploit gamification XP metrics, or register duplicate accounts. ServeMATE reserves the right to terminate accounts that violate platform integrity.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- 17. REFUND & CANCELLATION POLICY VIEW -->
+    <div id="view-refund" class="view-container hidden">
+      <section>
+        <div class="container" style="max-width: 800px; margin: 0 auto; padding: 40px 24px;">
+          <div class="glass" style="padding: 40px; border-radius: var(--radius-lg);">
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size: 2.2rem; font-weight:800; margin-bottom:12px;" class="grad-text">Refund & Cancellation Policy</h1>
+            <p style="color:var(--text3); font-size:0.85rem; margin-bottom:30px;">Last Updated: June 17, 2026</p>
+            
+            <div style="color:var(--text2); font-size:0.95rem; line-height:1.7; display:flex; flex-direction:column; gap:24px;">
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">1. Donation Finality</h3>
+                <p>As a technology platform facilitating micro-donations directly to registered social causes, all successful donations made through ServeMATE are **final, non-refundable, and non-cancellable** because they are immediately pledged and routed to the corresponding campaign pool.</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">2. Technical Double-Charges or Failures</h3>
+                <p>In cases of technical issues where your bank account is charged twice or the payment fails midway but the money is debited, the transaction will be auto-refunded by our payment gateway processor (Razorpay) within **5 to 7 business days**.</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">3. Disputed Payouts</h3>
+                <p>If a designated NGO fails to submit verifiable video proof within the stipulated campaign completion period, the pending campaign pool is frozen. ServeMATE will audit the campaign and, if fraud is found, redistribute the frozen funds to another verified cause in the same category to guarantee donor intent.</p>
+              </div>
+              
+              <div>
+                <h3 style="color:var(--text); margin-bottom:10px;">4. Support Contact</h3>
+                <p>For any transaction support, failed payment queries, or refund complaints, please email our support desk at <a href="mailto:info@resence.in" style="color:var(--blue); text-decoration:underline;">info@resence.in</a>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
 
   </main>
@@ -938,8 +1094,9 @@
           </div>
           <div class="footer-col">
             <h4>Legals</h4>
-            <a href="/contact">Privacy Policy</a>
-            <a href="/contact">Terms & Guidelines</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms & Guidelines</a>
+            <a href="/refund">Refund Policy</a>
           </div>
           <div class="footer-col">
             <h4>Contact</h4>

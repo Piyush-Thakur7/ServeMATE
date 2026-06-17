@@ -35,7 +35,11 @@ const routes = {
   '/ngo-dashboard': 'view-ngo-dashboard',
   '/contact': 'view-contact',
   '/login': 'view-login',
-  '/register': 'view-register'
+  '/register': 'view-register',
+  '/privacy': 'view-privacy',
+  '/terms': 'view-terms',
+  '/refund': 'view-refund',
+  '/forgot-password': 'view-forgot-password'
 };
 
 function navigate(path, pushState = true) {
@@ -108,7 +112,7 @@ async function triggerViewLoad(path) {
     else navigate('/communities');
   } else if (path === '/ngo-dashboard') {
     await loadNgoDashboard();
-  } else if (path === '/login' || path === '/register') {
+  } else if (path === '/login' || path === '/register' || path === '/forgot-password') {
     if (authToken) navigate('/dashboard');
     else if (ngoToken) navigate('/ngo-dashboard');
   }
@@ -239,7 +243,8 @@ async function handleRegister(e, role) {
         taxStatus: form.querySelector('#rNgoTax').value,
         areaOfWork: form.querySelector('#rNgoArea').value,
         location: form.querySelector('#rNgoLoc').value,
-        description: form.querySelector('#rNgoDesc').value
+        description: form.querySelector('#rNgoDesc').value,
+        otp: form.querySelector('#rNgoOtp').value
       };
 
       const res = await api('/api/auth/ngo/register', {
@@ -256,7 +261,8 @@ async function handleRegister(e, role) {
       const payload = {
         name: form.querySelector('#rUserName').value,
         email: form.querySelector('#rUserEmail').value,
-        password: form.querySelector('#rUserPass').value
+        password: form.querySelector('#rUserPass').value,
+        otp: form.querySelector('#rUserOtp').value
       };
 
       const res = await api('/api/auth/register', {
@@ -272,6 +278,161 @@ async function handleRegister(e, role) {
       showToast(`Welcome to ServeMate, ${currentUser.name}! 🚀`);
       navigate('/dashboard');
     }
+  } catch (err) {
+    if (errorEl) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = 'block';
+    } else {
+      showToast(err.message, 'error');
+    }
+  }
+}
+
+async function sendRegistrationOtp(role) {
+  const emailInput = role === 'ngo' ? document.getElementById('rNgoEmail') : document.getElementById('rUserEmail');
+  const sendButton = role === 'ngo' ? document.getElementById('btnSendNgoOtp') : document.getElementById('btnSendUserOtp');
+  const otpInput = role === 'ngo' ? document.getElementById('rNgoOtp') : document.getElementById('rUserOtp');
+  const registerButton = role === 'ngo' ? document.getElementById('btnRegisterNgo') : document.getElementById('btnRegisterUser');
+
+  if (!emailInput || !emailInput.value) {
+    showToast('Please enter an email address first', 'error');
+    return;
+  }
+
+  const email = emailInput.value.trim();
+
+  // Simple email regex check
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('Please enter a valid email address', 'error');
+    return;
+  }
+
+  sendButton.disabled = true;
+  const originalText = sendButton.textContent;
+  sendButton.textContent = 'Sending...';
+
+  try {
+    const res = await api('/api/auth/otp/send', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || 'Failed to send verification code');
+
+    if (data.simulated) {
+      showToast(`Verification code sent! (Simulated OTP: ${data.otp})`, 'success');
+    } else {
+      showToast('Verification code sent to your email!', 'success');
+    }
+
+    if (otpInput) otpInput.disabled = false;
+    if (registerButton) registerButton.disabled = false;
+
+    // Start countdown for resend
+    let secondsLeft = 60;
+    const interval = setInterval(() => {
+      secondsLeft--;
+      if (secondsLeft <= 0) {
+        clearInterval(interval);
+        sendButton.disabled = false;
+        sendButton.textContent = 'Send OTP';
+      } else {
+        sendButton.textContent = `Resend (${secondsLeft}s)`;
+      }
+    }, 1000);
+
+  } catch (err) {
+    showToast(err.message, 'error');
+    sendButton.disabled = false;
+    sendButton.textContent = originalText;
+  }
+}
+
+async function sendForgotPasswordOtp() {
+  const emailInput = document.getElementById('fpEmail');
+  const sendButton = document.getElementById('btnSendFpOtp');
+  const otpInput = document.getElementById('fpOtp');
+  const newPassInput = document.getElementById('fpNewPass');
+  const resetButton = document.getElementById('btnResetPassword');
+
+  if (!emailInput || !emailInput.value) {
+    showToast('Please enter your registered email address first', 'error');
+    return;
+  }
+
+  const email = emailInput.value.trim();
+
+  // Simple email regex check
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast('Please enter a valid email address', 'error');
+    return;
+  }
+
+  sendButton.disabled = true;
+  const originalText = sendButton.textContent;
+  sendButton.textContent = 'Sending...';
+
+  try {
+    const res = await api('/api/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || 'Failed to send reset code');
+
+    if (data.simulated) {
+      showToast(`Reset code sent! (Simulated OTP: ${data.otp})`, 'success');
+    } else {
+      showToast('Reset code sent to your email!', 'success');
+    }
+
+    if (otpInput) otpInput.disabled = false;
+    if (newPassInput) newPassInput.disabled = false;
+    if (resetButton) resetButton.disabled = false;
+
+    // Start countdown for resend
+    let secondsLeft = 60;
+    const interval = setInterval(() => {
+      secondsLeft--;
+      if (secondsLeft <= 0) {
+        clearInterval(interval);
+        sendButton.disabled = false;
+        sendButton.textContent = 'Send OTP';
+      } else {
+        sendButton.textContent = `Resend (${secondsLeft}s)`;
+      }
+    }, 1000);
+
+  } catch (err) {
+    showToast(err.message, 'error');
+    sendButton.disabled = false;
+    sendButton.textContent = originalText;
+  }
+}
+
+async function handleForgotPassword(e) {
+  e.preventDefault();
+  const form = e.target;
+  const errorEl = form.querySelector('.error-message');
+  if (errorEl) errorEl.style.display = 'none';
+
+  try {
+    const payload = {
+      email: form.querySelector('#fpEmail').value,
+      otp: form.querySelector('#fpOtp').value,
+      newPassword: form.querySelector('#fpNewPass').value
+    };
+
+    const res = await api('/api/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.message || 'Reset password failed');
+
+    showToast('Password reset successful! Please log in.', 'success');
+    form.reset();
+    navigate('/login');
   } catch (err) {
     if (errorEl) {
       errorEl.textContent = err.message;
@@ -1958,6 +2119,9 @@ window.proceedToPay = proceedToPay;
 window.handleLogin = handleLogin;
 window.handleRegister = handleRegister;
 window.logout = logout;
+window.sendRegistrationOtp = sendRegistrationOtp;
+window.sendForgotPasswordOtp = sendForgotPasswordOtp;
+window.handleForgotPassword = handleForgotPassword;
 window.openEditProfileModal = openEditProfileModal;
 window.editProfile = editProfile;
 window.toggleTheme = toggleTheme;

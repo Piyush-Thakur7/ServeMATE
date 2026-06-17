@@ -51,15 +51,20 @@ function slugify(value) {
 
 router.post("/register", authLimiter, async (req, res) => {
   try {
-    const { name, password } = req.body;
+    const { name, password, otp } = req.body;
     const email = normalizeEmail(req.body.email);
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ error: "All fields are required" });
+    if (!name || !email || !password || !otp) {
+      return res.status(400).json({ error: "All fields are required, including verification code (OTP)" });
     }
 
     if (email === ADMIN_EMAIL) {
       return res.status(403).json({ error: "This email is reserved for the platform admin" });
+    }
+
+    const isOtpValid = verifyOtp(email, otp);
+    if (!isOtpValid) {
+      return res.status(400).json({ error: "Invalid or expired verification code (OTP)" });
     }
 
     const exists = await User.findOne({ email });
@@ -133,11 +138,17 @@ router.post("/ngo/register", authLimiter, async (req, res) => {
       description,
       location,
       volunteerCount,
+      otp,
     } = req.body;
     const email = normalizeEmail(req.body.email);
 
-    if (!name || !email || !password || !regNumber || !taxStatus || !areaOfWork) {
-      return res.status(400).json({ error: "All required fields must be filled" });
+    if (!name || !email || !password || !regNumber || !taxStatus || !areaOfWork || !otp) {
+      return res.status(400).json({ error: "All required fields must be filled, including verification code (OTP)" });
+    }
+
+    const isOtpValid = verifyOtp(email, otp);
+    if (!isOtpValid) {
+      return res.status(400).json({ error: "Invalid or expired verification code (OTP)" });
     }
 
     const exists = await NGO.findOne({ email });
@@ -223,6 +234,69 @@ router.get("/ngo/me", authMiddleware, async (req, res) => {
   } catch (err) {
     console.error("[auth] NGO me check failed:", err.message);
     return res.status(500).json({ error: "Unable to load NGO" });
+  }
+});
+
+router.post("/forgot-password", authLimiter, async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+    
+    const user = await User.findOne({ email });
+    const ngo = await NGO.findOne({ email });
+    if (!user && !ngo) {
+      return res.status(404).json({ error: "No account found with this email" });
+    }
+
+    const result = await sendOtp(email);
+    return res.json({ 
+      success: true, 
+      message: "Verification code sent to your email", 
+      simulated: result.simulated,
+      otp: result.otp
+    });
+  } catch (err) {
+    console.error("[auth] Forgot password request failed:", err.message);
+    return res.status(500).json({ error: "Failed to send reset code" });
+  }
+});
+
+router.post("/reset-password", authLimiter, async (req, res) => {
+  try {
+    const email = normalizeEmail(req.body.email);
+    const { otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const isOtpValid = verifyOtp(email, otp);
+    if (!isOtpValid) {
+      return res.status(400).json({ error: "Invalid or expired verification code (OTP)" });
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 10);
+    
+    const user = await User.findOne({ email });
+    if (user) {
+      user.password = hashed;
+      await user.save();
+    } else {
+      const ngo = await NGO.findOne({ email });
+      if (ngo) {
+        ngo.password = hashed;
+        await ngo.save();
+      } else {
+        return res.status(404).json({ error: "Account not found" });
+      }
+    }
+
+    return res.json({ success: true, message: "Password reset successful! Please log in." });
+  } catch (err) {
+    console.error("[auth] Reset password failed:", err.message);
+    return res.status(500).json({ error: "Failed to reset password" });
   }
 });
 
