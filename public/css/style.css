@@ -44,6 +44,10 @@
    LIGHT MODE STYLING SYSTEM
    ============================================================ */
 body.light-mode {
+  background: linear-gradient(-45deg, #FFFFFF, #E0F2FE, #FEE2E2, #FFF7ED, #F1F5F9);
+  background-size: 400% 400%;
+  animation: meshMove 12s ease infinite;
+  background-attachment: fixed;
   --bg:        #FFFFFF;
   --bg2:       #F8FAFC;
   --bg3:       #E2E8F0;
@@ -61,7 +65,7 @@ body.light-mode {
 }
 
 body.light-mode .hero-mesh {
-  background: linear-gradient(-45deg, #FFFFFF, #E0F2FE, #FEE2E2, #FFF7ED, #F1F5F9);
+  background: transparent;
 }
 body.light-mode .modal-box {
   background: #FFFFFF;
@@ -147,7 +151,10 @@ body, nav, section, footer, .glass, .glass2, .cause-card, .ngo-card, .proof-card
 html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: var(--bg);
+  background: linear-gradient(-45deg, #0A0F1E, #0D1030, #160F30, #0A1525, #081020, #0F1535);
+  background-size: 400% 400%;
+  animation: meshMove 12s ease infinite;
+  background-attachment: fixed;
   color: var(--text);
   line-height: 1.6;
   overflow-x: hidden;
@@ -327,7 +334,7 @@ section { padding: 100px 24px; }
   font-family: 'Space Grotesk', sans-serif;
   font-size: 1.6rem;
   font-weight: 800;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   flex-shrink: 0;
   cursor: pointer;
 }
@@ -336,6 +343,8 @@ section { padding: 100px 24px; }
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: inline-block;
+  padding-right: 4px;
 }
 .nav-links {
   display: flex;
@@ -390,9 +399,7 @@ section { padding: 100px 24px; }
 .hero-mesh {
   position: absolute;
   inset: 0;
-  background: linear-gradient(-45deg, #0A0F1E, #0D1030, #160F30, #0A1525, #081020, #0F1535);
-  background-size: 400% 400%;
-  animation: meshMove 12s ease infinite;
+  background: transparent;
   z-index: 0;
 }
 .hero-orbs {
