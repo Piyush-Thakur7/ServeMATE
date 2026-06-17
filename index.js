@@ -333,7 +333,7 @@ async function seedDatabase() {
       category: "animal-welfare",
       goal: 250000,
       impactPerRupee: "₹150 = 1 street animal vaccinated and fed",
-      image: "https://images.unsplash.com/photo-1548824226-f50f926ff5ba?w=600&auto=format&fit=crop&q=80",
+      image: "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&auto=format&fit=crop&q=80",
       icon: "🐾",
       assignedNgoSlug: "green-india-trust"
     },
