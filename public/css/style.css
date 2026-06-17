@@ -387,13 +387,9 @@ section { padding: 100px 24px; }
    HERO & ORBS
    ============================================================ */
 #hero {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: relative;
   overflow: hidden;
-  padding: calc(var(--nav-h) + 60px) 24px 60px;
+  padding: 40px 24px 60px;
   text-align: center;
 }
 .hero-mesh {
@@ -424,7 +420,7 @@ section { padding: 100px 24px; }
   position: relative;
   z-index: 1;
   max-width: 900px;
-  margin-top: 40px;
+  margin: 10px auto 0;
 }
 .hero-eyebrow {
   display: inline-flex;
@@ -1532,7 +1528,7 @@ footer {
 @media (max-width: 768px) {
   #navActions { display: none !important; }
   section { padding: 60px 16px; }
-  #hero { padding: 100px 16px 40px; min-height: auto; }
+  #hero { padding: 30px 16px 40px; min-height: auto; }
   .hero-title { font-size: clamp(1.9rem, 7vw, 2.8rem) !important; line-height: 1.2; }
   .hero-ctas .btn { width: 100%; justify-content: center; }
   .hero-stats { grid-template-columns: 1fr; gap: 12px; }
