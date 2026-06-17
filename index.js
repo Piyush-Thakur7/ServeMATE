@@ -167,6 +167,9 @@ mongoose.connection.on("reconnected", () => {
 
 async function seedDatabase() {
   const { User, NGO, Cause } = require("./models");
+  
+  // Remove "Street Animal Care Program" as requested by user
+  await Cause.deleteOne({ title: "Street Animal Care Program" });
   const bcrypt = require("bcryptjs");
 
   const adminExists = await User.findOne({ email: ADMIN_EMAIL });
@@ -326,16 +329,6 @@ async function seedDatabase() {
       image: "https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=600&auto=format&fit=crop&q=80",
       icon: "👩",
       assignedNgoSlug: "helpage-india"
-    },
-    {
-      title: "Street Animal Care Program",
-      description: "Provide ambulance support, vaccination, and food to injured street dogs, cats, and rescue shelters.",
-      category: "animal-welfare",
-      goal: 250000,
-      impactPerRupee: "₹150 = 1 street animal vaccinated and fed",
-      image: "https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&auto=format&fit=crop&q=80",
-      icon: "🐾",
-      assignedNgoSlug: "green-india-trust"
     },
     {
       title: "Emergency Flood Support",
