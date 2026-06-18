@@ -307,7 +307,7 @@ async function seedDatabase() {
       category: "food",
       goal: 150000,
       impactPerRupee: "₹300 = 1 grocery kit containing basic dry rations",
-      image: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=600&auto=format&fit=crop&q=80",
+      image: "https://images.unsplash.com/photo-1593113630400-ea4288922497?w=600&auto=format&fit=crop&q=80",
       icon: "🍛",
       assignedNgoSlug: "resence-foundation"
     },
