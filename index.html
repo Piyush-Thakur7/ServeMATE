@@ -446,7 +446,7 @@
               <!-- TAB 4: AI ADVISOR -->
               <div class="dashboard-sub-panel hidden" id="dpanel-ai-advisor">
                 <div class="dashboard-panel-title">🤖 ServeMate AI Advisor</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+                <div class="advisor-grid">
                   <!-- Budget advisor -->
                   <div class="glass" style="padding:28px;">
                     <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:12px;">AI Impact Planner</h3>
@@ -503,17 +503,17 @@
                   <div class="dashboard-panel-title" style="margin-bottom:0;">Public Ledger Contributions</div>
                   <button class="btn btn-ghost btn-sm" onclick="openEditProfileModal()">✏️ Edit Bio</button>
                 </div>
-                <div class="glass" style="overflow-x:auto;">
-                  <table style="width:100%;border-collapse:collapse;text-align:left;" id="dbHistoryTable">
+                <div class="ledger-table-container glass">
+                  <table class="ledger-table" id="dbHistoryTable">
                     <thead>
                       <tr style="background:var(--bg3);border-bottom:1px solid var(--border);">
-                        <th style="padding:14px;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text3);">Cause Supported</th>
-                        <th style="padding:14px;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text3);">Amount</th>
-                        <th style="padding:14px;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text3);">Date</th>
-                        <th style="padding:14px;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text3);">NGO Partner</th>
-                        <th style="padding:14px;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text3);">Location</th>
-                        <th style="padding:14px;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text3);">Proof Link</th>
-                        <th style="padding:14px;font-size:0.75rem;font-weight:700;text-transform:uppercase;color:var(--text3);">Verification</th>
+                        <th>Cause Supported</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>NGO Partner</th>
+                        <th>Location</th>
+                        <th>Proof Link</th>
+                        <th>Verification</th>
                       </tr>
                     </thead>
                     <tbody id="dbHistoryTableBody">

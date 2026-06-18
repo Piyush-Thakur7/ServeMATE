@@ -1312,13 +1312,13 @@ async function loadUserDashboard() {
             
           return `
             <tr>
-              <td style="padding:14px;border-bottom:1px solid var(--border);font-weight:600;">${d.cause?.icon || '📂'} ${esc(d.cause?.title)}</td>
-              <td style="padding:14px;border-bottom:1px solid var(--border);font-family:'Space Grotesk',sans-serif;font-weight:700;">₹${(d.amount||0).toLocaleString('en-IN')}</td>
-              <td style="padding:14px;border-bottom:1px solid var(--border);color:var(--text3);font-size:0.82rem;">${date}</td>
-              <td style="padding:14px;border-bottom:1px solid var(--border);font-size:0.85rem;">${esc(d.ngo?.name || 'Pending assignment')}</td>
-              <td style="padding:14px;border-bottom:1px solid var(--border);font-size:0.82rem;color:var(--text3);">${esc(d.ngo?.location || 'India')}</td>
-              <td style="padding:14px;border-bottom:1px solid var(--border);">${proofBtn}</td>
-              <td style="padding:14px;border-bottom:1px solid var(--border);"><span class="tag ${statusClass}" style="padding:2px 8px;font-size:0.7rem;">${esc(d.status)}</span></td>
+              <td style="font-weight:600;">${d.cause?.icon || '📂'} ${esc(d.cause?.title)}</td>
+              <td style="font-family:'Space Grotesk',sans-serif;font-weight:700;">₹${(d.amount||0).toLocaleString('en-IN')}</td>
+              <td style="color:var(--text3);font-size:0.82rem;">${date}</td>
+              <td style="font-size:0.85rem;">${esc(d.ngo?.name || 'Pending assignment')}</td>
+              <td style="font-size:0.82rem;color:var(--text3);">${esc(d.ngo?.location || 'India')}</td>
+              <td>${proofBtn}</td>
+              <td><span class="tag ${statusClass}" style="padding:2px 8px;font-size:0.7rem;">${esc(d.status)}</span></td>
             </tr>
           `;
         }).join('');
