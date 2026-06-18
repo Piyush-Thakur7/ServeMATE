@@ -1047,6 +1047,7 @@ body.light-mode .cause-gradient-overlay {
   gap: 16px;
   padding: 18px 24px;
   transition: all var(--trans);
+  overflow: hidden;
 }
 .leader-card:hover {
   transform: translateX(6px);
@@ -1062,6 +1063,7 @@ body.light-mode .cause-gradient-overlay {
   font-size: 1.15rem;
   width: 32px;
   text-align: center;
+  flex-shrink: 0;
 }
 .leader-avatar-circle {
   width: 44px; height: 44px;
@@ -1075,26 +1077,49 @@ body.light-mode .cause-gradient-overlay {
 }
 .leader-details {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 .leader-name-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 .leader-name {
   font-weight: 600;
   font-size: 0.98rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .leader-sub {
   font-size: 0.8rem;
   color: var(--text3);
   margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .leader-score {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-size: 1.1rem;
   text-align: right;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .leader-card {
+    gap: 10px;
+    padding: 14px 12px;
+    flex-wrap: wrap;
+  }
+  .leader-rank { width: 24px; font-size: 1rem; }
+  .leader-avatar-circle { width: 36px; height: 36px; font-size: 0.8rem; }
+  .leader-name { font-size: 0.88rem; }
+  .leader-score { font-size: 0.95rem; }
 }
 
 /* ============================================================
