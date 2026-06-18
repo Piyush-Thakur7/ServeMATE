@@ -19,7 +19,10 @@ function getTransporter() {
     host: process.env.SMTP_HOST || "smtp.gmail.com",
     port: Number(process.env.SMTP_PORT) || 465,
     secure: process.env.SMTP_SECURE !== "false",
-    auth: { user, pass }
+    auth: { user, pass },
+    connectionTimeout: 8000,
+    greetingTimeout: 8000,
+    socketTimeout: 10000
   });
 }
 
@@ -71,12 +74,24 @@ async function sendOtp(email) {
     `
   };
 
-  await transporter.sendMail(mailOptions);
-  return {
-    success: true,
-    simulated: false,
-    message: "OTP sent successfully"
-  };
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`[otp] Email sent successfully to ${cleanEmail}`);
+    return {
+      success: true,
+      simulated: false,
+      message: "OTP sent successfully"
+    };
+  } catch (smtpErr) {
+    console.error(`[otp] SMTP delivery failed for ${cleanEmail}: ${smtpErr.message}. Falling back to simulated mode.`);
+    return {
+      success: true,
+      simulated: true,
+      otp,
+      message: "Email delivery failed. Use the code shown on screen.",
+      smtpError: smtpErr.message
+    };
+  }
 }
 
 function verifyOtp(email, submittedOtp) {
