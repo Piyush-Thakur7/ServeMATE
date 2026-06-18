@@ -44,7 +44,8 @@
    LIGHT MODE STYLING SYSTEM
    ============================================================ */
 body.light-mode {
-  background: linear-gradient(-45deg, #FFFFFF, #E0F2FE, #FEE2E2, #FFF7ED, #F1F5F9);
+  background-color: #FFFFFF;
+  background-image: linear-gradient(-45deg, #FFFFFF, #E0F2FE, #FEE2E2, #FFF7ED, #F1F5F9);
   background-size: 400% 400%;
   animation: meshMove 12s ease infinite;
   background-attachment: fixed;
@@ -148,10 +149,11 @@ body, nav, section, footer, .glass, .glass2, .cause-card, .ngo-card, .proof-card
    RESET & BASE
    ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; background-color: #0A0F1E; }
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background: linear-gradient(-45deg, #0A0F1E, #0D1030, #160F30, #0A1525, #081020, #0F1535);
+  background-color: #0A0F1E;
+  background-image: linear-gradient(-45deg, #0A0F1E, #0D1030, #160F30, #0A1525, #081020, #0F1535);
   background-size: 400% 400%;
   animation: meshMove 12s ease infinite;
   background-attachment: fixed;
@@ -159,6 +161,10 @@ body {
   line-height: 1.6;
   overflow-x: hidden;
   min-height: 100vh;
+}
+@media (max-width: 1024px) {
+  body { background-attachment: scroll; }
+  body.light-mode { background-attachment: scroll; }
 }
 h1, h2, h3, h4, h5 { font-family: 'Space Grotesk', sans-serif; line-height: 1.2; }
 a { text-decoration: none; color: inherit; }
