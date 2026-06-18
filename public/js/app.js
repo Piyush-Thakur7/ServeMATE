@@ -45,6 +45,16 @@ const routes = {
 function navigate(path, pushState = true) {
   let viewId = routes[path] || 'view-home';
 
+  // Close mobile drawer if open
+  const drawer = document.getElementById('mobileMenuDrawer');
+  const btn = document.getElementById('mobileMenuToggle');
+  if (drawer && drawer.classList.contains('active')) {
+    drawer.classList.add('hidden');
+    drawer.classList.remove('active');
+    if (btn) btn.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
   // Push browser history
   if (pushState) {
     history.pushState({ path }, '', path);
