@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
+const compression = require("compression");
 
 const { ADMIN_EMAIL } = require("./authUtils");
 const { router: authRouter } = require("./authRoutes");
@@ -12,6 +13,7 @@ const adminRouter = require("./adminRoutes");
 const { apiLimiter } = require("./src/middleware/rateLimit");
 
 const app = express();
+app.use(compression());
 app.set("trust proxy", 1);
 const PORT = process.env.PORT || 5000;
 
@@ -98,7 +100,73 @@ app.use("/api", (req, res) => {
   res.status(404).json({ error: "API route not found" });
 });
 
-app.use(express.static(path.join(__dirname, "public")));
+// Lightweight dynamic JS/CSS minification and caching
+const fs = require("fs");
+
+function minifyJS(code) {
+  // Remove multi-line comments
+  code = code.replace(/\/\*[\s\S]*?\*\//g, "");
+  // Simple line cleanup: filter out lines starting with // and collapse multiple spaces
+  const lines = code.split("\n");
+  const cleaned = lines.map(line => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("//")) return "";
+    return line;
+  });
+  return cleaned.filter(line => line.trim().length > 0).join("\n").replace(/[ \t]+/g, " ");
+}
+
+function minifyCSS(code) {
+  return code
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\s+/g, " ")
+    .replace(/\s*([\{\}:;,])\s*/g, "$1")
+    .trim();
+}
+
+let cachedMinifiedJS = null;
+let cachedMinifiedCSS = null;
+
+app.get("/js/app.js", (req, res) => {
+  if (!cachedMinifiedJS || process.env.NODE_ENV === "development") {
+    try {
+      const raw = fs.readFileSync(path.join(__dirname, "public", "js", "app.js"), "utf8");
+      cachedMinifiedJS = minifyJS(raw);
+    } catch (err) {
+      console.warn("[minify] Failed to minify app.js, serving raw file:", err.message);
+      return res.sendFile(path.join(__dirname, "public", "js", "app.js"));
+    }
+  }
+  res.setHeader("Content-Type", "application/javascript");
+  res.setHeader("Cache-Control", "public, max-age=31536000"); // 1 year cache
+  res.send(cachedMinifiedJS);
+});
+
+app.get("/css/style.css", (req, res) => {
+  if (!cachedMinifiedCSS || process.env.NODE_ENV === "development") {
+    try {
+      const raw = fs.readFileSync(path.join(__dirname, "public", "css", "style.css"), "utf8");
+      cachedMinifiedCSS = minifyCSS(raw);
+    } catch (err) {
+      console.warn("[minify] Failed to minify style.css, serving raw file:", err.message);
+      return res.sendFile(path.join(__dirname, "public", "css", "style.css"));
+    }
+  }
+  res.setHeader("Content-Type", "text/css");
+  res.setHeader("Cache-Control", "public, max-age=31536000"); // 1 year cache
+  res.send(cachedMinifiedCSS);
+});
+
+app.use(express.static(path.join(__dirname, "public"), {
+  maxAge: '31536000000', // 1 year in milliseconds
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year cache
+    }
+  }
+}));
 
 app.get("/robots.txt", (req, res) => {
   res.type("text/plain").send([

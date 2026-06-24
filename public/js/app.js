@@ -102,7 +102,6 @@ async function triggerViewLoad(path) {
 
   if (path === '/') {
     await fetchStats();
-    await loadMockupData();
   } else if (path === '/causes') {
     await fetchCauses();
   } else if (path === '/communities') {
@@ -502,6 +501,7 @@ async function fetchStats() {
     if (!res.ok) return;
     const d = await res.json();
     
+    // Update hero stats
     const elements = {
       statDonated: '₹' + (d.totalDonated || 0).toLocaleString('en-IN'),
       statTasks: d.verifiedTasks || 0,
@@ -512,17 +512,8 @@ async function fetchStats() {
       const el = document.getElementById(id);
       if (el) el.textContent = elements[id];
     });
-  } catch (e) {
-    console.warn('Stats fetch failed', e);
-  }
-}
 
-async function loadMockupData() {
-  try {
-    const res = await api('/api/stats');
-    if (!res.ok) return;
-    const d = await res.json();
-    
+    // Update mockup dashboard stats
     const vDonated = document.getElementById('mockupDonated');
     const vNGOs = document.getElementById('mockupNGOs');
     const vDeliveries = document.getElementById('mockupDeliveries');
@@ -530,7 +521,9 @@ async function loadMockupData() {
     if (vDonated) vDonated.textContent = '₹' + (d.totalDonated || 0).toLocaleString('en-IN');
     if (vNGOs) vNGOs.textContent = d.verifiedNGOs || 0;
     if (vDeliveries) vDeliveries.textContent = d.verifiedTasks || 0;
-  } catch (err) {}
+  } catch (e) {
+    console.warn('Stats fetch failed', e);
+  }
 }
 
 /* ============================================================
@@ -2097,24 +2090,36 @@ async function init() {
   applyInitialTheme();
   initReveal();
   
-  // Add scroll listener for sticky header
+  // Add scroll listener for sticky header (optimized with passive event listener & requestAnimationFrame)
   const navbar = document.getElementById('navbar');
   if (navbar) {
+    let ticking = false;
     const handleScroll = () => {
-      if (window.scrollY > 20) {
-        navbar.classList.add('scrolled');
-      } else {
-        navbar.classList.remove('scrolled');
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (window.scrollY > 20) {
+            navbar.classList.add('scrolled');
+          } else {
+            navbar.classList.remove('scrolled');
+          }
+          ticking = false;
+        });
+        ticking = true;
       }
     };
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Run immediately on load
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    // Run initial check
+    if (window.scrollY > 20) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
   }
   
-  // Restore logged-in state
-  await restoreSession();
+  // Restore logged-in state asynchronously (non-blocking)
+  restoreSession();
   
-  // Set up SPA client navigation
+  // Set up SPA client navigation immediately to paint content faster
   const path = window.location.pathname;
   navigate(path, false);
 }
