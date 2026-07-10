@@ -2,9 +2,9 @@
    ROOT DESIGN TOKENS
    ============================================================ */
 :root {
-  --bg:        #0A0F1E;
-  --bg2:       #0D1428;
-  --bg3:       #111827;
+  --bg:        #0A1628;
+  --bg2:       #0F223D;
+  --bg3:       #142C4E;
   --card:      rgba(255, 255, 255, 0.03);
   --surface:   rgba(255, 255, 255, 0.04);
   --surface2:  rgba(255, 255, 255, 0.07);
@@ -14,8 +14,8 @@
   --text2:     #9AA3B8;
   --text3:     #636D85;
 
-  --blue:      #2563EB;
-  --blue-glow: rgba(37, 99, 235, 0.35);
+  --blue:      #00B8A9;
+  --blue-glow: rgba(0, 184, 169, 0.35);
   --orange:    #F97316;
   --orange-glow: rgba(249, 115, 22, 0.4);
   --green:     #10B981;
@@ -23,8 +23,8 @@
   --gold:      #F59E0B;
   --red:       #EF4444;
 
-  --grad-bp:   linear-gradient(135deg, #2563EB, #7C3AED, #F97316);
-  --grad-gt:   linear-gradient(135deg, #10B981, #06B6D4);
+  --grad-bp:   linear-gradient(135deg, #00B8A9, #7C3AED, #F97316);
+  --grad-gt:   linear-gradient(135deg, #00B8A9, #06B6D4);
   --grad-or:   linear-gradient(135deg, #F97316, #EF4444);
   --grad-gold: linear-gradient(135deg, #F59E0B, #F97316);
   --grad-silver: linear-gradient(135deg, #94A3B8, #CBD5E1);

@@ -409,6 +409,17 @@ router.post("/payments/verify", authMiddleware, async (req, res) => {
       }
     }
 
+    // Trigger receipt email dispatch asynchronously (non-blocking)
+    const { sendReceiptEmail } = require("../utils/receiptGenerator");
+    sendReceiptEmail({
+      donationId: donation.id,
+      userName: updatedUser.name,
+      userEmail: updatedUser.email,
+      ngoName: dbCamp.ngo.name,
+      amount: safeAmount,
+      date: donation.created_at || new Date()
+    }).catch(err => console.error("[api] Failed to send async receipt email:", err.message));
+
     return res.status(201).json({
       message: "Payment verified and donation recorded",
       donation: { _id: donation.id, amount: donation.amount, status: donation.status, xpEarned: donation.amount },
@@ -577,6 +588,13 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
 
     if (!user) return res.status(404).json({ error: "User not found" });
 
+    // Fetch joined community IDs
+    const { data: memberComms } = await supabaseAdmin
+      .from("community_members")
+      .select("community_id")
+      .eq("user_id", req.user.id);
+    const communityIds = (memberComms || []).map(mc => mc.community_id);
+
     const { data: donations } = await supabaseAdmin
       .from("donations")
       .select("*, campaign:campaigns(*), ngo:ngos(*)")
@@ -595,8 +613,11 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
 
     const progression = getProgression(user.xp || 0);
 
+    const formattedUser = formatUser(user);
+    formattedUser.communities = communityIds;
+
     return res.json({
-      user: formatUser(user),
+      user: formattedUser,
       recentDonations: formattedDonations,
       progression,
       nextLevelXp: progression.nextLevelXp,
@@ -611,7 +632,15 @@ router.get("/profile", authMiddleware, async (req, res) => {
   try {
     const { data: user } = await supabaseAdmin.from("users").select("*").eq("id", req.user.id).single();
     if (!user) return res.status(404).json({ error: "User not found" });
+    
+    const { data: memberComms } = await supabaseAdmin
+      .from("community_members")
+      .select("community_id")
+      .eq("user_id", req.user.id);
+    const communityIds = (memberComms || []).map(mc => mc.community_id);
+
     const formatted = formatUser(user);
+    formatted.communities = communityIds;
     formatted.progression = getProgression(formatted.xp);
     return res.json(formatted);
   } catch (err) {
@@ -633,7 +662,15 @@ router.patch("/profile", authMiddleware, async (req, res) => {
       .single();
 
     if (!user) return res.status(404).json({ error: "User not found" });
+
+    const { data: memberComms } = await supabaseAdmin
+      .from("community_members")
+      .select("community_id")
+      .eq("user_id", req.user.id);
+    const communityIds = (memberComms || []).map(mc => mc.community_id);
+
     const formatted = formatUser(user);
+    formatted.communities = communityIds;
     formatted.progression = getProgression(formatted.xp);
     return res.json(formatted);
   } catch (err) {
