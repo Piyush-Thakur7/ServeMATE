@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "node --check index.js && node --check backend/instrument.js && node --check backend/routes/authRoutes.js && node --check backend/routes/adminRoutes.js && node --check backend/routes/apiRoutes.js && node --check backend/utils/authUtils.js && node --check backend/models/models.js && node --check src/middleware/rateLimit.js",
+    "test": "node --check index.js && node --check backend/instrument.js && node --check backend/routes/authRoutes.js && node --check backend/routes/adminRoutes.js && node --check backend/routes/apiRoutes.js && node --check backend/utils/authUtils.js && node --check backend/models/models.js && node --check backend/src/middleware/rateLimit.js",
     "build": "echo 'No build step required for static frontend'"
   },
   "keywords": [],

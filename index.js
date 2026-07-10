@@ -84,13 +84,15 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api", (req, res, next) => {
-  if (mongoose.connection.readyState === 1) {
+  const isMongoConnected = mongoose.connection.readyState === 1;
+  const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
+  if (isMongoConnected || isSupabaseConfigured) {
     return next();
   }
 
   return res.status(503).json({
     error: "Database unavailable",
-    message: "The backend is running, but MongoDB is not connected.",
+    message: "The backend is running, but neither MongoDB nor Supabase are connected or configured.",
   });
 });
 
@@ -488,9 +490,15 @@ async function seedDatabase() {
   console.log(`[seed] Deactivated any other non-premium causes.`);
 }
 
+const { seedSupabase } = require("./backend/utils/supabaseSeed");
+
 app.listen(PORT, () => {
   console.log(`[server] ServeMate backend listening on port ${PORT}`);
   console.log(`[server] CORS origins: ${allowedOrigins.join(", ")}`);
 });
 
-connectMongo();
+async function startApp() {
+  await connectMongo();
+  await seedSupabase();
+}
+startApp();
