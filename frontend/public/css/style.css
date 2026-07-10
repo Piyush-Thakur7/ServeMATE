@@ -1922,4 +1922,50 @@ body.light-mode select.form-input option {
   }
 }
 
+/* ============================================================
+   NGO DASHBOARD & VOLUNTEER ROSTER PREMIUM OVERRIDES
+   ============================================================ */
+.volunteers-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+.volunteer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: all var(--trans);
+}
+.volunteer-row:hover {
+  border-color: rgba(0, 184, 169, 0.3);
+  background: rgba(255, 255, 255, 0.02);
+  transform: translateY(-1px);
+}
+.volunteer-name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.volunteer-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+.volunteer-email {
+  font-size: 0.78rem;
+  color: var(--text2);
+}
+.action-buttons-wrap {
+  display: flex;
+  gap: 8px;
+}
+#ndHistoryList {
+  display: grid;
+  gap: 12px;
+}
+
 
