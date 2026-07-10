@@ -1,10 +1,10 @@
 const express  = require("express");
 const crypto = require("crypto");
 const Razorpay = require("razorpay");
-const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings, Community } = require("./models");
-const { authMiddleware } = require("./authUtils");
-const { CORE_CAUSES, mergeCoreCauses } = require("./services/causeCatalog");
-const { getProgression } = require("./services/gamificationService");
+const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings, Community } = require("../models/models");
+const { authMiddleware } = require("../utils/authUtils");
+const { CORE_CAUSES, mergeCoreCauses } = require("../services/causeCatalog");
+const { getProgression } = require("../services/gamificationService");
 
 const router = express.Router();
 

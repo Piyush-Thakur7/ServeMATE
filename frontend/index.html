@@ -17,6 +17,8 @@
   
   <!-- Razorpay Checkout -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <!-- Supabase Client JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -794,11 +796,34 @@
           <p class="auth-subtitle">Login to track your social impact profile</p>
           
           <div class="auth-role-toggle">
-            <span class="auth-role-btn active" id="lTabUser" onclick="this.classList.add('active'); document.getElementById('lTabNgo').classList.remove('active'); document.getElementById('loginUserForm').classList.remove('hidden'); document.getElementById('loginNgoForm').classList.add('hidden');">👤 User Account</span>
-            <span class="auth-role-btn" id="lTabNgo" onclick="this.classList.add('active'); document.getElementById('lTabUser').classList.remove('active'); document.getElementById('loginNgoForm').classList.remove('hidden'); document.getElementById('loginUserForm').classList.add('hidden');">🏢 NGO Partner</span>
+            <span class="auth-role-btn active" id="lTabUser" onclick="showLoginTab('user')">👤 User Account</span>
+            <span class="auth-role-btn" id="lTabNgo" onclick="showLoginTab('ngo')">🏢 NGO Partner</span>
           </div>
 
-          <!-- USER Form -->
+          <!-- OAuth Provider Row (only for User Accounts) -->
+          <div id="oauthRow" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 10px;">
+              <button type="button" class="btn btn-ghost btn-full" onclick="signInWithProvider('google')" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; padding: 10px; border: 1px solid var(--border);">
+                Google Login
+              </button>
+              <button type="button" class="btn btn-ghost btn-full" onclick="signInWithProvider('facebook')" style="display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.85rem; padding: 10px; border: 1px solid var(--border);">
+                Facebook Login
+              </button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px; margin: 10px 0;">
+              <div style="flex: 1; height: 1px; background: var(--border);"></div>
+              <span style="font-size: 0.75rem; color: var(--text3); text-transform: uppercase; font-weight: 700;">Or login with</span>
+              <div style="flex: 1; height: 1px; background: var(--border);"></div>
+            </div>
+            
+            <!-- Toggle between email and phone OTP login -->
+            <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 12px;">
+              <span class="auth-role-btn active" id="loginTypeEmailBtn" onclick="toggleLoginType('email')" style="font-size: 0.78rem; padding: 4px 12px; border-radius: 6px;">✉️ Email</span>
+              <span class="auth-role-btn" id="loginTypePhoneBtn" onclick="toggleLoginType('phone')" style="font-size: 0.78rem; padding: 4px 12px; border-radius: 6px;">📞 Phone OTP</span>
+            </div>
+          </div>
+
+          <!-- USER Email Form -->
           <form id="loginUserForm" onsubmit="handleLogin(event, 'user')" class="auth-form">
             <div class="form-group">
               <label for="lUserEmail">Email Address</label>
@@ -812,11 +837,32 @@
               <a href="/forgot-password" style="font-size: 0.8rem; color: var(--blue); font-weight: 500;">Forgot Password?</a>
             </div>
             <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
-            <button type="submit" class="btn btn-primary">Login Account</button>
+            <button type="submit" class="btn btn-primary btn-full">Login Account</button>
+          </form>
+
+          <!-- USER Phone Form -->
+          <form id="loginUserPhoneForm" onsubmit="handlePhoneLoginSendOtp(event)" class="auth-form hidden">
+            <div class="form-group">
+              <label for="lUserPhone">Phone Number (with country code)</label>
+              <input type="tel" id="lUserPhone" class="form-input" placeholder="+919999999999" required />
+            </div>
+            <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
+            <button type="submit" class="btn btn-primary btn-full" id="btnSendPhoneOtp">Send Verification Code</button>
+          </form>
+          
+          <!-- USER Phone Verification Form -->
+          <form id="loginUserPhoneVerifyForm" onsubmit="handlePhoneLoginVerifyOtp(event)" class="auth-form hidden">
+            <div class="form-group">
+              <label for="lUserPhoneOtp">Enter 6-Digit SMS OTP</label>
+              <input type="text" id="lUserPhoneOtp" class="form-input" placeholder="6-digit code" required />
+            </div>
+            <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
+            <button type="submit" class="btn btn-primary btn-full">Verify & Login</button>
           </form>
 
           <!-- NGO Form -->
           <form id="loginNgoForm" onsubmit="handleLogin(event, 'ngo')" class="auth-form hidden">
+            <div style="margin-top: 20px;"></div>
             <div class="form-group">
               <label for="lNgoEmail">NGO Partner Email</label>
               <input type="email" id="lNgoEmail" class="form-input" placeholder="foundation@resence.in" required />
@@ -829,7 +875,7 @@
               <a href="/forgot-password" style="font-size: 0.8rem; color: var(--blue); font-weight: 500;">Forgot Password?</a>
             </div>
             <div class="error-message" style="color:var(--red); font-size:0.8rem; display:none;"></div>
-            <button type="submit" class="btn btn-primary" style="background:var(--grad-gt);">Login NGO</button>
+            <button type="submit" class="btn btn-primary btn-full" style="background:var(--grad-gt);">Login NGO</button>
           </form>
 
           <div style="margin-top: 24px; text-align: center; font-size: 0.85rem; color: var(--text3);">

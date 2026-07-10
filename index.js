@@ -1,3 +1,4 @@
+require("./backend/instrument.js");
 require("dotenv").config();
 
 const express = require("express");
@@ -5,12 +6,13 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const compression = require("compression");
+const Sentry = require("@sentry/node");
 
-const { ADMIN_EMAIL } = require("./authUtils");
-const { router: authRouter } = require("./authRoutes");
-const apiRouter = require("./apiRoutes");
-const adminRouter = require("./adminRoutes");
-const { apiLimiter } = require("./src/middleware/rateLimit");
+const { ADMIN_EMAIL } = require("./backend/utils/authUtils");
+const { router: authRouter } = require("./backend/routes/authRoutes");
+const apiRouter = require("./backend/routes/apiRoutes");
+const adminRouter = require("./backend/routes/adminRoutes");
+const { apiLimiter } = require("./backend/src/middleware/rateLimit");
 
 const app = express();
 app.use(compression());
@@ -96,9 +98,25 @@ app.use("/api/auth", authRouter);
 app.use("/api", apiRouter);
 app.use("/api/admin", adminRouter);
 
+// Supabase configuration sharing endpoint
+app.get("/api/config", (req, res) => {
+  return res.json({
+    supabaseUrl: process.env.SUPABASE_URL || "https://placeholder.supabase.co",
+    supabaseAnonKey: process.env.SUPABASE_ANON_KEY || "placeholder-anon-key"
+  });
+});
+
+// Sentry debug route
+app.get("/debug-sentry", function mainHandler(req, res) {
+  throw new Error("My first Sentry error!");
+});
+
 app.use("/api", (req, res) => {
   res.status(404).json({ error: "API route not found" });
 });
+
+// Setup Sentry express error handler (must be after all controllers and before other middlewares)
+Sentry.setupExpressErrorHandler(app);
 
 // Lightweight dynamic JS/CSS minification and caching
 const fs = require("fs");
@@ -130,11 +148,11 @@ let cachedMinifiedCSS = null;
 app.get("/js/app.js", (req, res) => {
   if (!cachedMinifiedJS || process.env.NODE_ENV === "development") {
     try {
-      const raw = fs.readFileSync(path.join(__dirname, "public", "js", "app.js"), "utf8");
+      const raw = fs.readFileSync(path.join(__dirname, "frontend", "public", "js", "app.js"), "utf8");
       cachedMinifiedJS = minifyJS(raw);
     } catch (err) {
       console.warn("[minify] Failed to minify app.js, serving raw file:", err.message);
-      return res.sendFile(path.join(__dirname, "public", "js", "app.js"));
+      return res.sendFile(path.join(__dirname, "frontend", "public", "js", "app.js"));
     }
   }
   res.setHeader("Content-Type", "application/javascript");
@@ -145,11 +163,11 @@ app.get("/js/app.js", (req, res) => {
 app.get("/css/style.css", (req, res) => {
   if (!cachedMinifiedCSS || process.env.NODE_ENV === "development") {
     try {
-      const raw = fs.readFileSync(path.join(__dirname, "public", "css", "style.css"), "utf8");
+      const raw = fs.readFileSync(path.join(__dirname, "frontend", "public", "css", "style.css"), "utf8");
       cachedMinifiedCSS = minifyCSS(raw);
     } catch (err) {
       console.warn("[minify] Failed to minify style.css, serving raw file:", err.message);
-      return res.sendFile(path.join(__dirname, "public", "css", "style.css"));
+      return res.sendFile(path.join(__dirname, "frontend", "public", "css", "style.css"));
     }
   }
   res.setHeader("Content-Type", "text/css");
@@ -157,7 +175,7 @@ app.get("/css/style.css", (req, res) => {
   res.send(cachedMinifiedCSS);
 });
 
-app.use(express.static(path.join(__dirname, "public"), {
+app.use(express.static(path.join(__dirname, "frontend", "public"), {
   maxAge: '31536000000', // 1 year in milliseconds
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.html')) {
@@ -181,7 +199,7 @@ app.get("/sitemap.xml", (req, res) => {
 });
 
 app.get("/admin", (req, res) => {
-  return res.sendFile(path.join(__dirname, "admin.html"));
+  return res.sendFile(path.join(__dirname, "frontend", "admin.html"));
 });
 
 
@@ -192,9 +210,9 @@ app.use((req, res, next) => {
   }
   const host = req.hostname.toLowerCase();
   if (host.startsWith("admin.")) {
-    return res.sendFile(path.join(__dirname, "admin.html"));
+    return res.sendFile(path.join(__dirname, "frontend", "admin.html"));
   }
-  return res.sendFile(path.join(__dirname, "index.html"));
+  return res.sendFile(path.join(__dirname, "frontend", "index.html"));
 });
 
 app.use((err, req, res, next) => {
@@ -255,7 +273,7 @@ mongoose.connection.on("reconnected", () => {
 });
 
 async function seedDatabase() {
-  const { User, NGO, Cause } = require("./models");
+  const { User, NGO, Cause } = require("./backend/models/models");
   
   // Remove "Street Animal Care Program" as requested by user
   await Cause.deleteOne({ title: "Street Animal Care Program" });

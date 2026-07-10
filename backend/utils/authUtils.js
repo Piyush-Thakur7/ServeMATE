@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const { User } = require("./models");
+const { User } = require("../models/models");
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@servemate.org";
 

@@ -1,6 +1,6 @@
 const express = require("express");
-const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings } = require("./models");
-const { adminOnly } = require("./authUtils");
+const { User, NGO, Cause, Donation, Transparency, Contact, SiteSettings } = require("../models/models");
+const { adminOnly } = require("../utils/authUtils");
 
 const router = express.Router();
 

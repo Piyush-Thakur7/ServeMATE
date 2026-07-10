@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { applyProgression } = require("./services/gamificationService");
+const { applyProgression } = require("../services/gamificationService");
 
 // ─── USER ───────────────────────────────────────────────────────────────────
 const userSchema = new mongoose.Schema({

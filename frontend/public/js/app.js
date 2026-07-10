@@ -2084,6 +2084,198 @@ function toggleMobileMenu() {
 }
 
 /* ============================================================
+   SUPABASE CLIENT & AUTOLOGOUT CONFIGURATIONS
+   ============================================================ */
+let supabaseClient = null;
+let inactivityTimer = null;
+const INACTIVITY_LIMIT = 15 * 60 * 1000; // 15 minutes of inactivity
+
+async function initSupabase() {
+  try {
+    const res = await fetch("/api/config");
+    if (!res.ok) throw new Error("Failed to load backend config");
+    const config = await res.json();
+    
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+      console.log("[supabase] Client initialized successfully");
+      
+      // Auto-register session changes
+      supabaseClient.auth.onAuthStateChange(async (event, session) => {
+        console.log("[supabase] Session event:", event);
+        if (session) {
+          authToken = session.access_token;
+          localStorage.setItem("servemate_token", authToken);
+          resetInactivityTimer();
+        } else {
+          authToken = "";
+          ngoToken = "";
+          currentUser = null;
+          currentNgo = null;
+          localStorage.removeItem("servemate_token");
+          localStorage.removeItem("servemate_ngo_token");
+          if (inactivityTimer) clearTimeout(inactivityTimer);
+          updateNav();
+        }
+      });
+    }
+  } catch (err) {
+    console.error("[supabase] SDK initialization failed:", err.message);
+  }
+}
+
+// Inactivity Auto-Logout Tracker
+function resetInactivityTimer() {
+  if (inactivityTimer) clearTimeout(inactivityTimer);
+  if (authToken || ngoToken) {
+    inactivityTimer = setTimeout(triggerAutoLogout, INACTIVITY_LIMIT);
+  }
+}
+
+function triggerAutoLogout() {
+  showToast("You have been automatically logged out due to inactivity", "info");
+  logout();
+}
+
+// Activity event bindings
+["mousemove", "keydown", "click", "scroll", "touchstart"].forEach(event => {
+  window.addEventListener(event, resetInactivityTimer, { passive: true });
+});
+
+// Switch login card roles (User Account vs NGO Partner)
+function showLoginTab(role) {
+  const isNgo = role === "ngo";
+  document.getElementById("lTabUser").classList.toggle("active", !isNgo);
+  document.getElementById("lTabNgo").classList.toggle("active", isNgo);
+  
+  document.getElementById("oauthRow").classList.toggle("hidden", isNgo);
+  document.getElementById("loginNgoForm").classList.toggle("hidden", !isNgo);
+  
+  if (isNgo) {
+    document.getElementById("loginUserForm").classList.add("hidden");
+    document.getElementById("loginUserPhoneForm").classList.add("hidden");
+    document.getElementById("loginUserPhoneVerifyForm").classList.add("hidden");
+  } else {
+    // Restore default user type (Email)
+    toggleLoginType("email");
+  }
+}
+
+// Switch user login types (Email vs Phone number OTP)
+function toggleLoginType(type) {
+  const isPhone = type === "phone";
+  document.getElementById("loginTypeEmailBtn").classList.toggle("active", !isPhone);
+  document.getElementById("loginTypePhoneBtn").classList.toggle("active", isPhone);
+  
+  document.getElementById("loginUserForm").classList.toggle("hidden", isPhone);
+  document.getElementById("loginUserPhoneForm").classList.toggle("hidden", !isPhone);
+  document.getElementById("loginUserPhoneVerifyForm").classList.add("hidden"); // Reset verification
+}
+
+// Client Google/Facebook OAuth trigger
+async function signInWithProvider(provider) {
+  if (!supabaseClient) {
+    return showToast("Auth module is initializing, please wait...", "error");
+  }
+  
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    if (error) throw error;
+  } catch (err) {
+    showToast(err.message, "error");
+  }
+}
+
+// Phone OTP send execution
+async function handlePhoneLoginSendOtp(e) {
+  e.preventDefault();
+  const phone = document.getElementById("lUserPhone").value.trim();
+  const errorEl = e.target.querySelector(".error-message");
+  if (errorEl) errorEl.style.display = "none";
+  
+  if (!phone || !phone.startsWith("+")) {
+    const errText = "Please enter country code prefix (e.g. +919999999999)";
+    if (errorEl) {
+      errorEl.textContent = errText;
+      errorEl.style.display = "block";
+    } else {
+      showToast(errText, "error");
+    }
+    return;
+  }
+
+  try {
+    const btn = document.getElementById("btnSendPhoneOtp");
+    btn.disabled = true;
+    btn.textContent = "Sending code...";
+
+    const res = await api("/api/auth/phone/send-otp", {
+      method: "POST",
+      body: JSON.stringify({ phone })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to dispatch verification code");
+
+    showToast("Verification code SMS has been sent!", "success");
+    document.getElementById("loginUserPhoneForm").classList.add("hidden");
+    document.getElementById("loginUserPhoneVerifyForm").classList.remove("hidden");
+  } catch (err) {
+    if (errorEl) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = "block";
+    } else {
+      showToast(err.message, "error");
+    }
+    const btn = document.getElementById("btnSendPhoneOtp");
+    btn.disabled = false;
+    btn.textContent = "Send Verification Code";
+  }
+}
+
+// Phone OTP verify execution
+async function handlePhoneLoginVerifyOtp(e) {
+  e.preventDefault();
+  const phone = document.getElementById("lUserPhone").value.trim();
+  const otp = document.getElementById("lUserPhoneOtp").value.trim();
+  const errorEl = e.target.querySelector(".error-message");
+  if (errorEl) errorEl.style.display = "none";
+
+  try {
+    const res = await api("/api/auth/phone/verify-otp", {
+      method: "POST",
+      body: JSON.stringify({ phone, otp })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Verification failed");
+
+    authToken = data.token;
+    currentUser = data.user;
+    localStorage.setItem("servemate_token", authToken);
+    
+    showToast(`Welcome back, ${currentUser.name}! 🚀`);
+    
+    // Reset forms
+    document.getElementById("loginUserPhoneVerifyForm").classList.add("hidden");
+    e.target.reset();
+    document.getElementById("loginUserPhoneForm").reset();
+    
+    navigate("/dashboard");
+  } catch (err) {
+    if (errorEl) {
+      errorEl.textContent = err.message;
+      errorEl.style.display = "block";
+    } else {
+      showToast(err.message, "error");
+    }
+  }
+}
+
+/* ============================================================
    INIT ON LOAD
    ============================================================ */
 async function init() {
@@ -2115,6 +2307,9 @@ async function init() {
       navbar.classList.remove('scrolled');
     }
   }
+  
+  // Initialize Supabase integrations
+  await initSupabase();
   
   // Restore logged-in state asynchronously (non-blocking)
   restoreSession();
@@ -2155,4 +2350,11 @@ window.openNgoProfileModal = openNgoProfileModal;
 window.closeModal = closeModal;
 window.handleOverlayClick = handleOverlayClick;
 window.toggleMobileMenu = toggleMobileMenu;
+
+// Expose new modular login bindings
+window.showLoginTab = showLoginTab;
+window.toggleLoginType = toggleLoginType;
+window.signInWithProvider = signInWithProvider;
+window.handlePhoneLoginSendOtp = handlePhoneLoginSendOtp;
+window.handlePhoneLoginVerifyOtp = handlePhoneLoginVerifyOtp;
 
