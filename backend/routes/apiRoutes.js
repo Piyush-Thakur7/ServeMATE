@@ -174,7 +174,24 @@ router.get("/ngo/me", authMiddleware, ensureNgo, async (req, res) => {
       .single();
 
     if (!ngo) return res.status(404).json({ error: "NGO profile not found" });
-    return res.json({ ngo: formatNgo(ngo), tasks: ngo.updates || [] });
+
+    // Fetch volunteers from Supabase table
+    const { data: vols } = await supabaseAdmin
+      .from("volunteers")
+      .select("*")
+      .eq("ngo_id", ngo.id);
+
+    const formattedNgo = formatNgo(ngo);
+    formattedNgo.volunteers = (vols || []).map(v => ({
+      user: v.id,
+      name: v.name,
+      email: v.email,
+      phone: v.phone || "",
+      status: v.status
+    }));
+    formattedNgo.volunteerCount = (vols || []).filter(v => v.status === "approved").length;
+
+    return res.json({ ngo: formattedNgo, tasks: ngo.updates || [] });
   } catch (err) {
     return res.status(500).json({ error: "Unable to load NGO dashboard" });
   }
@@ -223,7 +240,13 @@ router.post("/ngo/tasks", authMiddleware, ensureNgo, async (req, res) => {
       .select()
       .single();
 
-    if (error) throw error;
+    const updates = ngo.updates || [];
+    updates.push({
+      title: req.body.title,
+      note: req.body.description,
+      proofUrl: req.body.proofUrl
+    });
+    await supabaseAdmin.from("ngos").update({ updates }).eq("id", ngo.id);
 
     return res.status(201).json({
       message: "Work update published",
