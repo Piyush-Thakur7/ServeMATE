@@ -1,34 +1,15 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "outputDirectory": ".",
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/css/(.*)",
-      "destination": "/public/css/$1"
-    },
-    {
-      "source": "/js/(.*)",
-      "destination": "/public/js/$1"
-    },
-    {
-      "source": "/logo.jpg",
-      "destination": "/public/logo.jpg"
-    },
-    {
-      "source": "/((?!api|public|css|js|admin|robots\\.txt|sitemap\\.xml).*)",
-      "destination": "/index.html"
+      "src": "index.js",
+      "use": "@vercel/node"
     }
   ],
-  "headers": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        }
-      ]
+      "src": "/(.*)",
+      "dest": "index.js"
     }
   ]
 }
