@@ -502,3 +502,5 @@ async function startApp() {
   await seedSupabase();
 }
 startApp();
+
+module.exports = app;
