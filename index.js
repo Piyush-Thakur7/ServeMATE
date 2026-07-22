@@ -2,7 +2,6 @@ require("./backend/instrument.js");
 require("dotenv").config();
 
 const express = require("express");
-const mongoose = require("mongoose");
 const cors = require("cors");
 const path = require("path");
 const compression = require("compression");
@@ -75,24 +74,24 @@ app.use(mongoSanitize);
 app.use("/api", apiLimiter);
 
 app.get("/api/health", (req, res) => {
+  const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
   res.json({
     status: "ok",
-    mongo: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-    version: "v3-premium-causes-seeded",
+    database: isSupabaseConfigured ? "supabase_active" : "supabase_pending",
+    version: "v4-100-percent-supabase-database",
     time: new Date().toISOString(),
   });
 });
 
 app.use("/api", (req, res, next) => {
-  const isMongoConnected = mongoose.connection.readyState === 1;
   const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
-  if (isMongoConnected || isSupabaseConfigured) {
+  if (isSupabaseConfigured) {
     return next();
   }
 
   return res.status(503).json({
     error: "Database unavailable",
-    message: "The backend is running, but neither MongoDB nor Supabase are connected or configured.",
+    message: "The backend is running, but SUPABASE_URL or SUPABASE_ANON_KEY environment variables are missing.",
   });
 });
 
