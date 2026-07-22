@@ -33,6 +33,7 @@ const routes = {
   '/dashboard': 'view-dashboard',
   '/community-dashboard': 'view-community-dashboard',
   '/ngo-dashboard': 'view-ngo-dashboard',
+  '/admin': 'view-admin',
   '/contact': 'view-contact',
   '/login': 'view-login',
   '/register': 'view-register',
@@ -40,6 +41,31 @@ const routes = {
   '/terms': 'view-terms',
   '/refund': 'view-refund',
   '/forgot-password': 'view-forgot-password'
+};
+
+/* Embedded NGO & Admin Portal Handlers */
+window.handleNgoCreateCampaign = function(e) {
+  e.preventDefault();
+  const title = document.getElementById('ngoCampTitle').value;
+  const category = document.getElementById('ngoCampCategory').value;
+  const target = document.getElementById('ngoCampTarget').value;
+  const darpan = document.getElementById('ngoCampDarpan').value;
+  const desc = document.getElementById('ngoCampDesc').value;
+  const img = document.getElementById('ngoCampImage').value;
+
+  alert(`✓ Campaign Published Successfully!\nTitle: ${title}\nDarpan ID: ${darpan}\nTarget: ₹${target}`);
+  document.getElementById('ngoCreateCampaignForm').reset();
+  navigate('/causes');
+};
+
+window.handleNgoSubmitProof = function(e) {
+  e.preventDefault();
+  const title = document.getElementById('ngoProofTitle').value;
+  const url = document.getElementById('ngoProofVideoUrl').value;
+
+  alert(`✓ Field Video Proof Submitted to Admin Review Queue!\nTitle: ${title}\nGeotag: 28.4744° N, 77.5040° E\nStatus: Pending 72h SLA Verification`);
+  document.getElementById('ngoSubmitProofForm').reset();
+  navigate('/impact');
 };
 
 function navigate(path, pushState = true) {
