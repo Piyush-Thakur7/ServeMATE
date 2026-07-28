@@ -192,25 +192,46 @@ app.get("/robots.txt", (req, res) => {
   ].join("\n"));
 });
 
+function serveHtml(res, filename) {
+  const possiblePaths = [
+    path.join(__dirname, "frontend", filename),
+    path.join(process.cwd(), "frontend", filename),
+    path.join(__dirname, filename),
+    path.join(process.cwd(), filename)
+  ];
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return res.send(fs.readFileSync(p, "utf8"));
+    }
+  }
+  return res.status(404).send("HTML file not found");
+}
+
 app.get("/sitemap.xml", (req, res) => {
-  return res.sendFile(path.join(__dirname, "sitemap.xml"));
+  const p = path.join(__dirname, "sitemap.xml");
+  if (fs.existsSync(p)) {
+    res.setHeader("Content-Type", "application/xml; charset=utf-8");
+    return res.send(fs.readFileSync(p, "utf8"));
+  }
+  return res.status(404).send("Sitemap not found");
 });
 
 app.get("/", (req, res) => {
-  return res.sendFile("frontend/index.html", { root: process.cwd() });
+  return serveHtml(res, "index.html");
 });
 
 app.get("/admin", (req, res) => {
-  return res.sendFile("frontend/admin.html", { root: process.cwd() });
+  return serveHtml(res, "admin.html");
 });
 
 app.use((req, res, next) => {
   if (req.method !== "GET") return next();
   const host = String(req.hostname || "").toLowerCase();
   if (host.startsWith("admin.")) {
-    return res.sendFile("frontend/admin.html", { root: process.cwd() });
+    return serveHtml(res, "admin.html");
   }
-  return res.sendFile("frontend/index.html", { root: process.cwd() });
+  return serveHtml(res, "index.html");
 });
 
 app.use((err, req, res, next) => {
