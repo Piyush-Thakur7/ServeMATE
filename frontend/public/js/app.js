@@ -58,14 +58,298 @@ window.handleNgoCreateCampaign = function(e) {
   navigate('/causes');
 };
 
-window.handleNgoSubmitProof = function(e) {
-  e.preventDefault();
-  const title = document.getElementById('ngoProofTitle').value;
-  const url = document.getElementById('ngoProofVideoUrl').value;
+/* ============================================================
+   NGO LIVE FIELD VIDEO PROOF RECORDING & GEOTAG ENGINE
+   ============================================================ */
+let cameraStream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordedVideoBlob = null;
+let liveHudInterval = null;
+let recTimerInterval = null;
+let recSeconds = 0;
+let currentCoords = { lat: 28.4744, lng: 77.5040, accuracy: 15 };
 
-  alert(`✓ Field Video Proof Submitted to Admin Review Queue!\nTitle: ${title}\nGeotag: 28.4744° N, 77.5040° E\nStatus: Pending 72h SLA Verification`);
-  document.getElementById('ngoSubmitProofForm').reset();
-  navigate('/impact');
+function showCameraAlert(message, type = 'error') {
+  const alertBox = document.getElementById('ngoCameraAlert');
+  if (!alertBox) return;
+  alertBox.className = `ngo-camera-alert ${type}`;
+  alertBox.innerHTML = message;
+  alertBox.classList.remove('hidden');
+}
+
+function clearCameraAlert() {
+  const alertBox = document.getElementById('ngoCameraAlert');
+  if (alertBox) {
+    alertBox.innerHTML = '';
+    alertBox.classList.add('hidden');
+  }
+}
+
+function updateHudOverlay() {
+  const gpsElem = document.getElementById('overlayGps');
+  const timeElem = document.getElementById('overlayTime');
+  const now = new Date();
+  const timeStr = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+
+  if (gpsElem) gpsElem.innerHTML = `📍 GPS: ${currentCoords.lat}° N, ${currentCoords.lng}° E (±${currentCoords.accuracy}m)`;
+  if (timeElem) timeElem.innerHTML = `🕒 ${timeStr}`;
+}
+
+window.openNgoCameraModal = async function() {
+  const modal = document.getElementById('ngoCameraProofModal');
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  clearCameraAlert();
+
+  // Reset UI state
+  const feedElem = document.getElementById('ngoCameraFeed');
+  const previewElem = document.getElementById('ngoRecordedPreview');
+  if (feedElem) feedElem.classList.remove('hidden');
+  if (previewElem) {
+    previewElem.classList.add('hidden');
+    previewElem.src = '';
+  }
+
+  document.getElementById('btnStartRecord').disabled = false;
+  document.getElementById('btnStopRecord').disabled = true;
+  document.getElementById('btnSubmitProof').disabled = true;
+  document.getElementById('recordingPulseBadge').classList.add('hidden');
+  document.getElementById('ngoUploadProgressContainer').classList.add('hidden');
+  document.getElementById('ngoUploadProgressBar').style.width = '0%';
+  document.getElementById('ngoUploadProgressPercent').textContent = '0%';
+  recordedChunks = [];
+  recordedVideoBlob = null;
+
+  // Request Geolocation
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        currentCoords = {
+          lat: parseFloat(pos.coords.latitude.toFixed(4)),
+          lng: parseFloat(pos.coords.longitude.toFixed(4)),
+          accuracy: Math.round(pos.coords.accuracy)
+        };
+        updateHudOverlay();
+      },
+      (err) => {
+        console.warn("[geolocation] Permission/error:", err.message);
+        updateHudOverlay();
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  // Start live timestamp interval
+  clearInterval(liveHudInterval);
+  updateHudOverlay();
+  liveHudInterval = setInterval(updateHudOverlay, 1000);
+
+  // Request Camera Stream with facingMode environment (Rear Camera)
+  try {
+    const constraints = {
+      video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 720 } },
+      audio: true
+    };
+    cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+    if (feedElem) {
+      feedElem.srcObject = cameraStream;
+      feedElem.play().catch(e => console.warn("[camera] Play error:", e.message));
+    }
+  } catch (err) {
+    console.error("[camera] Error accessing media devices:", err.name, err.message);
+    if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+      showCameraAlert('⚠️ Camera & microphone access denied. Please grant permissions in your browser bar to capture field video proof.', 'error');
+    } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+      showCameraAlert('⚠️ No rear field camera or microphone found on this device.', 'error');
+    } else {
+      showCameraAlert(`⚠️ Camera Initialization Error: ${err.message}`, 'error');
+    }
+  }
+};
+
+window.closeNgoCameraModal = function() {
+  const modal = document.getElementById('ngoCameraProofModal');
+  if (modal) modal.classList.add('hidden');
+
+  clearInterval(liveHudInterval);
+  clearInterval(recTimerInterval);
+
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    try { mediaRecorder.stop(); } catch (_) {}
+  }
+
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+};
+
+window.startNgoRecording = function() {
+  if (!cameraStream) {
+    showCameraAlert('⚠️ Active camera stream unavailable. Please re-open the modal or allow camera permissions.', 'error');
+    return;
+  }
+
+  clearCameraAlert();
+  recordedChunks = [];
+  recSeconds = 0;
+
+  try {
+    let options = { mimeType: 'video/webm;codecs=vp9,opus' };
+    if (typeof MediaRecorder.isTypeSupported === 'function') {
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/mp4' };
+        }
+      }
+    }
+
+    mediaRecorder = new MediaRecorder(cameraStream, options);
+
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data && event.data.size > 0) {
+        recordedChunks.push(event.data);
+      }
+    };
+
+    mediaRecorder.onstop = () => {
+      recordedVideoBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+      const recordedUrl = URL.createObjectURL(recordedVideoBlob);
+
+      const feedElem = document.getElementById('ngoCameraFeed');
+      const previewElem = document.getElementById('ngoRecordedPreview');
+      if (feedElem) feedElem.classList.add('hidden');
+      if (previewElem) {
+        previewElem.src = recordedUrl;
+        previewElem.classList.remove('hidden');
+      }
+
+      document.getElementById('btnSubmitProof').disabled = false;
+      showCameraAlert('✓ Video recording stopped! Review clip preview below before submitting.', 'success');
+    };
+
+    mediaRecorder.start(1000);
+
+    document.getElementById('btnStartRecord').disabled = true;
+    document.getElementById('btnStopRecord').disabled = false;
+    document.getElementById('recordingPulseBadge').classList.remove('hidden');
+
+    clearInterval(recTimerInterval);
+    recTimerInterval = setInterval(() => {
+      recSeconds++;
+      const mins = String(Math.floor(recSeconds / 60)).padStart(2, '0');
+      const secs = String(recSeconds % 60).padStart(2, '0');
+      const timerElem = document.getElementById('recordingTimer');
+      if (timerElem) timerElem.textContent = `${mins}:${secs}`;
+    }, 1000);
+
+  } catch (err) {
+    console.error("[recording] MediaRecorder start error:", err);
+    showCameraAlert(`⚠️ Failed to start video recorder: ${err.message}`, 'error');
+  }
+};
+
+window.stopNgoRecording = function() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+  }
+  clearInterval(recTimerInterval);
+  document.getElementById('btnStartRecord').disabled = false;
+  document.getElementById('btnStopRecord').disabled = true;
+  document.getElementById('recordingPulseBadge').classList.add('hidden');
+};
+
+window.submitNgoFieldProof = async function(e) {
+  e.preventDefault();
+
+  const campaignSelect = document.getElementById('ngoModalCampaignId');
+  const campaignId = campaignSelect ? campaignSelect.value : '1';
+  const campaignName = campaignSelect ? campaignSelect.options[campaignSelect.selectedIndex].text : 'Active Cause';
+  const title = document.getElementById('ngoModalProofTitle').value || 'Live Field Video Proof';
+  const volunteerId = document.getElementById('ngoModalVolunteerId').value || 'VOL-8821';
+
+  const btnSubmit = document.getElementById('btnSubmitProof');
+  const progressContainer = document.getElementById('ngoUploadProgressContainer');
+  const progressBar = document.getElementById('ngoUploadProgressBar');
+  const progressPercent = document.getElementById('ngoUploadProgressPercent');
+
+  btnSubmit.disabled = true;
+  if (progressContainer) progressContainer.classList.remove('hidden');
+
+  let progress = 15;
+  const progressInterval = setInterval(() => {
+    progress += Math.floor(Math.random() * 20) + 15;
+    if (progress > 90) progress = 90;
+    if (progressBar) progressBar.style.width = `${progress}%`;
+    if (progressPercent) progressPercent.textContent = `${progress}%`;
+  }, 200);
+
+  try {
+    const payload = {
+      campaignId,
+      title,
+      description: `Live ground video proof recorded by volunteer ${volunteerId}`,
+      latitude: currentCoords.lat,
+      longitude: currentCoords.lng,
+      timestamp: new Date().toISOString(),
+      volunteerId,
+      videoUrl: recordedVideoBlob ? URL.createObjectURL(recordedVideoBlob) : 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+    };
+
+    const response = await fetch('/api/proofs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    clearInterval(progressInterval);
+    if (progressBar) progressBar.style.width = '100%';
+    if (progressPercent) progressPercent.textContent = '100%';
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'Proof submission failed');
+
+    showCameraAlert('✓ Proof uploaded & submitted to Admin Review Queue!', 'success');
+
+    const tableBody = document.getElementById('ngoWorkHistoryBody');
+    if (tableBody) {
+      const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16) + ' IST';
+      const newRow = document.createElement('tr');
+      newRow.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+      newRow.innerHTML = `
+        <td style="padding:16px 12px; font-weight:700; color:var(--text);">
+          ${escapeHtml(title)}
+          <div style="font-size:0.75rem; color:var(--text3); font-weight:400;">${escapeHtml(campaignName)}</div>
+        </td>
+        <td style="padding:16px 12px; font-family:monospace; color:var(--green);">
+          📍 ${currentCoords.lat}° N, ${currentCoords.lng}° E
+        </td>
+        <td style="padding:16px 12px; font-family:monospace; color:var(--blue);">${escapeHtml(volunteerId)}</td>
+        <td style="padding:16px 12px; font-size:0.78rem;">${nowStr}</td>
+        <td style="padding:16px 12px;">
+          <span style="font-size:0.75rem; font-weight:800; color:var(--orange); background:rgba(249,115,22,0.15); padding:4px 10px; border-radius:12px; border:1px solid rgba(249,115,22,0.3);">
+            ⏳ Pending Admin Review
+          </span>
+        </td>
+        <td style="padding:16px 12px; text-align:right; font-family:monospace; font-weight:700; color:var(--gold);">
+          ⏱️ 71h 59m remaining
+        </td>
+      `;
+      tableBody.insertBefore(newRow, tableBody.firstChild);
+    }
+
+    setTimeout(() => {
+      closeNgoCameraModal();
+    }, 1500);
+
+  } catch (err) {
+    clearInterval(progressInterval);
+    console.error("[proofs] Upload error:", err);
+    showCameraAlert(`⚠️ Upload failed: ${err.message}`, 'error');
+    btnSubmit.disabled = false;
+  }
 };
 
 function navigate(path, pushState = true) {

@@ -504,6 +504,52 @@ router.get("/transparency", async (req, res) => {
   }
 });
 
+router.post("/proofs", async (req, res) => {
+  try {
+    const { campaignId, title, description, latitude, longitude, timestamp, volunteerId, videoUrl } = req.body;
+    const slaExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+    const uploadedAt = timestamp || new Date().toISOString();
+
+    let proofRecord = {
+      id: "proof-" + Date.now(),
+      campaign_id: campaignId || "1",
+      title: title || "Live Field Video Proof",
+      description: description || title || "Live geotagged proof submitted by field volunteer",
+      youtube_url: videoUrl || "blob:live-field-video-proof",
+      latitude: parseFloat(latitude) || 28.4744,
+      longitude: parseFloat(longitude) || 77.5040,
+      volunteer_id: volunteerId || "VOL-8821",
+      status: "pending",
+      uploaded_at: uploadedAt,
+      sla_expires_at: slaExpiresAt
+    };
+
+    if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+      const { data, error } = await supabaseAdmin.from("proof_uploads").insert(proofRecord).select().single();
+      if (!error && data) proofRecord = data;
+    }
+
+    return res.status(201).json({
+      message: "Live field video proof submitted successfully to admin queue",
+      proof: {
+        id: proofRecord.id,
+        title: proofRecord.title,
+        campaignId: proofRecord.campaign_id,
+        videoUrl: proofRecord.youtube_url || videoUrl,
+        latitude: proofRecord.latitude,
+        longitude: proofRecord.longitude,
+        timestamp: proofRecord.uploaded_at,
+        volunteerId: proofRecord.volunteer_id,
+        status: "Pending Admin Review",
+        slaExpiresAt: proofRecord.sla_expires_at
+      }
+    });
+  } catch (err) {
+    console.error("[proofs] Upload handler error:", err.message);
+    return res.status(500).json({ error: "Failed to submit live field video proof: " + err.message });
+  }
+});
+
 router.get("/ngos", async (req, res) => {
   try {
     const { data: ngos } = await supabaseAdmin

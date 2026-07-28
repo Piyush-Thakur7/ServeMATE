@@ -1968,4 +1968,151 @@ body.light-mode select.form-input option {
   gap: 12px;
 }
 
+/* ============================================================
+   NGO LIVE FIELD VIDEO PROOF RECORDING MODAL & CAMERA STYLES
+   ============================================================ */
+.ngo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(5, 8, 14, 0.85);
+  backdrop-filter: blur(14px);
+  overflow-y: auto;
+}
+.ngo-modal-backdrop.hidden {
+  display: none !important;
+}
+.ngo-modal-content {
+  width: 100%;
+  max-width: 580px;
+  max-height: calc(100dvh - 40px);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6), 0 0 1px rgba(0, 184, 169, 0.4);
+  border: 1px solid rgba(0, 184, 169, 0.3);
+  overflow-y: auto;
+}
+.ngo-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.ngo-modal-close {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--trans);
+}
+.ngo-modal-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--red);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+.camera-viewport-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #05080e;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 184, 169, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.camera-viewport-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.geotag-hud-overlay {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  background: rgba(5, 8, 14, 0.85);
+  border: 1px solid rgba(0, 184, 169, 0.35);
+  backdrop-filter: blur(8px);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: var(--green);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+.hud-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+.recording-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.5);
+  animation: pulse-rec 1.5s infinite;
+}
+.red-rec-dot {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+}
+@keyframes pulse-rec {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+.ngo-camera-alert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+.ngo-camera-alert.error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: var(--red);
+}
+.ngo-camera-alert.success {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: var(--green);
+}
+
 

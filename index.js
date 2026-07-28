@@ -5,6 +5,7 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const compression = require("compression");
+const fs = require("fs");
 const Sentry = require("@sentry/node");
 
 const { ADMIN_EMAIL } = require("./backend/utils/authUtils");
@@ -116,16 +117,12 @@ app.use("/api", (req, res) => {
   res.status(404).json({ error: "API route not found" });
 });
 
-// Setup Sentry express error handler (must be after all controllers and before other middlewares)
+// Setup Sentry express error handler
 Sentry.setupExpressErrorHandler(app);
 
 // Lightweight dynamic JS/CSS minification and caching
-const fs = require("fs");
-
 function minifyJS(code) {
-  // Remove multi-line comments
   code = code.replace(/\/\*[\s\S]*?\*\//g, "");
-  // Simple line cleanup: filter out lines starting with // and collapse multiple spaces
   const lines = code.split("\n");
   const cleaned = lines.map(line => {
     const trimmed = line.trim();
@@ -157,7 +154,7 @@ app.get("/js/app.js", (req, res) => {
     }
   }
   res.setHeader("Content-Type", "application/javascript");
-  res.setHeader("Cache-Control", "public, max-age=31536000"); // 1 year cache
+  res.setHeader("Cache-Control", "public, max-age=31536000");
   res.send(cachedMinifiedJS);
 });
 
@@ -172,17 +169,17 @@ app.get("/css/style.css", (req, res) => {
     }
   }
   res.setHeader("Content-Type", "text/css");
-  res.setHeader("Cache-Control", "public, max-age=31536000"); // 1 year cache
+  res.setHeader("Cache-Control", "public, max-age=31536000");
   res.send(cachedMinifiedCSS);
 });
 
 app.use(express.static(path.join(__dirname, "frontend", "public"), {
-  maxAge: '31536000000', // 1 year in milliseconds
+  maxAge: '31536000000',
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.html')) {
       res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
     } else {
-      res.setHeader('Cache-Control', 'public, max-age=31536000'); // 1 year cache
+      res.setHeader('Cache-Control', 'public, max-age=31536000');
     }
   }
 }));
@@ -199,28 +196,26 @@ app.get("/sitemap.xml", (req, res) => {
   return res.sendFile(path.join(__dirname, "sitemap.xml"));
 });
 
-app.get("/admin", (req, res) => {
-  return res.sendFile(path.join(__dirname, "frontend", "admin.html"));
+app.get("/", (req, res) => {
+  return res.sendFile("frontend/index.html", { root: process.cwd() });
 });
 
-
+app.get("/admin", (req, res) => {
+  return res.sendFile("frontend/admin.html", { root: process.cwd() });
+});
 
 app.use((req, res, next) => {
-  if (req.method !== "GET") {
-    return next();
-  }
-  const host = req.hostname.toLowerCase();
+  if (req.method !== "GET") return next();
+  const host = String(req.hostname || "").toLowerCase();
   if (host.startsWith("admin.")) {
-    return res.sendFile(path.join(__dirname, "frontend", "admin.html"));
+    return res.sendFile("frontend/admin.html", { root: process.cwd() });
   }
-  return res.sendFile(path.join(__dirname, "frontend", "index.html"));
+  return res.sendFile("frontend/index.html", { root: process.cwd() });
 });
 
 app.use((err, req, res, next) => {
   console.error("[server] Unhandled request error:", err.message);
-  if (res.headersSent) {
-    return next(err);
-  }
+  if (res.headersSent) return next(err);
   return res.status(500).json({ error: "Internal server error" });
 });
 
