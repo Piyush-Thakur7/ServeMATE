@@ -5,62 +5,17 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@servemate.org";
 
 const causeData = [
   {
-    title: "Digital Learning for Rural Students",
-    description: "Equip village schools with modern digital tablets, internet connectivity, and interactive educational content.",
-    category: "education",
-    target_amount: 1000000,
-    impactPerRupee: "₹500 = 1 Digital Study Kit for a student",
-    image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop&q=80",
-    icon: "📚"
-  },
-  {
-    title: "Primary School Tuition Clinic",
-    description: "Support after-school learning centers providing free tuition, notebooks, and pencils to slum children.",
-    category: "education",
-    target_amount: 300000,
-    impactPerRupee: "₹250 = 1 month of tuition class support",
-    image: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80",
-    icon: "✏️"
-  },
-  {
-    title: "Medical Support for Underprivileged Families",
-    description: "Fund essential operations, chronic illnesses treatment, and doctor fees for low-income households.",
-    category: "healthcare",
-    target_amount: 1000000,
-    impactPerRupee: "₹1000 = 1 life-saving medical consultation",
-    image: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=600&auto=format&fit=crop&q=80",
-    icon: "🏥"
-  },
-  {
-    title: "Mobile Health Camps in Remote Villages",
-    description: "Deploy mobile vans with doctors, nurses, and free medicines to remote, healthcare-deprived areas.",
-    category: "healthcare",
-    target_amount: 1200000,
-    impactPerRupee: "₹200 = 1 basic health checkup & medicine pack",
-    image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80",
-    icon: "🚐"
-  },
-  {
-    title: "10000 Meals Initiative",
-    description: "Cook and deliver hygienic, fresh, nutritious warm meals to daily wage laborers and homeless shelters.",
-    category: "food",
+    title: "10,000 Hot Meals for Urban Slum Families",
+    description: "Cook and deliver fresh, nutritious warm meals to daily wage laborers, homeless shelters, and slum families.",
+    category: "hunger",
     target_amount: 1000000,
     impactPerRupee: "₹20 = 1 hot nutritious meal served",
     image: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80",
     icon: "🍲"
   },
   {
-    title: "Feed the Homeless Daily Drive",
-    description: "Provide monthly grocery survival kits (rice, pulses, oil, spices) to families living under flyovers.",
-    category: "food",
-    target_amount: 150000,
-    impactPerRupee: "₹300 = 1 grocery kit containing basic dry rations",
-    image: "https://images.unsplash.com/photo-1593113630400-ea4288922497?w=600&auto=format&fit=crop&q=80",
-    icon: "🍛"
-  },
-  {
-    title: "Plant 50000 Trees Mission",
-    description: "Plant native tree saplings across deforested urban and rural zones to fight air pollution and heatwaves.",
+    title: "Plant 50,000 Native Trees Mission",
+    description: "Plant native tree saplings across deforested urban and rural zones to combat air pollution and heatwaves.",
     category: "environment",
     target_amount: 1000000,
     impactPerRupee: "₹50 = 1 native tree sapling planted & nurtured",
@@ -68,36 +23,36 @@ const causeData = [
     icon: "🌳"
   },
   {
-    title: "Urban Green Spaces Development",
-    description: "Restore dried lakes and construct green community micro-forests to restore local bio-diversity.",
-    category: "environment",
-    target_amount: 600000,
-    impactPerRupee: "₹100 = 1 sq ft of community green cover created",
-    image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?w=600&auto=format&fit=crop&q=80",
-    icon: "🌱"
-  },
-  {
-    title: "School Kit Distribution Program",
-    description: "Distribute premium school bags containing books, stationery, and steel water bottles to school kids.",
-    category: "children",
-    target_amount: 400000,
-    impactPerRupee: "₹350 = 1 complete school bag & kit distributed",
+    title: "Orphaned Children Education & Boarding Support",
+    description: "Provide shelter, school kits, textbooks, and full boarding support for orphaned and abandoned children.",
+    category: "orphan-child-support",
+    target_amount: 500000,
+    impactPerRupee: "₹350 = 1 complete school bag & learning kit",
     image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop&q=80",
-    icon: "🎒"
+    icon: "👶"
   },
   {
-    title: "Women's Skill Development Initiative",
-    description: "Empower women through professional vocational training in sewing, handicrafts, and computer basics.",
-    category: "women-empowerment",
-    target_amount: 600000,
-    impactPerRupee: "₹1500 = 1 week of professional vocational training",
+    title: "Sewing Kits & Livelihood for Destitute Widows",
+    description: "Empower destitute widows through self-reliance sewing machine kits, skill training, and monthly stipends.",
+    category: "widow-support",
+    target_amount: 400000,
+    impactPerRupee: "₹1500 = 1 sewing kit & vocational training module",
     image: "https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=600&auto=format&fit=crop&q=80",
-    icon: "👩"
+    icon: "🤝"
   },
   {
-    title: "Emergency Flood Support",
-    description: "Distribute emergency survival packs containing tarpaulins, dry foods, water purification tablets, and first aid.",
-    category: "disaster-relief",
+    title: "Geriatric Care & Ration Kits for Abandoned Elders",
+    description: "Provide monthly dry ration kits, essential medicines, and geriatric care for abandoned senior citizens.",
+    category: "elder-support",
+    target_amount: 600000,
+    impactPerRupee: "₹300 = 1 monthly grocery & medicine kit",
+    image: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80",
+    icon: "👴"
+  },
+  {
+    title: "Emergency Flood Relief — Greater Noida (August 2026)",
+    description: "Distribute emergency survival packs containing tarpaulins, dry foods, water purification tablets, and medical kits to flood-affected families.",
+    category: "temporary",
     target_amount: 1500000,
     impactPerRupee: "₹500 = 1 emergency survival & hygiene kit",
     image: "https://images.unsplash.com/photo-1593113598332-cd288d649433?w=600&auto=format&fit=crop&q=80",

@@ -868,22 +868,38 @@ async function fetchStats() {
    CAUSES PAGE RENDER & ACTION
    ============================================================ */
 const causeEmojis = {
-  education: '📚', healthcare: '🏥', food: '🍲', environment: '🌳',
-  'animal-welfare': '🐾', 'disaster-relief': '🚨', 'women-empowerment': '👩', children: '👶', default: '💝'
+  hunger: '🍲',
+  environment: '🌳',
+  'orphan-child-support': '👶',
+  'widow-support': '🤝',
+  'elder-support': '👴',
+  temporary: '🚨',
+  default: '💚'
 };
 const causeTags = {
-  education: 'tag-teal', healthcare: 'tag-orange', food: 'tag-orange', environment: 'tag-green',
-  'animal-welfare': 'tag-blue', 'disaster-relief': 'tag-teal', 'women-empowerment': 'tag-purple', children: 'tag-purple', default: 'tag-blue'
+  hunger: 'tag',
+  environment: 'tag',
+  'orphan-child-support': 'tag',
+  'widow-support': 'tag',
+  'elder-support': 'tag',
+  temporary: 'tag-gold',
+  default: 'tag'
+};
+const causeCategoryLabels = {
+  hunger: 'Hunger',
+  environment: 'Environment',
+  'orphan-child-support': 'Orphan Child Support',
+  'widow-support': 'Widow Support',
+  'elder-support': 'Elder Support',
+  temporary: '🚨 Temporary / Urgent'
 };
 const causeImages = {
-  education: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop&q=80',
-  healthcare: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?w=600&auto=format&fit=crop&q=80',
-  food: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80',
+  hunger: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80',
   environment: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&auto=format&fit=crop&q=80',
-  'animal-welfare': 'https://images.unsplash.com/photo-1517849845537-4d257902454a?w=600&auto=format&fit=crop&q=80',
-  'disaster-relief': 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=600&auto=format&fit=crop&q=80',
-  'women-empowerment': 'https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=600&auto=format&fit=crop&q=80',
-  children: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80',
+  'orphan-child-support': 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600&auto=format&fit=crop&q=80',
+  'widow-support': 'https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=600&auto=format&fit=crop&q=80',
+  'elder-support': 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80',
+  temporary: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?w=600&auto=format&fit=crop&q=80',
   default: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80'
 };
 
@@ -902,16 +918,18 @@ function renderCauses(filter) {
   const container = document.getElementById('causesContainer');
   if (!container) return;
 
-  const filtered = filter === 'all' ? causesData : causesData.filter(c => c.category === filter);
+  const filtered = filter === 'all' ? causesData : causesData.filter(c => c.category === filter || (filter === 'temporary' && c.isTemporary));
 
   if (!filtered.length) {
-    container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><span class="empty-icon">📭</span><p>No verified causes found for this category.</p></div>';
+    container.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><span class="empty-icon">📭</span><p>No active causes found in this category.</p></div>';
     return;
   }
 
   container.innerHTML = filtered.map((c, i) => {
+    const isTemp = c.category === 'temporary' || c.isTemporary;
     const emoji = causeEmojis[c.category] || causeEmojis.default;
-    const tagClass = causeTags[c.category] || causeTags.default;
+    const tagClass = isTemp ? 'tag-gold' : (causeTags[c.category] || causeTags.default);
+    const categoryLabel = isTemp ? '🚨 Temporary / Urgent' : (causeCategoryLabels[c.category] || c.category);
     const raised = c.raised || 0;
     const goal = c.goal || 50000;
     const pct = Math.min((raised / goal) * 100, 100).toFixed(1);
@@ -929,7 +947,7 @@ function renderCauses(filter) {
         <div class="cause-body">
           <div class="cause-meta-row">
             <h3 class="cause-title">${esc(c.title)}</h3>
-            <span class="tag ${tagClass}">${esc(c.category)}</span>
+            <span class="tag ${tagClass}">${esc(categoryLabel)}</span>
           </div>
           <p class="cause-desc">${esc(c.description)}</p>
           <div style="font-size: 0.78rem; color: var(--text3); margin-bottom: 12px; font-weight: 600;">🏢 NGO: ${esc(ngoName)}</div>

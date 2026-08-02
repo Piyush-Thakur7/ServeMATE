@@ -277,14 +277,12 @@
           </div>
           <div class="filter-tabs">
             <button class="filter-btn active" onclick="filterCauses('all', this)">All Causes</button>
-            <button class="filter-btn" onclick="filterCauses('education', this)">📚 Education</button>
-            <button class="filter-btn" onclick="filterCauses('healthcare', this)">🏥 Healthcare</button>
-            <button class="filter-btn" onclick="filterCauses('food', this)">🍲 Food</button>
+            <button class="filter-btn" onclick="filterCauses('hunger', this)">🍲 Hunger</button>
             <button class="filter-btn" onclick="filterCauses('environment', this)">🌳 Environment</button>
-            <button class="filter-btn" onclick="filterCauses('animal-welfare', this)">🐾 Animal Welfare</button>
-            <button class="filter-btn" onclick="filterCauses('disaster-relief', this)">🚨 Disaster Relief</button>
-            <button class="filter-btn" onclick="filterCauses('women-empowerment', this)">👩 Women Empowerment</button>
-            <button class="filter-btn" onclick="filterCauses('children', this)">👶 Children</button>
+            <button class="filter-btn" onclick="filterCauses('orphan-child-support', this)">👶 Orphan Child Support</button>
+            <button class="filter-btn" onclick="filterCauses('widow-support', this)">🤝 Widow Support</button>
+            <button class="filter-btn" onclick="filterCauses('elder-support', this)">👴 Elder Support</button>
+            <button class="filter-btn" onclick="filterCauses('temporary', this)" style="border:1px solid var(--gold); color:var(--gold);">🚨 Emergency / Temporary</button>
           </div>
           <div class="causes-grid" id="causesContainer">
             <!-- Dynamic causes list -->
@@ -1069,8 +1067,8 @@
               </div>
               
               <div>
-                <h3 style="color:var(--text); margin-bottom:10px;">2. Micro-Donation Pooling</h3>
-                <p>To maximize operational efficiency and reduce payment gateway overhead, ServeMATE employs a pooled funding model. Micro-donations (starting at ₹10) are accumulated into campaign buckets. Once the pool reaches a threshold (typically ₹10,000 to ₹20,000), funds are disbursed directly to the designated NGO for campaign execution.</p>
+                <h3 style="color:var(--text); margin-bottom:10px;">2. Campaign Funding & Release Mechanism</h3>
+                <p>ServeMATE operates on a per-campaign target model. Micro-donations (starting at ₹10) are accumulated towards each campaign's specific target goal over a 7-10 day collection window per NGO. Upon campaign completion (or window expiration), 97-98% of collected funds (after a 2-3% platform & payment processing fee) are released directly to the designated NGO for campaign execution.</p>
               </div>
               
               <div>
@@ -1130,8 +1128,8 @@
             <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--blue); tracking-wider: 0.1em; background: rgba(0,184,169,0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(0,184,169,0.3);">
               🏢 Verified NGO Partner Workspace
             </span>
-            <h1 style="font-family:'Space Grotesk',sans-serif; font-size: 2.2rem; font-weight:800; margin-top: 8px;" class="grad-text">NGO Management Portal</h1>
-            <p style="color:var(--text2); font-size:0.9rem;">Manage campaigns, submit field video proofs, and track 95% Escrow payouts.</p>
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size: 2.2rem; font-weight:800; margin-top: 8px;">NGO Management Portal</h1>
+            <p style="color:var(--text2); font-size:0.9rem;">Manage campaigns, submit field video proofs, and track 97-98% Direct NGO Escrow payouts.</p>
           </div>
           <div style="display: flex; gap: 12px; align-items: center;">
             <span style="font-size: 0.8rem; font-weight: 700; color: var(--green); background: rgba(16,185,129,0.15); padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(16,185,129,0.3);">
@@ -1145,7 +1143,7 @@
           <div class="glass" style="padding: 24px; border-radius: var(--radius);">
             <div style="font-size: 0.8rem; color: var(--text3); font-weight: 700; text-transform: uppercase;">Total Funds Pledged</div>
             <div style="font-size: 1.8rem; font-weight: 900; color: var(--green); margin-top: 4px;">₹38,450</div>
-            <div style="font-size: 0.75rem; color: var(--text2); margin-top: 4px;">95% Escrow Protected</div>
+            <div style="font-size: 0.75rem; color: var(--text2); margin-top: 4px;">97-98% Direct NGO Payout</div>
           </div>
           <div class="glass" style="padding: 24px; border-radius: var(--radius);">
             <div style="font-size: 0.8rem; color: var(--text3); font-weight: 700; text-transform: uppercase;">Active Campaigns</div>
@@ -1155,7 +1153,7 @@
           <div class="glass" style="padding: 24px; border-radius: var(--radius);">
             <div style="font-size: 0.8rem; color: var(--text3); font-weight: 700; text-transform: uppercase;">Verified SLA Proofs</div>
             <div style="font-size: 1.8rem; font-weight: 900; color: var(--gold); margin-top: 4px;">12 Videos</div>
-            <div style="font-size: 0.75rem; color: var(--text2); margin-top: 4px;">100% On-Time SLA</div>
+            <div style="font-size: 0.75rem; color: var(--text2); margin-top: 4px;">96-Hour SLA Compliant</div>
           </div>
         </div>
 
@@ -1164,7 +1162,7 @@
           
           <!-- LEFT: CREATE NEW CAMPAIGN FORM -->
           <div class="glass" style="padding: 32px; border-radius: var(--radius-lg);">
-            <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.3rem; font-weight:800; margin-bottom: 16px;" class="grad-text">
+            <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.3rem; font-weight:800; margin-bottom: 16px;">
               ➕ Launch New Cause Campaign
             </h3>
             <form id="ngoCreateCampaignForm" onsubmit="handleNgoCreateCampaign(event)" style="display:flex; flex-direction:column; gap:16px;">
@@ -1177,10 +1175,12 @@
                 <div>
                   <label style="font-size:0.8rem; font-weight:700; color:var(--text2); display:block; margin-bottom:6px;">Category</label>
                   <select id="ngoCampCategory" class="form-input" style="background:var(--bg2);">
-                    <option value="meals">Hunger Relief / Meals</option>
-                    <option value="trees">Trees / Environment</option>
-                    <option value="essentials">Emergency Essentials</option>
-                    <option value="ngo-support">Education & Stationery</option>
+                    <option value="hunger">Hunger</option>
+                    <option value="environment">Environment</option>
+                    <option value="orphan-child-support">Orphan Child Support</option>
+                    <option value="widow-support">Widow Support</option>
+                    <option value="elder-support">Elder Support</option>
+                    <option value="temporary">🚨 Temporary / Urgent Event Cause</option>
                   </select>
                 </div>
                 <div>
@@ -1219,17 +1219,17 @@
           <!-- RIGHT: LIVE FIELD VIDEO PROOF RECORDING ACTION CARD -->
           <div class="glass" style="padding: 32px; border-radius: var(--radius-lg); display: flex; flex-direction: column; justify-content: space-between;">
             <div>
-              <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(0,184,169,0.12); color:var(--blue); font-size:0.75rem; font-weight:800; padding:4px 12px; border-radius:20px; border:1px solid rgba(0,184,169,0.3); margin-bottom:12px;">
+              <div style="display:inline-flex; align-items:center; gap:6px; background:rgba(19,168,158,0.12); color:var(--teal); font-size:0.75rem; font-weight:800; padding:4px 12px; border-radius:20px; border:1px solid rgba(19,168,158,0.3); margin-bottom:12px;">
                 🔴 Real-Time GPS Anti-Fraud Video Engine
               </div>
-              <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.4rem; font-weight:800; margin-bottom: 12px;" class="grad-text-gt">
+              <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.4rem; font-weight:800; margin-bottom: 12px;">
                 📹 Submit Live Field Video Proof
               </h3>
               <p style="font-size:0.85rem; color:var(--text2); line-height:1.6; margin-bottom:20px;">
-                Record live ground volunteer footage using your rear camera. Footage is stamped with live GPS coordinates, volunteer ID, and an automated ISO timestamp before entering the 72-Hour SLA Admin Review Queue.
+                Record live ground volunteer footage using your rear camera. Footage is stamped with live GPS coordinates, volunteer ID, and an automated ISO timestamp before entering the 96-Hour (4 Days) SLA Admin Review Queue.
               </p>
 
-              <div style="background: rgba(5,8,14,0.6); border: 1px dashed rgba(0,184,169,0.3); border-radius: 16px; padding: 18px; margin-bottom: 24px;">
+              <div style="background: rgba(5,8,14,0.6); border: 1px dashed rgba(19,168,158,0.3); border-radius: 16px; padding: 18px; margin-bottom: 24px;">
                 <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
                   <span style="font-size:0.78rem; font-weight:700; color:var(--text3);">VERIFICATION REQUIREMENTS</span>
                   <span style="font-size:0.72rem; color:var(--green); font-weight:800;">✓ Back Camera Active</span>
@@ -1242,7 +1242,7 @@
               </div>
             </div>
 
-            <button type="button" class="btn btn-primary btn-full" onclick="openNgoCameraModal()" style="background:var(--grad-gt); padding:16px; font-size:1rem; font-weight:800; box-shadow:0 10px 30px rgba(0,184,169,0.25);">
+            <button type="button" class="btn btn-accent btn-full" onclick="openNgoCameraModal()" style="padding:16px; font-size:1rem; font-weight:800;">
               📹 Submit Live Field Video Proof
             </button>
           </div>
@@ -1253,15 +1253,15 @@
         <div class="glass" style="padding: 32px; border-radius: var(--radius-lg); margin-top: 40px;">
           <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; margin-bottom: 20px;">
             <div>
-              <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.3rem; font-weight:800;" class="grad-text">
+              <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.3rem; font-weight:800;">
                 📋 NGO Submitted Work History & Proof SLA Queue
               </h3>
               <p style="font-size:0.82rem; color:var(--text2); margin-top:4px;">
-                Track field video proofs pending admin audit and 95% Escrow disburse authorization.
+                Track field video proofs pending admin audit and 97-98% Direct NGO Escrow disburse authorization.
               </p>
             </div>
-            <span style="font-size:0.78rem; font-weight:700; color:var(--blue); background:rgba(0,184,169,0.15); padding:6px 14px; border-radius:20px; border:1px solid rgba(0,184,169,0.3);">
-              ⏱️ 72-Hour SLA Timer Active
+            <span style="font-size:0.78rem; font-weight:700; color:var(--teal); background:rgba(19,168,158,0.15); padding:6px 14px; border-radius:20px; border:1px solid rgba(19,168,158,0.3);">
+              ⏱️ 96-Hour (4 Days) SLA Active
             </span>
           </div>
 
@@ -1286,15 +1286,15 @@
                   <td style="padding:16px 12px; font-family:monospace; color:var(--green);">
                     📍 28.4744° N, 77.5040° E
                   </td>
-                  <td style="padding:16px 12px; font-family:monospace; color:var(--blue);">VOL-8821</td>
+                  <td style="padding:16px 12px; font-family:monospace; color:var(--teal);">VOL-8821</td>
                   <td style="padding:16px 12px; font-size:0.78rem;">2026-07-28 14:30 IST</td>
                   <td style="padding:16px 12px;">
-                    <span style="font-size:0.75rem; font-weight:800; color:var(--orange); background:rgba(249,115,22,0.15); padding:4px 10px; border-radius:12px; border:1px solid rgba(249,115,22,0.3);">
+                    <span style="font-size:0.75rem; font-weight:800; color:var(--gold); background:rgba(201,162,39,0.15); padding:4px 10px; border-radius:12px; border:1px solid rgba(201,162,39,0.3);">
                       ⏳ Pending Admin Review
                     </span>
                   </td>
                   <td style="padding:16px 12px; text-align:right; font-family:monospace; font-weight:700; color:var(--gold);">
-                    ⏱️ 71h 54m remaining
+                    ⏱️ 95h 54m remaining
                   </td>
                 </tr>
               </tbody>
@@ -1312,7 +1312,7 @@
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="font-size:1.4rem;">📹</span>
             <div>
-              <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.25rem; font-weight:800; margin:0;" class="grad-text-gt">
+              <h3 style="font-family:'Space Grotesk',sans-serif; font-size:1.25rem; font-weight:800; margin:0;">
                 Live Field Video Proof Recorder
               </h3>
               <p style="font-size:0.78rem; color:var(--text2); margin:2px 0 0 0;">
@@ -1382,7 +1382,7 @@
 
           <!-- Upload Progress Indicator -->
           <div id="ngoUploadProgressContainer" class="hidden" style="margin-top:4px;">
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--blue); font-weight:700; margin-bottom:4px;">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--teal); font-weight:700; margin-bottom:4px;">
               <span>Uploading Video & Geotag Payload...</span>
               <span id="ngoUploadProgressPercent">0%</span>
             </div>
@@ -1393,7 +1393,7 @@
 
           <div style="display:flex; gap:12px; margin-top:8px;">
             <button type="button" onclick="closeNgoCameraModal()" class="btn btn-ghost" style="flex:1;">Cancel</button>
-            <button type="submit" id="btnSubmitProof" class="btn btn-primary" style="flex:2; background:var(--grad-gt);" disabled>
+            <button type="submit" id="btnSubmitProof" class="btn btn-accent" style="flex:2;" disabled>
               Upload & Submit to Admin Queue
             </button>
           </div>
@@ -1406,14 +1406,14 @@
       <section style="padding: 40px 24px; max-width: 1200px; margin: 0 auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px;">
           <div>
-            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--orange); tracking-wider: 0.1em; background: rgba(249,115,22,0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(249,115,22,0.3);">
+            <span style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--navy); tracking-wider: 0.1em; background: rgba(11,37,69,0.1); padding: 4px 12px; border-radius: 20px; border: 1px solid rgba(11,37,69,0.3);">
               🛡️ Executive Platform Control Desk
             </span>
-            <h1 style="font-family:'Space Grotesk',sans-serif; font-size: 2.2rem; font-weight:800; margin-top: 8px;" class="grad-text-or">Platform Admin Portal</h1>
-            <p style="color:var(--text2); font-size:0.9rem;">Audit Darpan NGO onboardings, review geotagged video proofs, and authorize 95% escrow payouts.</p>
+            <h1 style="font-family:'Space Grotesk',sans-serif; font-size: 2.2rem; font-weight:800; margin-top: 8px;">Platform Admin Portal</h1>
+            <p style="color:var(--text2); font-size:0.9rem;">Audit Darpan NGO onboardings, review geotagged video proofs, and authorize 97-98% escrow payouts.</p>
           </div>
           <div style="display: flex; gap: 12px; align-items: center;">
-            <span style="font-size: 0.8rem; font-weight: 700; color: var(--blue); background: rgba(0,184,169,0.15); padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(0,184,169,0.3);">
+            <span style="font-size: 0.8rem; font-weight: 700; color: var(--teal); background: rgba(19,168,158,0.15); padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(19,168,158,0.3);">
               System Status: ONLINE (Sentry Monitored)
             </span>
           </div>
@@ -1433,19 +1433,19 @@
           </div>
           <div class="glass" style="padding: 20px; border-radius: var(--radius);">
             <div style="font-size: 0.75rem; color: var(--text3); font-weight: 700;">PROOF AUDIT QUEUE</div>
-            <div style="font-size: 1.7rem; font-weight: 900; color: var(--blue); margin-top: 4px;">1 Video</div>
-            <div style="font-size: 0.75rem; color: var(--text2);">72h SLA Verification</div>
+            <div style="font-size: 1.7rem; font-weight: 900; color: var(--teal); margin-top: 4px;">1 Video</div>
+            <div style="font-size: 0.75rem; color: var(--text2);">96h SLA Verification</div>
           </div>
           <div class="glass" style="padding: 20px; border-radius: var(--radius);">
-            <div style="font-size: 0.75rem; color: var(--text3); font-weight: 700;">95% ESCROW DISBURSED</div>
-            <div style="font-size: 1.7rem; font-weight: 900; color: var(--orange); margin-top: 4px;">₹36,527.50</div>
+            <div style="font-size: 0.75rem; color: var(--text3); font-weight: 700;">97-98% ESCROW DISBURSED</div>
+            <div style="font-size: 1.7rem; font-weight: 900; color: var(--teal); margin-top: 4px;">₹37,296.50</div>
             <div style="font-size: 0.75rem; color: var(--text2);">100% Proof Compliance</div>
           </div>
         </div>
 
         <!-- PENDING NGO VERIFICATION TABLE -->
         <div class="glass" style="padding: 28px; border-radius: var(--radius-lg); margin-bottom: 32px;">
-          <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.3rem; font-weight:800; margin-bottom: 16px;" class="grad-text">
+          <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.3rem; font-weight:800; margin-bottom: 16px;">
             🔍 NITI Aayog Darpan NGO Onboarding Verification
           </h3>
           
@@ -1463,7 +1463,7 @@
               <tbody style="color:var(--text2);">
                 <tr style="border-b:1px solid rgba(255,255,255,0.05);">
                   <td style="padding:16px 12px; font-weight:700; color:var(--text);">Navjeevan Educational Trust</td>
-                  <td style="padding:16px 12px; font-family:monospace; color:var(--blue);">DARPAN-UP-2024-912</td>
+                  <td style="padding:16px 12px; font-family:monospace; color:var(--teal);">DARPAN-UP-2024-912</td>
                   <td style="padding:16px 12px;"><span style="color:var(--green); font-weight:700;">Both (12A & 80G)</span></td>
                   <td style="padding:16px 12px;">Noida, Uttar Pradesh</td>
                   <td style="padding:16px 12px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
@@ -1473,7 +1473,7 @@
                 </tr>
                 <tr>
                   <td style="padding:16px 12px; font-weight:700; color:var(--text);">Paws & Claws Animal Welfare</td>
-                  <td style="padding:16px 12px; font-family:monospace; color:var(--blue);">DARPAN-DEL-2023-441</td>
+                  <td style="padding:16px 12px; font-family:monospace; color:var(--teal);">DARPAN-DEL-2023-441</td>
                   <td style="padding:16px 12px;"><span style="color:var(--gold); font-weight:700;">80G Only</span></td>
                   <td style="padding:16px 12px;">New Delhi</td>
                   <td style="padding:16px 12px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
@@ -1488,16 +1488,31 @@
 
         <!-- PROOF VIDEO SLA AUDIT & DISBURSAL DESK -->
         <div class="glass" style="padding: 28px; border-radius: var(--radius-lg);">
-          <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.3rem; font-weight:800; margin-bottom: 16px;" class="grad-text-gt">
-            🎥 Video SLA Proof Audit & 95% Escrow Disbursal
+          <h3 style="font-family:'Space Grotesk',sans-serif; font-size: 1.3rem; font-weight:800; margin-bottom: 16px;">
+            🎥 Video SLA Proof Audit & 97-98% Direct Escrow Disbursal
           </h3>
 
           <div style="display:grid; grid-template-columns: 1fr 1.5fr; gap:24px; align-items:center;">
-            <!-- VIDEO PLAYER PREVIEW -->
-            <div style="background:#05080E; border:1px solid var(--border); border-radius:16px; overflow:hidden; position:relative;">
-              <iframe width="100%" height="220" src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Proof Video" frameborder="0" allowfullscreen></iframe>
-              <div style="padding:12px; font-size:0.78rem; color:var(--text2); background:rgba(0,0,0,0.8);">
-                <strong style="color:var(--text);">Classroom Stationery Delivery</strong> (Jan Seva Foundation)
+            <!-- BRANDED PROOF VIDEO PREVIEW CARD (REPLACING YOUTUBE dQw4w9WgXcQ) -->
+            <div style="background:#081B33; border:1px solid var(--border); border-radius:16px; overflow:hidden; position:relative; min-height:220px; display:flex; flex-direction:column; justify-content:space-between; padding:16px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; z-index:2;">
+                <span style="background:rgba(239,68,68,0.2); color:#EF4444; font-size:0.72rem; font-weight:800; padding:4px 8px; border-radius:6px; border:1px solid rgba(239,68,68,0.4); display:inline-flex; align-items:center; gap:4px;">
+                  ● LIVE VOLUNTEER PROOF
+                </span>
+                <span style="font-size:0.72rem; font-family:monospace; color:var(--teal);">GPS VERIFIED</span>
+              </div>
+
+              <div style="text-align:center; padding:20px 0; z-index:2;">
+                <div style="width:50px; height:50px; border-radius:50%; background:rgba(19,168,158,0.2); border:2px solid var(--teal); display:inline-flex; align-items:center; justify-content:center; cursor:pointer;" onclick="alert('Playing Geotagged Field Volunteer Clip (Verified HD Audio & Video)')">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="#13A89E"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                </div>
+                <div style="font-size:0.82rem; font-weight:700; margin-top:8px; color:var(--text);">Classroom Textbook & Stationery Delivery</div>
+                <div style="font-size:0.72rem; color:var(--text2);">Jan Seva Foundation • Greater Noida Shelter</div>
+              </div>
+
+              <div style="padding:8px 12px; font-size:0.72rem; color:var(--text2); background:rgba(5,8,14,0.85); border-radius:8px; display:flex; justify-content:space-between; z-index:2;">
+                <span>📍 28.4744° N, 77.5040° E</span>
+                <span>VOL-8821</span>
               </div>
             </div>
 
@@ -1510,16 +1525,16 @@
               
               <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px; border:1px solid var(--border);">
                 <span style="font-size:0.8rem; color:var(--text2);">Field Volunteer ID:</span>
-                <span style="font-size:0.8rem; color:var(--blue); font-weight:700;">GLB-VOL-9941 (Verified)</span>
+                <span style="font-size:0.8rem; color:var(--teal); font-weight:700;">GLB-VOL-9941 (Verified)</span>
               </div>
 
               <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:12px 16px; border-radius:12px; border:1px solid var(--border);">
-                <span style="font-size:0.8rem; color:var(--text2);">72-Hour SLA Timer:</span>
-                <span style="font-size:0.8rem; color:var(--gold); font-weight:700;">⏱️ 71h 42m Remaining (Compliant)</span>
+                <span style="font-size:0.8rem; color:var(--text2);">96-Hour SLA Timer:</span>
+                <span style="font-size:0.8rem; color:var(--gold); font-weight:700;">⏱️ 95h 42m Remaining (Compliant)</span>
               </div>
 
-              <button class="btn btn-primary btn-full" onclick="alert('Proof Approved! 95% Escrow funds (₹19.00 per ₹20 micro-give) disbursed to Jan Seva Foundation bank account.')" style="margin-top:8px; background:var(--grad-gt);">
-                ✓ Approve Proof Video & Disburse 95% Escrow
+              <button class="btn btn-accent btn-full" onclick="alert('Proof Approved! 97-98% Direct NGO Escrow funds (₹19.40 per ₹20 micro-give) disbursed to Jan Seva Foundation bank account.')" style="margin-top:8px;">
+                ✓ Approve Proof Video & Disburse 97-98% Escrow
               </button>
             </div>
           </div>
