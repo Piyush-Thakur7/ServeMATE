@@ -357,13 +357,14 @@ router.get("/causes", async (req, res) => {
       return res.json(OFFICIAL_5_CAMPAIGNS);
     }
 
-    const filteredCamps = camps.filter(c => allowedCategories.includes(c.category));
-    if (!filteredCamps.length) {
-      return res.json(OFFICIAL_5_CAMPAIGNS);
-    }
+    const filteredCamps = camps.filter(c => allowedCategories.includes(c.category)).map(c => formatCampaign(c, c.ngo));
+    
+    // Ensure all 5 official MSME cause categories are present by merging missing defaults
+    const existingCats = new Set(filteredCamps.map(c => c.category));
+    const missingOfficial = OFFICIAL_5_CAMPAIGNS.filter(o => !existingCats.has(o.category));
+    const merged = [...filteredCamps, ...missingOfficial];
 
-    const formatted = filteredCamps.map(c => formatCampaign(c, c.ngo));
-    return res.json(formatted);
+    return res.json(merged);
   } catch (err) {
     return res.json(OFFICIAL_5_CAMPAIGNS);
   }
