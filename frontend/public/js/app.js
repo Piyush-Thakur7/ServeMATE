@@ -353,6 +353,24 @@ window.submitNgoFieldProof = async function(e) {
 };
 
 function navigate(path, pushState = true) {
+  // Route Guards for Role-Protected Portals
+  if (path === '/admin') {
+    const userRole = (currentUser && currentUser.role) || (localStorage.getItem('servemate_user_role'));
+    const isAdmin = (authToken && (userRole === 'admin' || (currentUser && currentUser.email === 'admin@servemate.org')));
+    if (!isAdmin) {
+      showToast('⚠️ Admin privileges required. Redirecting to login...', 'error');
+      history.replaceState({ path: '/login' }, '', '/login');
+      path = '/login';
+    }
+  } else if (path === '/ngo-dashboard') {
+    const isNgo = Boolean(ngoToken || (currentUser && (currentUser.role === 'ngo' || currentUser.role === 'admin')));
+    if (!isNgo) {
+      showToast('⚠️ NGO Partner access required. Redirecting to login...', 'error');
+      history.replaceState({ path: '/login' }, '', '/login');
+      path = '/login';
+    }
+  }
+
   let viewId = routes[path] || 'view-home';
 
   // Close mobile drawer if open
@@ -475,20 +493,30 @@ function updateNav() {
   if (!el) return;
 
   let html = '';
-  if (authToken && currentUser) {
-    const lvl = currentUser.level || 1;
-    const name = currentUser.name?.split(' ')[0] || 'User';
+  if (authToken && currentUser && (currentUser.role === 'admin' || currentUser.email === 'admin@servemate.org')) {
     html = `
-      <span class="user-greeting">Hi, ${name}</span>
-      <span class="level-badge" style="margin-left:6px;">⭐ Lv.${lvl}</span>
-      <a href="/dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">Dashboard</a>
+      <span class="user-greeting">🛡️ Admin</span>
+      <a href="/admin" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">🛡️ Admin Desk</a>
       <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else if (ngoToken && currentNgo) {
     const name = currentNgo.name?.split(' ')[0] || 'NGO';
     html = `
-      <span class="user-greeting">${name} Partner</span>
-      <a href="/ngo-dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">Dashboard</a>
+      <span class="user-greeting">🏢 ${name}</span>
+      <a href="/ngo-dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">NGO Workspace</a>
+      <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
+    `;
+  } else if (authToken && currentUser) {
+    const lvl = currentUser.level || 1;
+    const name = currentUser.name?.split(' ')[0] || 'User';
+    const isNgoRole = currentUser.role === 'ngo';
+    const portalBtn = isNgoRole 
+      ? `<a href="/ngo-dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">🏢 NGO Workspace</a>`
+      : `<a href="/dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">Dashboard</a>`;
+    html = `
+      <span class="user-greeting">Hi, ${name}</span>
+      <span class="level-badge" style="margin-left:6px;">⭐ Lv.${lvl}</span>
+      ${portalBtn}
       <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else {
