@@ -2735,6 +2735,35 @@ async function handlePhoneLoginVerifyOtp(e) {
       showToast(err.message, "error");
     }
   }
+function applyInitialTheme() {
+  const saved = localStorage.getItem('servemate_theme');
+  if (saved === 'dark') {
+    document.body.classList.remove('light-mode');
+    document.body.classList.add('dark-mode');
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = '☀️';
+  } else {
+    document.body.classList.add('light-mode');
+    document.body.classList.remove('dark-mode');
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = '🌙';
+  }
+}
+
+function toggleTheme() {
+  if (document.body.classList.contains('light-mode')) {
+    document.body.classList.remove('light-mode');
+    document.body.classList.add('dark-mode');
+    localStorage.setItem('servemate_theme', 'dark');
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = '☀️';
+  } else {
+    document.body.classList.add('light-mode');
+    document.body.classList.remove('dark-mode');
+    localStorage.setItem('servemate_theme', 'light');
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = '🌙';
+  }
 }
 
 /* ============================================================

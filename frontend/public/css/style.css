@@ -5,17 +5,17 @@
   --primary:     #0B2545;
   --accent:      #13A89E;
   --gold:        #C9A227;
-  --bg:          #081B33;
-  --bg2:         #0B2545;
-  --bg3:         #13325B;
-  --card:        rgba(255, 255, 255, 0.04);
-  --surface:     rgba(255, 255, 255, 0.05);
-  --surface2:    rgba(255, 255, 255, 0.08);
-  --border:      #E1E7F0;
-  --border2:     rgba(225, 231, 240, 0.22);
-  --text:        #FFFFFF;
-  --text2:       #9CA3AF;
-  --text3:       #6B7280;
+  --bg:          #F0F4F8;
+  --bg2:         #E2E8F0;
+  --bg3:         #CBD5E1;
+  --card:        #FFFFFF;
+  --surface:     #E4E9F5;
+  --surface2:    #D8E2F0;
+  --border:      #D1D9E6;
+  --border2:     #BCC8DC;
+  --text:        #0F172A;
+  --text2:       #475569;
+  --text3:       #64748B;
 
   --navy:        #0B2545;
   --teal:        #13A89E;
@@ -23,13 +23,6 @@
   --green:       #10B981;
   --orange:      #13A89E;
   --red:         #EF4444;
-
-  --grad-bp:     none;
-  --grad-gt:     none;
-  --grad-or:     none;
-  --grad-gold:   none;
-  --grad-silver: none;
-  --grad-bronze: none;
 
   --radius:      12px;
   --radius-lg:   16px;
@@ -42,12 +35,19 @@
 }
 
 /* ============================================================
-   LIGHT MODE STYLING SYSTEM
+   LIGHT MODE (DEFAULT) & DARK MODE SYSTEM
    ============================================================ */
+body {
+  background-color: #F0F4F8;
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
 body.light-mode {
   background-color: #F0F4F8;
-  background-image: none;
-  animation: none;
   --bg:        #F0F4F8;
   --bg2:       #E2E8F0;
   --bg3:       #CBD5E1;
@@ -59,9 +59,21 @@ body.light-mode {
   --text:      #0F172A;
   --text2:     #475569;
   --text3:     #64748B;
-  --blue-glow: none;
-  --green-glow: none;
-  --orange-glow: none;
+}
+
+body.dark-mode {
+  background-color: #081B33;
+  --bg:        #081B33;
+  --bg2:       #0B2545;
+  --bg3:       #13325B;
+  --card:      #0F223D;
+  --surface:   #132E52;
+  --surface2:  #1A3B66;
+  --border:    #1E477A;
+  --border2:   #285994;
+  --text:      #FFFFFF;
+  --text2:     #CBD5E1;
+  --text3:     #94A3B8;
 }
 
 body.light-mode .hero-mesh {
