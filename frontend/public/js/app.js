@@ -463,8 +463,25 @@ async function api(path, opts = {}) {
   const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
   if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
   else if (ngoToken) headers['Authorization'] = `Bearer ${ngoToken}`;
-  const res = await fetch(API + path, { ...opts, headers });
-  return res;
+  
+  const baseUrl = window.location.origin || '';
+  const targetUrl = path.startsWith('http') ? path : `${baseUrl}${path}`;
+  
+  try {
+    const res = await fetch(targetUrl, { ...opts, headers });
+    return res;
+  } catch (err) {
+    console.warn(`[API fetch warning] Request to ${targetUrl} failed:`, err.message);
+    if (!path.startsWith('http') && path.startsWith('/api')) {
+      try {
+        const fallbackRes = await fetch(path, { ...opts, headers });
+        return fallbackRes;
+      } catch (fallbackErr) {
+        throw new Error('Server connection error. Please check your network or refresh the page.');
+      }
+    }
+    throw err;
+  }
 }
 
 /* ============================================================

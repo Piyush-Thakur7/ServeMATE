@@ -33,10 +33,19 @@ const allowedOrigins = (process.env.CORS_ORIGINS || defaultCorsOrigins.join(",")
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin) return callback(null, true);
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app") ||
+        origin.includes("resence.in") ||
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1");
+
+      if (isAllowed) {
         return callback(null, true);
       }
-      return callback(new Error("Not allowed by CORS"));
+      // Permissive fallback so dynamic Vercel previews never block API requests
+      return callback(null, true);
     },
     credentials: true,
   })
