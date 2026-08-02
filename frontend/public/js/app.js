@@ -494,30 +494,35 @@ function updateNav() {
 
   let html = '';
   if (authToken && currentUser && (currentUser.role === 'admin' || currentUser.email === 'admin@servemate.org')) {
+    const lvl = currentUser.level || 1;
+    const name = currentUser.name?.split(' ')[0] || 'Admin';
     html = `
-      <span class="user-greeting">🛡️ Admin</span>
-      <a href="/admin" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">🛡️ Admin Desk</a>
-      <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
+      <span class="user-greeting">Hi, ${name}</span>
+      <span class="level-badge" style="margin-left:4px;">⭐ Lv.${lvl}</span>
+      <a href="/dashboard" class="btn btn-ghost" style="padding:8px 14px;font-size:0.85rem">User Dashboard</a>
+      <a href="/admin" class="btn btn-primary" style="padding:8px 14px;font-size:0.85rem">🛡️ Admin Desk</a>
+      <button class="btn btn-ghost" style="padding:8px 14px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else if (ngoToken && currentNgo) {
     const name = currentNgo.name?.split(' ')[0] || 'NGO';
     html = `
       <span class="user-greeting">🏢 ${name}</span>
-      <a href="/ngo-dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">NGO Workspace</a>
-      <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
+      <a href="/dashboard" class="btn btn-ghost" style="padding:8px 14px;font-size:0.85rem">User Dashboard</a>
+      <a href="/ngo-dashboard" class="btn btn-primary" style="padding:8px 14px;font-size:0.85rem">NGO Workspace</a>
+      <button class="btn btn-ghost" style="padding:8px 14px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else if (authToken && currentUser) {
     const lvl = currentUser.level || 1;
     const name = currentUser.name?.split(' ')[0] || 'User';
     const isNgoRole = currentUser.role === 'ngo';
     const portalBtn = isNgoRole 
-      ? `<a href="/ngo-dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">🏢 NGO Workspace</a>`
-      : `<a href="/dashboard" class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem">Dashboard</a>`;
+      ? `<a href="/ngo-dashboard" class="btn btn-ghost" style="padding:8px 14px;font-size:0.85rem">🏢 NGO Workspace</a>`
+      : `<a href="/dashboard" class="btn btn-primary" style="padding:8px 14px;font-size:0.85rem">Dashboard</a>`;
     html = `
       <span class="user-greeting">Hi, ${name}</span>
-      <span class="level-badge" style="margin-left:6px;">⭐ Lv.${lvl}</span>
+      <span class="level-badge" style="margin-left:4px;">⭐ Lv.${lvl}</span>
       ${portalBtn}
-      <button class="btn btn-ghost" style="padding:8px 16px;font-size:0.85rem" onclick="logout()">Logout</button>
+      <button class="btn btn-ghost" style="padding:8px 14px;font-size:0.85rem" onclick="logout()">Logout</button>
     `;
   } else {
     html = `
