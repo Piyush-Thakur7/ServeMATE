@@ -907,10 +907,18 @@ async function fetchCauses() {
   try {
     const res = await api('/api/causes');
     if (!res.ok) throw new Error('Causes fetch failed');
-    causesData = await res.json();
+    const fetched = await res.json();
+    const allowed = ['hunger', 'environment', 'orphan-child-support', 'widow-support', 'elder-support', 'temporary'];
+    if (Array.isArray(fetched) && fetched.length > 0) {
+      const valid = fetched.filter(c => allowed.includes(c.category));
+      if (valid.length > 0) {
+        causesData = valid;
+      }
+    }
     renderCauses('all');
   } catch (err) {
     console.error(err);
+    renderCauses('all');
   }
 }
 
