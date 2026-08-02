@@ -144,43 +144,37 @@ let cachedMinifiedJS = null;
 let cachedMinifiedCSS = null;
 
 app.get("/js/app.js", (req, res) => {
-  if (!cachedMinifiedJS || process.env.NODE_ENV === "development") {
-    try {
-      const raw = fs.readFileSync(path.join(__dirname, "frontend", "public", "js", "app.js"), "utf8");
-      cachedMinifiedJS = minifyJS(raw);
-    } catch (err) {
-      console.warn("[minify] Failed to minify app.js, serving raw file:", err.message);
-      return res.sendFile(path.join(__dirname, "frontend", "public", "js", "app.js"));
-    }
+  try {
+    const filePath = path.join(__dirname, "frontend", "public", "js", "app.js");
+    const raw = fs.readFileSync(filePath, "utf8");
+    res.setHeader("Content-Type", "application/javascript");
+    res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+    res.send(minifyJS(raw));
+  } catch (err) {
+    console.warn("[serve] Fallback serving raw app.js:", err.message);
+    res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+    return res.sendFile(path.join(__dirname, "frontend", "public", "js", "app.js"));
   }
-  res.setHeader("Content-Type", "application/javascript");
-  res.setHeader("Cache-Control", "public, max-age=31536000");
-  res.send(cachedMinifiedJS);
 });
 
 app.get("/css/style.css", (req, res) => {
-  if (!cachedMinifiedCSS || process.env.NODE_ENV === "development") {
-    try {
-      const raw = fs.readFileSync(path.join(__dirname, "frontend", "public", "css", "style.css"), "utf8");
-      cachedMinifiedCSS = minifyCSS(raw);
-    } catch (err) {
-      console.warn("[minify] Failed to minify style.css, serving raw file:", err.message);
-      return res.sendFile(path.join(__dirname, "frontend", "public", "css", "style.css"));
-    }
+  try {
+    const filePath = path.join(__dirname, "frontend", "public", "css", "style.css");
+    const raw = fs.readFileSync(filePath, "utf8");
+    res.setHeader("Content-Type", "text/css");
+    res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+    res.send(minifyCSS(raw));
+  } catch (err) {
+    console.warn("[serve] Fallback serving raw style.css:", err.message);
+    res.setHeader("Cache-Control", "public, max-age=0, must-revalidate");
+    return res.sendFile(path.join(__dirname, "frontend", "public", "css", "style.css"));
   }
-  res.setHeader("Content-Type", "text/css");
-  res.setHeader("Cache-Control", "public, max-age=31536000");
-  res.send(cachedMinifiedCSS);
 });
 
 app.use(express.static(path.join(__dirname, "frontend", "public"), {
-  maxAge: '31536000000',
+  maxAge: 0,
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
-    } else {
-      res.setHeader('Cache-Control', 'public, max-age=31536000');
-    }
+    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
   }
 }));
 
