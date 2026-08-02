@@ -2125,4 +2125,62 @@ body.light-mode select.form-input option {
   color: var(--green);
 }
 
+/* ============================================================
+   MOBILE OPTIMIZATION RESPONSIVE SYSTEM (@media max-width: 768px)
+   ============================================================ */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 1.85rem !important;
+    line-height: 1.25 !important;
+  }
+  .hero-sub {
+    font-size: 0.88rem !important;
+  }
+  #hero {
+    padding: 32px 16px 44px !important;
+  }
+  
+  .nav-logo .brand-text {
+    font-size: 1.25rem !important;
+  }
+  
+  .causes-grid, .ngo-grid, .dashboard-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+  
+  .filter-tabs {
+    display: flex !important;
+    overflow-x: auto !important;
+    padding-bottom: 8px !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filter-btn {
+    flex-shrink: 0 !important;
+    font-size: 0.78rem !important;
+    padding: 6px 12px !important;
+  }
+  
+  .dashboard-layout {
+    grid-template-columns: 1fr !important;
+    flex-direction: column !important;
+  }
+  
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .btn {
+    padding: 10px 16px !important;
+  }
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+  .container {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
 
