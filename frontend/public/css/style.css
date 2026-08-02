@@ -45,20 +45,20 @@
    LIGHT MODE STYLING SYSTEM
    ============================================================ */
 body.light-mode {
-  background-color: #FFFFFF;
+  background-color: #F0F4F8;
   background-image: none;
   animation: none;
-  --bg:        #FFFFFF;
-  --bg2:       #F8FAFC;
-  --bg3:       #E1E7F0;
+  --bg:        #F0F4F8;
+  --bg2:       #E2E8F0;
+  --bg3:       #CBD5E1;
   --card:      #FFFFFF;
-  --surface:   #F8FAFC;
-  --surface2:  #F1F5F9;
-  --border:    #E1E7F0;
-  --border2:   #CBD5E1;
-  --text:      #1B1B1F;
-  --text2:     #4B5563;
-  --text3:     #6B7280;
+  --surface:   #E4E9F5;
+  --surface2:  #D8E2F0;
+  --border:    #D1D9E6;
+  --border2:   #BCC8DC;
+  --text:      #0F172A;
+  --text2:     #475569;
+  --text3:     #64748B;
   --blue-glow: none;
   --green-glow: none;
   --orange-glow: none;
@@ -423,6 +423,10 @@ body.light-mode .nav-logo {
   text-align: center;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
+}
+body.light-mode #hero {
+  background: linear-gradient(180deg, #E5EBF2 0%, #F0F4F8 100%);
+  border-bottom: 1px solid #D1D9E6;
 }
 .hero-mesh, .hero-orbs, .orb {
   display: none !important;
