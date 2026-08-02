@@ -507,7 +507,7 @@ router.get("/transparency", async (req, res) => {
 router.post("/proofs", async (req, res) => {
   try {
     const { campaignId, title, description, latitude, longitude, timestamp, volunteerId, videoUrl } = req.body;
-    const slaExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+    const slaExpiresAt = new Date(Date.now() + 96 * 60 * 60 * 1000).toISOString();
     const uploadedAt = timestamp || new Date().toISOString();
 
     let proofRecord = {
