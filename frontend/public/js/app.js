@@ -2824,6 +2824,34 @@ async function init() {
   // Set up SPA client navigation immediately to paint content faster
   const path = window.location.pathname;
   navigate(path, false);
+
+  // Asynchronously load landing page stats
+  fetchStats();
+}
+
+async function fetchStats() {
+  try {
+    const res = await api('/api/stats');
+    if (!res.ok) return;
+    const data = await res.json();
+    
+    const heroDonated = document.getElementById('heroTotalDonated');
+    if (heroDonated && data.totalDonated) {
+      heroDonated.textContent = `₹${data.totalDonated.toLocaleString('en-IN')}`;
+    }
+    
+    const heroCauses = document.getElementById('heroVerifiedCauses');
+    if (heroCauses && data.verifiedNgos) {
+      heroCauses.textContent = `${data.verifiedNgos} Causes`;
+    }
+    
+    const heroProofs = document.getElementById('heroProofCount');
+    if (heroProofs && data.proofsUploaded) {
+      heroProofs.textContent = `${data.proofsUploaded} Videos`;
+    }
+  } catch (err) {
+    console.warn('[app.js] Stats fetch fallback active');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', init);
