@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   
   <!-- CSS Stylesheet -->
-  <link rel="stylesheet" href="/css/style.css?v=3.0.0" />
+  <link rel="stylesheet" href="/css/style.css?v=3.1.0" />
   
   <!-- Razorpay Checkout -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -1769,12 +1769,207 @@
         <li><a href="/contact" onclick="toggleMobileMenu()">Contact</a></li>
       </ul>
       <div id="mobileDrawerActions" class="drawer-actions">
+      </div>
+      <div class="modal-body">
+        <div class="donation-cause-name" id="donationCauseName">🌟 Plant Trees</div>
+        
+        <div class="amount-presets">
+          <button class="preset-btn" onclick="selectPreset(10, this)">₹10</button>
+          <button class="preset-btn" onclick="selectPreset(50, this)">₹50</button>
+          <button class="preset-btn" onclick="selectPreset(100, this)">₹100</button>
+          <button class="preset-btn" onclick="selectPreset(500, this)">₹500</button>
+        </div>
+
+        <div class="form-group" style="margin-bottom:20px;">
+          <label for="customAmount">Or Enter Custom Amount (₹)</label>
+          <input type="number" id="customAmount" class="form-input" placeholder="₹" min="10" oninput="onCustomAmount(this.value)" />
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+          <span style="font-weight:600; color:var(--text2);">Total Payment Amount:</span>
+          <div class="donation-amount-display" id="donationAmountDisplay" style="font-size:1.6rem; font-family:'Space Grotesk',sans-serif; font-weight:800;">
+            <span class="grad-text">₹0</span>
+          </div>
+        </div>
+
+        <button class="btn btn-donate" id="proceedPayBtn" onclick="proceedToPay()">💳 Proceed to Pay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. SUCCESS MODAL -->
+  <div id="successModal" class="modal-overlay hidden" onclick="handleOverlayClick(event, 'successModal')">
+    <div class="modal-box" style="max-width: 420px; text-align: center;">
+      <div class="modal-header" style="justify-content: flex-end; padding-bottom:0;">
+        <span class="modal-close" onclick="closeModal('successModal')">✕</span>
+      </div>
+      <div class="modal-body" style="padding-top:0;">
+        <div style="font-size:3.5rem; margin-bottom:16px;">🎉</div>
+        <h3 style="font-size:1.5rem; font-weight:800; margin-bottom:12px;" class="grad-text">Contribution Complete!</h3>
+        <p id="successSubText" style="font-size:0.95rem; color:var(--text2); margin-bottom:12px;">₹100 donated successfully. Level Up!</p>
+        <div id="successXP" style="font-size:1.2rem; font-family:'Space Grotesk',sans-serif; font-weight:800; margin-bottom:16px;"></div>
+        
+        <div id="successLevelInfo" style="font-size:0.8rem; color:var(--text3); margin-bottom:16px;"></div>
+        
+        <p id="successCauseMsg" style="font-size:0.88rem; line-height:1.6; margin-bottom:20px; color:var(--text2); text-align:left; background:var(--surface); padding:12px; border-radius:8px; border:1px solid var(--border);"></p>
+        
+        <div style="margin-bottom:24px;">
+          <div style="font-size:0.75rem; color:var(--text3); font-weight:700; text-transform:uppercase; margin-bottom:8px;">Earned Badges:</div>
+          <div id="successBadges" style="display:flex; justify-content:center; gap:8px; flex-wrap:wrap;"></div>
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="closeModal('successModal')">Awesome!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. CREATE COMMUNITY MODAL -->
+  <div id="createCommunityModal" class="modal-overlay hidden" onclick="handleOverlayClick(event, 'createCommunityModal')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Community</h3>
+        <span class="modal-close" onclick="closeModal('createCommunityModal')">✕</span>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="createCommunity(event)">
+          <div class="form-group" style="margin-bottom:12px;">
+            <label for="cName">Community Name</label>
+            <input type="text" id="cName" class="form-input" placeholder="AI Club GL Bajaj" required />
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label for="cCategory">Category</label>
+            <select id="cCategory" class="form-input" required>
+              <option value="College Club">College Club</option>
+              <option value="School Group">School Group</option>
+              <option value="Friend Circle">Friend Circle</option>
+              <option value="Open Community">Open Community</option>
+              <option value="Social Impact Group">Social Impact Group</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:12px;">
+            <label for="cLogo">Logo / Image URL</label>
+            <input type="url" id="cLogo" class="form-input" placeholder="https://..." />
+          </div>
+          <div class="form-group" style="margin-bottom:20px;">
+            <label for="cDesc">Description</label>
+            <textarea id="cDesc" class="form-input" placeholder="What is the goal of your community group?" required style="min-height:80px;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Create Group</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. NGO PROFILE MODAL -->
+  <div id="ngoProfileModal" class="modal-overlay hidden" onclick="handleOverlayClick(event, 'ngoProfileModal')">
+    <div class="modal-box" style="max-width: 540px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="npmName">NGO Name</h3>
+        <span class="modal-close" onclick="closeModal('ngoProfileModal')">✕</span>
+      </div>
+      <div class="modal-body" style="max-height: 75vh; overflow-y: auto;">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px;">
+          <div class="profile-avatar" id="npmIcon" style="margin:0; width:56px; height:56px; border-radius:12px; background:var(--grad-gt);">🏢</div>
+          <div>
+            <div style="font-size:0.82rem; color:var(--text3);" id="npmLoc">Location</div>
+            <div style="font-size:0.8rem; font-weight:700; color:var(--green);" id="npmArea">Area of work</div>
+          </div>
+        </div>
+
+        <p style="font-size:0.9rem; color:var(--text2); line-height:1.6; margin-bottom:20px;" id="npmMotive"></p>
+
+        <!-- Stats -->
+        <div style="padding:14px; background:var(--surface); border:1px solid var(--border); border-radius:10px; font-size:0.8rem; margin-bottom:20px;">
+          Registration Number: <strong id="npmReg">-</strong><br/>
+          Tax Exemption: <strong id="npmTax">-</strong>
+        </div>
+
+        <!-- Volunteers count and apply -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+          <div>
+            <div style="font-size:0.75rem; color:var(--text3); text-transform:uppercase;">Registered Volunteers</div>
+            <div style="font-size:1.4rem; font-weight:700; font-family:'Space Grotesk',sans-serif;" id="npmVolCount">0</div>
+          </div>
+          <button class="btn btn-primary" id="npmVolApplyBtn" style="padding:8px 16px; font-size:0.82rem;">🙋 Request to Volunteer</button>
+        </div>
+
+        <!-- Supported Communities list -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:0.75rem; color:var(--text3); font-weight:700; text-transform:uppercase; margin-bottom:10px;">Supporting Communities:</div>
+          <div id="npmCommunities" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+        </div>
+
+        <!-- Video proof section -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:0.75rem; color:var(--text3); font-weight:700; text-transform:uppercase; margin-bottom:10px;">Recent Verified Proofs:</div>
+          <div id="npmVideos"></div>
+        </div>
+
+        <!-- Image Gallery -->
+        <div>
+          <div style="font-size:0.75rem; color:var(--text3); font-weight:700; text-transform:uppercase; margin-bottom:10px;">Work Gallery:</div>
+          <div id="npmGallery"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. EDIT PROFILE MODAL -->
+  <div id="editProfileModal" class="modal-overlay hidden" onclick="handleOverlayClick(event, 'editProfileModal')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Profile</h3>
+        <span class="modal-close" onclick="closeModal('editProfileModal')">✕</span>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="editProfile(event)">
+          <div class="form-group" style="margin-bottom:12px;">
+            <label for="profAvatarInput">Avatar URL</label>
+            <input type="url" id="pAvatarUrlInput" class="form-input" placeholder="https://..." />
+          </div>
+          <div class="form-group" style="margin-bottom:20px;">
+            <label for="profBioInput">Biography / Motive</label>
+            <textarea id="pBioInput" class="form-input" placeholder="Draft a brief bio..." style="min-height:80px;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">Save Changes</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       TOAST CONTAINER
+       ============================================================ -->
+  <div id="toastContainer"></div>
+
+  <!-- MOBILE MENU DRAWER -->
+  <div id="mobileMenuDrawer" class="mobile-drawer hidden">
+    <div class="drawer-overlay" onclick="toggleMobileMenu()"></div>
+    <div class="drawer-content glass">
+      <div class="drawer-header">
+        <div style="display:flex; flex-direction:column; line-height:1;">
+          <span class="brand-text" style="font-family:'Space Grotesk',sans-serif; font-size:1.4rem; font-weight:800; letter-spacing:-1.5px;">Serve<span class="brand-mate" style="color:var(--teal);">Mate</span></span>
+          <span style="font-size:0.6rem; font-weight:700; color:var(--teal); letter-spacing:0.03em; margin-top:2px; text-transform:uppercase;">Small Act to Big Impact</span>
+        </div>
+        <button class="drawer-close" onclick="toggleMobileMenu()">✕</button>
+      </div>
+      <ul class="drawer-links">
+        <li><a href="/" onclick="toggleMobileMenu()">Home</a></li>
+        <li><a href="/about" onclick="toggleMobileMenu()">About</a></li>
+        <li><a href="/causes" onclick="toggleMobileMenu()">Causes</a></li>
+        <li><a href="/communities" onclick="toggleMobileMenu()">Communities</a></li>
+        <li><a href="/ngos" onclick="toggleMobileMenu()">NGOs</a></li>
+        <li><a href="/impact" onclick="toggleMobileMenu()">Impact Center</a></li>
+        <li><a href="/leaderboard" onclick="toggleMobileMenu()">Leaderboard</a></li>
+        <li><a href="/contact" onclick="toggleMobileMenu()">Contact</a></li>
+      </ul>
+      <div id="mobileDrawerActions" class="drawer-actions">
         <!-- Populated by JS -->
       </div>
     </div>
   </div>
 
   <!-- Client-side Application Scripts -->
-  <script src="/js/app.js?v=3.0.0"></script>
+  <script src="/js/app.js?v=3.1.0"></script>
 </body>
 </html>

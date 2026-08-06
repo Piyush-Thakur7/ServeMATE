@@ -203,6 +203,19 @@ input, textarea, select { font-family: inherit; outline: none; border: none; }
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius);
+  transition: all var(--trans);
+}
+body.light-mode .glass {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px rgba(11, 37, 69, 0.04), 0 10px 25px rgba(11, 37, 69, 0.05);
+  border-radius: var(--radius);
+  transition: all var(--trans);
+}
+body.light-mode .glass:hover {
+  border-color: #CBD5E1;
+  box-shadow: 0 4px 12px rgba(11, 37, 69, 0.06), 0 16px 40px rgba(11, 37, 69, 0.08);
+  transform: translateY(-2px);
 }
 .glass2 {
   background: var(--surface);
@@ -224,30 +237,32 @@ input, textarea, select { font-family: inherit; outline: none; border: none; }
   border: 1px solid transparent;
 }
 .btn-primary {
-  background: var(--navy);
+  background: linear-gradient(180deg, #0F2E54 0%, #0B2545 100%);
   color: #FFFFFF !important;
-  border: 1px solid var(--navy);
+  border: 1px solid #0B2545;
+  box-shadow: 0 2px 8px rgba(11, 37, 69, 0.18);
 }
 .btn-primary:hover {
   background: #081B33;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(11, 37, 69, 0.2);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(11, 37, 69, 0.28);
 }
 body.light-mode .btn-primary {
-  background: #0B2545;
+  background: linear-gradient(180deg, #0F2E54 0%, #0B2545 100%);
   color: #FFFFFF !important;
 }
 body.light-mode .btn-primary:hover {
   background: #081B33;
 }
 .btn-accent {
-  background: var(--teal);
+  background: linear-gradient(135deg, #13A89E 0%, #0D9488 100%);
   color: #FFFFFF !important;
-  border: 1px solid var(--teal);
+  border: 1px solid #0D9488;
 }
 .btn-accent:hover {
   background: #0E857D;
-  transform: translateY(-1px);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 14px rgba(19, 168, 158, 0.3);
 }
 .btn-ghost {
   background: transparent;
@@ -259,7 +274,7 @@ body.light-mode .btn-primary:hover {
   transform: translateY(-1px);
 }
 .btn-donate {
-  background: var(--navy);
+  background: linear-gradient(135deg, #13A89E 0%, #0D9488 100%);
   color: #FFFFFF !important;
   border-radius: var(--radius-sm);
   padding: 12px;
@@ -267,11 +282,13 @@ body.light-mode .btn-primary:hover {
   font-weight: 700;
   width: 100%;
   justify-content: center;
-  border: 1px solid var(--navy);
+  border: 1px solid #0D9488;
+  box-shadow: 0 2px 8px rgba(19, 168, 158, 0.25);
 }
 .btn-donate:hover {
-  background: #081B33;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #0E857D 0%, #0F766E 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(19, 168, 158, 0.35);
 }
 .btn-outline {
   border: 1px solid var(--navy);
@@ -868,7 +885,8 @@ body.light-mode .cause-gradient-overlay {
 .progress-fill {
   height: 100%;
   border-radius: 99px;
-  background: var(--grad-gt);
+  background: linear-gradient(90deg, #13A89E 0%, #10B981 100%);
+  box-shadow: 0 0 10px rgba(19, 168, 158, 0.35);
   transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .xp-badge {
