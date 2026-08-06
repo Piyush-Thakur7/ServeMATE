@@ -472,18 +472,19 @@ body.light-mode #hero {
   align-items: center;
   gap: 8px;
   padding: 8px 20px;
-  background: rgba(37, 99, 235, 0.1);
-  border: 1px solid rgba(37, 99, 235, 0.25);
+  background: rgba(19, 168, 158, 0.1);
+  border: 1px solid rgba(19, 168, 158, 0.3);
   border-radius: 50px;
   font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text);
-  margin-bottom: 28px;
+  font-weight: 700;
+  color: #0B2545;
+  margin-bottom: 24px;
 }
 .hero-eyebrow .dot {
-  width: 6px; height: 6px;
-  background: #2563EB;
+  width: 8px; height: 8px;
+  background: #13A89E;
   border-radius: 50%;
+  box-shadow: 0 0 8px rgba(19, 168, 158, 0.6);
   animation: pulse-glow 2s ease infinite;
 }
 .hero-title {
