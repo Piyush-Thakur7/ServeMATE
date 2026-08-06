@@ -13,7 +13,6 @@ let selectedCause = null;
 let selectedAmount = 0;
 let selectedCommunityId = null; // Associated community for donation
 
-let causesData = [];
 let communitiesData = [];
 let ngosData = [];
 
@@ -2750,6 +2749,8 @@ async function handlePhoneLoginVerifyOtp(e) {
       showToast(err.message, "error");
     }
   }
+}
+
 function applyInitialTheme() {
   const saved = localStorage.getItem('servemate_theme');
   if (saved === 'dark') {

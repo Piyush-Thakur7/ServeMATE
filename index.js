@@ -95,7 +95,10 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api", (req, res, next) => {
   const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
-  if (isSupabaseConfigured) {
+  const publicExempt = ["/health", "/config", "/stats", "/causes", "/communities", "/ngos", "/transparency", "/leaderboard"];
+  const isExempt = publicExempt.some(path => req.path === path || req.path.startsWith(path + "/") || req.path.startsWith(path + "?"));
+
+  if (isSupabaseConfigured || isExempt) {
     return next();
   }
 
