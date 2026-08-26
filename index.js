@@ -94,18 +94,12 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api", (req, res, next) => {
-  const isSupabaseConfigured = !!(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY);
-  const publicExempt = ["/health", "/config", "/stats", "/causes", "/communities", "/ngos", "/transparency", "/leaderboard"];
-  const isExempt = publicExempt.some(path => req.path === path || req.path.startsWith(path + "/") || req.path.startsWith(path + "?"));
-
-  if (isSupabaseConfigured || isExempt) {
-    return next();
-  }
-
-  return res.status(503).json({
-    error: "Database unavailable",
-    message: "The backend is running, but SUPABASE_URL or SUPABASE_ANON_KEY environment variables are missing.",
-  });
+  const url = process.env.SUPABASE_URL || '';
+  const isSupabaseConfigured = !!(url && !url.includes("your-project-ref") && process.env.SUPABASE_ANON_KEY && !process.env.SUPABASE_ANON_KEY.includes("your-supabase"));
+  
+  // Attach database configuration status to request context
+  req.isSupabaseConfigured = isSupabaseConfigured;
+  return next();
 });
 
 app.use("/api/auth", authRouter);
@@ -182,6 +176,13 @@ app.get("/css/style.css", (req, res) => {
     return res.sendFile(path.join(__dirname, "frontend", "public", "css", "style.css"));
   }
 });
+
+app.use(express.static(path.join(__dirname, "frontend"), {
+  maxAge: 0,
+  setHeaders: (res, filePath) => {
+    res.setHeader('Cache-Control', 'public, max-age=0, must-revalidate');
+  }
+}));
 
 app.use(express.static(path.join(__dirname, "frontend", "public"), {
   maxAge: 0,

@@ -143,6 +143,24 @@ router.post("/login", authLimiter, async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
+    const url = process.env.SUPABASE_URL || '';
+    const isSupabaseConfigured = !!(url && !url.includes("your-project-ref") && !url.includes("placeholder"));
+
+    if (!isSupabaseConfigured) {
+      const isAdmin = email === (process.env.ADMIN_EMAIL || "admin@servemate.org");
+      return res.json({
+        token: "mock-jwt-token-local-dev",
+        user: {
+          id: isAdmin ? "admin_1" : "user_1",
+          name: isAdmin ? "System Admin" : email.split("@")[0],
+          email: email,
+          role: isAdmin ? "admin" : "user",
+          xp: 150,
+          level: 2
+        }
+      });
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -163,7 +181,6 @@ router.post("/login", authLimiter, async (req, res) => {
         .single();
         
       if (ngo && !ngo.verified) {
-        // Sign out user locally on failure
         await supabase.auth.signOut();
         return res.status(403).json({ error: "NGO account is pending administrative approval" });
       }
